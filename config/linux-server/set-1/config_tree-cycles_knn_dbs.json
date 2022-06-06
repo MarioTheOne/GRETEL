@@ -1,10 +1,10 @@
 {
     "store_paths": [
-        {"name": "dataset_store_path", "address": "/NFSHOME/mprado/CODE/Themis/data/datasets/"},
-        {"name": "embedder_store_path", "address": "/NFSHOME/mprado/CODE/Themis/data/embedders/"},
-        {"name": "oracle_store_path", "address": "/NFSHOME/mprado/CODE/Themis/data/oracles/"},
-        {"name": "explainer_store_path", "address": "/NFSHOME/mprado/CODE/Themis/data/explainers/"},
-        {"name": "output_store_path", "address": "/NFSHOME/mprado/CODE/Themis/tmp/"}
+        {"name": "dataset_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/datasets/"},
+        {"name": "embedder_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/embedders/"},
+        {"name": "oracle_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/oracles/"},
+        {"name": "explainer_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/explainers/"},
+        {"name": "output_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/output/"}
     ],
     "datasets": [
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 300, "n_in_cycles": 200} }
