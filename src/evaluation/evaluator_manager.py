@@ -10,7 +10,12 @@ import jsonpickle
 
 class EvaluatorManager:
 
-    def __init__(self, config_file_path, run_number=0) -> None:
+    def __init__(self, config_file_path, run_number=0, 
+                    dataset_factory: DatasetFactory=None, 
+                    embedder_factory: EmbedderFactory=None, 
+                    oracle_factory: OracleFactory=None, 
+                    explainer_factory: ExplainerFactory=None, 
+                    evaluation_metric_factory: EvaluationMetricFactory=None) -> None:
         
         # Check that the path to the config file exists
         if not os.path.exists(config_file_path):
@@ -38,8 +43,13 @@ class EvaluatorManager:
                 if not os.path.exists(dataset_store_path):
                     os.mkdir(dataset_store_path)
 
-                # Create the factory with the corresponding store path
-                self._dataset_factory = DatasetFactory(dataset_store_path)
+                # If a factory was given use it, in other case create it
+                if dataset_factory is not None:
+                    self._dataset_factory = dataset_factory
+                    self._dataset_factory._data_store_path = dataset_store_path
+                else:
+                    # Create the factory with the corresponding store path
+                    self._dataset_factory = DatasetFactory(dataset_store_path)
 
             if(store_path['name'] == 'embedder_store_path'):
                 embedder_store_path = store_path['address']
@@ -48,8 +58,13 @@ class EvaluatorManager:
                 if not os.path.exists(embedder_store_path):
                     os.mkdir(embedder_store_path)
 
-                # Create the factory with the corresponding store path
-                self._embedder_factory = EmbedderFactory(embedder_store_path)
+                # If an embedder factory was given use it, in other case create it
+                if embedder_factory is not None:
+                    self._embedder_factory = embedder_factory
+                    self._embedder_factory._embedder_store_path = embedder_store_path
+                else:
+                    # Create the factory with the corresponding store path
+                    self._embedder_factory = EmbedderFactory(embedder_store_path)
 
             if(store_path['name'] == 'oracle_store_path'):
                 oracle_store_path = store_path['address']
@@ -58,8 +73,13 @@ class EvaluatorManager:
                 if not os.path.exists(oracle_store_path):
                     os.mkdir(oracle_store_path)
 
-                # Create the factory with the corresponding store path
-                self._oracle_factory = OracleFactory(oracle_store_path)
+                # If an oracle factory was given use it, in other case create it
+                if oracle_factory is not None:
+                    self._oracle_factory = oracle_factory
+                    self._oracle_factory._oracle_store_path = oracle_store_path
+                else:
+                    # Create the factory with the corresponding store path
+                    self._oracle_factory = OracleFactory(oracle_store_path)
 
             if(store_path['name'] == 'explainer_store_path'):
                 explainer_store_path = store_path['address']
@@ -68,8 +88,13 @@ class EvaluatorManager:
                 if not os.path.exists(explainer_store_path):
                     os.mkdir(explainer_store_path)
 
-                # Create the factory with the corresponding store path
-                self._explainer_factory = ExplainerFactory(explainer_store_path)
+                # If an explainer factory was given use it, in other case create it
+                if explainer_factory is not None:
+                    self._explainer_factory = explainer_factory
+                    self._explainer_factory._explainer_store_path = explainer_store_path
+                else:
+                    # Create the factory with the corresponding store path
+                    self._explainer_factory = ExplainerFactory(explainer_store_path)
 
             if(store_path['name'] == 'output_store_path'):
                 output_store_path = store_path['address']
@@ -88,7 +113,10 @@ class EvaluatorManager:
             raise ValueError('''Not all required store paths were provided''')
 
         # Create the evaluation metrics factory
-        self._evaluation_metric_factory = EvaluationMetricFactory()
+        if evaluation_metric_factory is not None:
+            self._evaluation_metric_factory = evaluation_metric_factory
+        else:
+            self._evaluation_metric_factory = EvaluationMetricFactory()
 
         self.datasets = []
         self.oracles = []
