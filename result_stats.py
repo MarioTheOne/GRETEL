@@ -1,7 +1,7 @@
 from src.data_analysis.data_analyzer import DataAnalyzer
 
 data_store_path = '/NFSHOME/mprado/CODE/GRETEL/data/datasets/'
-dtan = DataAnalyzer('/NFSHOME/mprado/CODE/GRETEL/output', '/NFSHOME/mprado/CODE/Themis/stats')
+dtan = DataAnalyzer('/NFSHOME/mprado/CODE/GRETEL/output', '/NFSHOME/mprado/CODE/GRETEL/stats')
 
 dtan.aggregate_data()
 dtan.aggregate_runs()

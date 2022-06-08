@@ -24,10 +24,10 @@ Lets see an small example of how to use the framework.
 
 First, we need to create a config json file with the option we want to use in our experiment. In the file config/CIKM/manager_config_example_all.json it is possible to find all options for each componnent of the framework.
 
-![Example GRETEL config file](/images/config_example.png "Example GRETEL config file")
+![Example GRETEL config file](/examples/images/config_example.png "Example GRETEL config file")
 
 Then to execute the experiment from the main the code would be something like this:
 
-![Example GRETEL main](/images/main_example.png "Example GRETEL main")
+![Example GRETEL main](/examples/images/main_example.png "Example GRETEL main")
 
 Once the result json files are generate it is possible to use the result_stats.py module to generate the tables with the results of the experiments. The tables will be generated as CSV and LaTex
