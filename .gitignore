@@ -131,3 +131,6 @@ dmypy.json
 .pyre/
 
 # datasets
+
+# videos
+.mp4
