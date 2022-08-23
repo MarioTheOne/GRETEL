@@ -1,9 +1,40 @@
 
 # GRETEL (Graph counteRfactual ExplanaTion EvaLuation framework)
 
+## Table of Contents
+
+* [General Information](#general-information)
+* [Citation Request](#citation-request)
+* [Requirements](#requirements)
+* [Resources Provided with the Framework](#resources-provided-with-the-framework)
+* [How to Use](#how-to-use)
+* [References](#references)
+
+## General Information:
 
 GRETEL [1] is an open source framework for Evaluating Graph Counerfactual Explanation Methods. It is implemented using the Object Oriented paradigm and the Factory Method design pattern. Our main goal is to create a generic plataform that allows the researchers to speed up the proccess of developing and testing new Graph Counterfactual Explanation Methods.
 
+
+## Citation Request:
+
+Please cite our paper if you use GRETEL in your experiments:
+
+Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactual Explanation Evaluation Framework. In Proceedings of the 31st ACM International Conference on Information and Knowledge Management (CIKM '22). Association for Computing Machinery, New York, NY, USA. https://doi.org/10.1145/3511808.3557608
+
+```
+@inproceedings{prado-romero2022gretel,
+  title={GRETEL: Graph Counterfactual Explanation Evaluation Framework},
+  author={Prado-Romero, Mario Alfonso and Stilo, Giovanni},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  isbn = {9781450392365},
+  year={2022},
+  doi = {10.1145/3511808.3557608},
+  booktitle={Proceedings of the 31st ACM International Conference on Information and Knowledge Management},
+  location = {Atlanta, GA, USA},
+  series = {CIKM '22}
+}
+```
 
 ## Requirements:
 
