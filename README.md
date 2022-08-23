@@ -1,5 +1,5 @@
 
-# GRETEL (Graph counteRfactual ExplanaTion EvaLuation framework)
+# GRETEL: Graph Counterfactual Explanation Evaluation Framework
 
 ## Table of Contents
 
