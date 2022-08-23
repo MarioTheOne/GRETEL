@@ -21,7 +21,7 @@ Please cite our paper if you use GRETEL in your experiments:
 
 Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactual Explanation Evaluation Framework. In Proceedings of the 31st ACM International Conference on Information and Knowledge Management (CIKM '22). Association for Computing Machinery, New York, NY, USA. https://doi.org/10.1145/3511808.3557608
 
-```
+```latex:
 @inproceedings{prado-romero2022gretel,
   title={GRETEL: Graph Counterfactual Explanation Evaluation Framework},
   author={Prado-Romero, Mario Alfonso and Stilo, Giovanni},
