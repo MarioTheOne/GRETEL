@@ -64,6 +64,7 @@ class DataAnalyzer():
                     aggregated_metrics = {}
                     for metric, values in metrics.items():
                         aggregated_metrics[metric] = np.mean(values)
+                        aggregated_metrics[metric + '-std'] = np.std(values)
 
                     self.data_dict[dataset][oracle][explainer] = aggregated_metrics
 

@@ -21,7 +21,7 @@ class ADHDDataset(Dataset):
         td_class_path = os.path.join(dataset_path, 'td')
 
         # Path to the instances of the "Autism Spectrum Disorder class"
-        adhd_class_path = os.path.join(dataset_path, 'adhd')
+        adhd_class_path = os.path.join(dataset_path, 'adhd_dataset')
         
         paths = [td_class_path, adhd_class_path]
 
