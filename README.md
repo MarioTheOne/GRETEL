@@ -97,11 +97,67 @@ Lets see an small example of how to use the framework.
 
 First, we need to create a config json file with the option we want to use in our experiment. In the file config/CIKM/manager_config_example_all.json it is possible to find all options for each componnent of the framework.
 
-![Example GRETEL config file](/examples/images/config_example.png "Example GRETEL config file")
+```json
+{
+    "store_paths": [
+        {"name": "dataset_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/datasets/"},
+        {"name": "embedder_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/embedders/"},
+        {"name": "oracle_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/oracles/"},
+        {"name": "explainer_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/explainers/"},
+        {"name": "output_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/output/"}
+    ],
+    "datasets": [
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 300, "n_in_cycles": 200} },
+        {"name": "tree-cycles-balanced", "parameters": {"n_inst_class": 250, "n_per_inst": 300, "n_in_cycles": 200} },
+        {"name": "tree-cycles-dummy", "parameters": {"n_inst_class": 250, "n_per_inst": 300, "n_in_cycles": 200} },
+        {"name": "autism", "parameters": {} },
+        {"name": "adhd", "parameters": {} },
+        {"name": "tree-infinity", "parameters": {"n_inst": 500, "n_per_inst": 300, "n_infinities": 10, "n_broken_infinities": 10}},
+        {"name": "bbbp", "parameters": {"force_fixed_nodes": true}},
+        {"name": "bbbp", "parameters": {"force_fixed_nodes": false}},
+        {"name": "hiv", "parameters": {"force_fixed_nodes": false}}
+    ],
+    "oracles": [
+        {"name": "knn", "parameters": { "embedder": {"name": "graph2vec", "parameters": {} }, "k": 5 } },
+        {"name": "svm", "parameters": { "embedder": {"name": "graph2vec", "parameters": {} } } },
+        {"name": "asd_custom_oracle", "parameters": {} },
+        {"name": "svm", "parameters": { "embedder": {"name": "rdk_fingerprint", "parameters": {} } } },
+        {"name": "gcn-tf", "parameters": {} }
+    ],
+    "explainers": [
+        {"name": "dce_search", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } },
+        {"name": "dce_search_oracleless", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } },
+        {"name": "bidirectional_oblivious_search", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } },
+        {"name": "bidirectional_data-driven_search", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } },
+        {"name": "maccs", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } }
+    ],
+    "evaluation_metrics": [ 
+        {"name": "graph_edit_distance", "parameters": {}},
+        {"name": "oracle_calls", "parameters": {}},
+        {"name": "correctness", "parameters": {}},
+        {"name": "sparsity", "parameters": {}},
+        {"name": "fidelity", "parameters": {}},
+        {"name": "oracle_accuracy", "parameters": {}}
+    ]
+}
+```
 
 Then to execute the experiment from the main the code would be something like this:
 
-![Example GRETEL main](/examples/images/main_example.png "Example GRETEL main")
+```python
+from src.evaluation.evaluator_manager import EvaluatorManager
+
+config_file_path = '/NFSHOME/mprado/CODE/Themis/config/linux-server/set-1/config_autism_custom-oracle_dce.json'
+
+print('Creating the evaluation manager.......................................................')
+eval_manager = EvaluatorManager(config_file_path, run_number=0)
+
+print('Creating the evaluators...................................................................')
+eval_manager.create_evaluators()
+
+print('Evaluating the explainers..................................................................')
+eval_manager.evaluate()
+```
 
 Once the result json files are generated it is possible to use the result_stats.py module to generate the tables with the results of the experiments. The tables will be generated as CSV and LaTex. In the examples folder there are some jupyter notebooks, and associated configuration files, that show how to use the framework for evaluating an explainer. Furthermore, they show how to extend GRETEL with new datasets and explainers.
 
