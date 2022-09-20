@@ -38,7 +38,7 @@ Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactua
 
 ## Requirements:
 
-#include "requirements.txt"
+https://github.com/MarioTheOne/GRETEL/blob/f8bfe42cbe7e6a638ce7d5e71a4ab3b9b2a0a630/requirements.txt
 
 ## Resources provided with the Framework:
 
