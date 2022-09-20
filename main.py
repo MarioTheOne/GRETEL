@@ -20,6 +20,8 @@ eval_manager.evaluate()
 
 
 
+
+
 #config_file_path = 'C:\\Work\\GNN\\Mine\\Themis\\config\\windows-local\\manager_config_lite.json'
 # config_file_path = '/NFSHOME/mprado/CODE/Themis/config/linux-server/manager_caliban_lite.json'
 
