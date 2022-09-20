@@ -38,17 +38,7 @@ Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactua
 
 ## Requirements:
 
-* scikit-learn
-* numpy 
-* scipy
-* pandas
-* tensorflow (for GCN)
-* jsonpickle (for serialization)
-* joblib
-* rdkit (Molecules)
-* exmol (maccs method)
-* networkx (Graphs)
-
+#include "requirements.txt"
 
 ## Resources provided with the Framework:
 
