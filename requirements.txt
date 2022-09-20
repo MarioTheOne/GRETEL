@@ -1,0 +1,10 @@
+scikit-learn
+numpy
+scipy
+pandas
+tensorflow
+jsonpickle
+joblib
+rdkit
+exmol
+networkx
