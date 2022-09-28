@@ -384,6 +384,8 @@ class DataDrivenBidirectionalSearchExplainer(BidirectionalHeuristicExplainerBase
             if y_hat==0:
                 g_0 = np.add(g_0,g)
             else:
+                print("here", g)
+                print("here2", g_1)
                 g_1 = np.add(g_1,g)
 
         # //////////////////////////////////////////////////

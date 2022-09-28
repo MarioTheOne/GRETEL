@@ -100,11 +100,11 @@ First, we need to create a config json file with the option we want to use in ou
 ```json
 {
     "store_paths": [
-        {"name": "dataset_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/datasets/"},
-        {"name": "embedder_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/embedders/"},
-        {"name": "oracle_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/oracles/"},
-        {"name": "explainer_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/explainers/"},
-        {"name": "output_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/output/"}
+        {"name": "dataset_store_path", "address": "./data/datasets/"},
+        {"name": "embedder_store_path", "address": "./data/embedders/"},
+        {"name": "oracle_store_path", "address": "./data/oracles/"},
+        {"name": "explainer_store_path", "address": "./data/explainers/"},
+        {"name": "output_store_path", "address": "./output/"}
     ],
     "datasets": [
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 300, "n_in_cycles": 200} },
@@ -147,7 +147,7 @@ Then to execute the experiment from the main the code would be something like th
 ```python
 from src.evaluation.evaluator_manager import EvaluatorManager
 
-config_file_path = '/NFSHOME/mprado/CODE/Themis/config/linux-server/set-1/config_autism_custom-oracle_dce.json'
+config_file_path = './config/linux-server/set-1/config_autism_custom-oracle_dce.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=0)
