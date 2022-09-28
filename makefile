@@ -9,12 +9,12 @@ clean:
 
 .PHONY: requirements
 requirements:
-	poetry export --without-hashes --format=requirements.txt > docker/requirements.txt
+	poetry export --without-hashes --format=requirements.txt > requirements.txt
 
 # docker       Builds the development image from scratch.
 .PHONY: docker
 docker: requirements
-	docker build -t gretel/gretel:latest docker/
+	docker build -t gretel/gretel:latest .
 
 # pull         Pull the development image.
 .PHONY: pull

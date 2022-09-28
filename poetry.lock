@@ -318,6 +318,7 @@ numpy = [
     {version = ">=1.17.3", markers = "platform_machine != \"aarch64\" and platform_machine != \"arm64\" and python_version < \"3.10\""},
     {version = ">=1.19.2", markers = "platform_machine == \"aarch64\" and python_version < \"3.10\""},
     {version = ">=1.20.0", markers = "platform_machine == \"arm64\" and python_version < \"3.10\""},
+    {version = ">=1.21.0", markers = "python_version >= \"3.10\""},
 ]
 python-dateutil = ">=2.7.3"
 pytz = ">=2017.3"
@@ -692,8 +693,8 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 
 [metadata]
 lock-version = "1.1"
-python-versions = "~3.7.1"
-content-hash = "1b43af2ed165bfb1858fd173a662f4c616404177fe4a1bc69b58ebe36876301a"
+python-versions = ">= 3.7.1 <3.11"
+content-hash = "1c92dd1b71073bbc4f33d28281f27052c14ff6adcce1922e6eefdd6b29e2cf12"
 
 [metadata.files]
 black = [

@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.6.1-gpu
+FROM tensorflow/tensorflow:latest-gpu
 
 ARG USERNAME=coder
 ARG USER_UID=1000
@@ -6,7 +6,7 @@ ARG USER_GID=$USER_UID
 
 # Create the user
 RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -p "$(openssl passwd -1 $USERNAME)"
 
 # Setup VS code compatibility for easy interaction with code inside container
 RUN mkdir -p /home/$USERNAME/.vscode-server/extensions \
@@ -14,10 +14,6 @@ RUN mkdir -p /home/$USERNAME/.vscode-server/extensions \
     && chown -R $USERNAME \
         /home/$USERNAME/.vscode-server \
         /home/$USERNAME/.vscode-server-insiders
-
-# for issues with nvidea repository signatures
-RUN apt-key del 7fa2af80
-RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
 
 RUN apt update \
  && apt install -y \
@@ -30,15 +26,19 @@ RUN apt update \
     git \
     make \
     gcc \
+    wget\
     build-essential \
-    python3-dev
-
-# Install project requirements
-COPY ./requirements.txt /home/$USERNAME/requirements.txt
-RUN python3 -m pip install -r /home/$USERNAME/requirements.txt
-
-USER $USERNAME
+    python3-dev \
+    python3-tk
 
 RUN mkdir -p /home/$USERNAME/.gretel/data && chown $USERNAME:$USERNAME /home/$USERNAME/.gretel
 VOLUME /home/$USERNAME/.gretel
 COPY ./ /home/$USERNAME/gretel
+
+# Install project requirements
+COPY ./requirements.txt /home/$USERNAME/requirements.txt
+RUN python3 -m pip install -r /home/$USERNAME/requirements.txt
+RUN python3 -m pip install poetry
+RUN python3 -m pip install IPython
+
+CMD ["/bin/bash"]

@@ -19,7 +19,7 @@ class EvaluatorManager:
         
         # Check that the path to the config file exists
         if not os.path.exists(config_file_path):
-            raise ValueError('''The provided config file does not exist''')
+            raise ValueError(f'''The provided config file does not exist. PATH: {config_file_path}''')
 
         # Read the config dictionary inside the config path
         with open(config_file_path, 'r') as config_reader:

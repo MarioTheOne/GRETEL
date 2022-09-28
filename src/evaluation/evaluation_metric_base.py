@@ -25,4 +25,4 @@ class EvaluationMetric(ABC):
     @abstractmethod
     def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None):
         pass
-
+    
