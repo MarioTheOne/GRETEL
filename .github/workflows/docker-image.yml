@@ -28,6 +28,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: gretel/gretel:dev-latest
+        tags: gretelxai/gretel:dev-latest
         context: "."
         file: "dockerfile"
