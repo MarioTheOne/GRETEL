@@ -137,7 +137,7 @@ Then to execute the experiment from the main the code would be something like th
 ```python
 from src.evaluation.evaluator_manager import EvaluatorManager
 
-config_file_path = '/NFSHOME/mprado/CODE/Themis/config/linux-server/set-1/config_autism_custom-oracle_dce.json'
+config_file_path = './config/linux-server/set-1/config_autism_custom-oracle_dce.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=0)

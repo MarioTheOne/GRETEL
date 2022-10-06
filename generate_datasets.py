@@ -2,8 +2,8 @@ from src.evaluation.evaluator_manager import EvaluatorManager
 import sys
 
 
-#config_file_path = 'C:\\Work\\GNN\\Mine\\Themis\\config\\windows-local\\manager_config_lite.json'
-config_file_path = '/NFSHOME/mprado/CODE/Themis/config/CIKM/manager_config_example_all.json'
+#config_file_path = './linux-server/manager_config_lite.json'
+config_file_path = './config/CIKM/manager_config_example_all.json'
 
 #config_file_path = sys.argv[1]
 runno= 0

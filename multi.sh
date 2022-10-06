@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=/NFSHOME/mprado/CODE/Themis/config/linux-server/set-5
+search_dir=./config/linux-server/set-5
 
 for i in {1..10}
 do
