@@ -6,6 +6,7 @@
 * [General Information](#general-information)
 * [Citation Request](#citation-request)
 * [Requirements](#requirements)
+* [Install](#installation)
 * [Resources Provided with the Framework](#resources-provided-with-the-framework)
 * [How to Use](#how-to-use)
 * [References](#references)
@@ -49,6 +50,25 @@ Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactua
 * exmol (maccs method)
 * networkx (Graphs)
 
+## Installation:
+The easiest way to get Gretel up and running with all the dependencies is to pull the development Docker image available in [Docker Hub](https://hub.docker.com/):
+
+```
+docker pull gretel/gretel:latest
+```
+
+The image is based on `tensorflow/tensorflow:latest-gpu` and it's GPU ready. In order to setup the container we recommend you to run:
+
+```
+docker-compose run gretel
+```
+
+For simplicity we provide several **makefile** rules for easy interaction with the Docker interface:
+
+ * `make docker` - builds the development image from scratch
+ * `make pull` - pull the development image
+ * `make push` - push the development image
+ * `make demo` - run the demo in the development image.
 
 ## Resources provided with the Framework:
 
@@ -100,11 +120,11 @@ First, we need to create a config json file with the option we want to use in ou
 ```json
 {
     "store_paths": [
-        {"name": "dataset_store_path", "address": "./data/datasets/"},
-        {"name": "embedder_store_path", "address": "./data/embedders/"},
-        {"name": "oracle_store_path", "address": "./data/oracles/"},
-        {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/"}
+        {"name": "dataset_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/datasets/"},
+        {"name": "embedder_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/embedders/"},
+        {"name": "oracle_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/oracles/"},
+        {"name": "explainer_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/data/explainers/"},
+        {"name": "output_store_path", "address": "/NFSHOME/mprado/CODE/GRETEL/output/"}
     ],
     "datasets": [
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 300, "n_in_cycles": 200} },
@@ -147,7 +167,7 @@ Then to execute the experiment from the main the code would be something like th
 ```python
 from src.evaluation.evaluator_manager import EvaluatorManager
 
-config_file_path = './config/linux-server/set-1/config_autism_custom-oracle_dce.json'
+config_file_path = '/NFSHOME/mprado/CODE/Themis/config/linux-server/set-1/config_autism_custom-oracle_dce.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=0)
