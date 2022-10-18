@@ -4,7 +4,7 @@ services:
   gretel:
     container_name: gretel
     hostname: gretel
-    image: gretel/gretel:latest
+    image: gretelxai/gretel:dev-latest
     ports:
       - "8501:8501"
       - "8000:8000"
