@@ -14,17 +14,17 @@ requirements:
 # docker       Builds the development image from scratch.
 .PHONY: docker
 docker: requirements
-	docker build -t gretel/gretel:dev-latest .
+	docker build -t gretelxai/gretel:dev-latest .
 
 # pull         Pull the development image.
 .PHONY: pull
 pull:
-	docker pull gretel/gretel:dev-latest
+	docker pull gretelxai/gretel:dev-latest
 
 # push         Push the development image to Docker Hub.
 .PHONY: push
 push:
-	docker push gretel/gretel:dev-latest
+	docker push gretelxai/gretel:dev-latest
 
 # shell        Opens a shell in the development image.
 .PHONY: shell
