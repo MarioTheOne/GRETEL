@@ -3,6 +3,7 @@ from src.oracle.oracle_base import Oracle
 
 from abc import ABC
 
+
 class Explainer(ABC):
 
     def __init__(self, id, config_dict=None) -> None:
@@ -27,5 +28,5 @@ class Explainer(ABC):
     def name(self, new_name):
         self._name = new_name
 
-    def explain(self, instance, oracle : Oracle, dataset : Dataset):
+    def explain(self, instance, oracle: Oracle, dataset: Dataset):
         pass
