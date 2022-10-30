@@ -3,12 +3,17 @@
 
 ## Table of Contents
 
+* [Team Information](#team-information)
 * [General Information](#general-information)
 * [Citation Request](#citation-request)
 * [Requirements](#requirements)
 * [Resources Provided with the Framework](#resources-provided-with-the-framework)
 * [How to Use](#how-to-use)
 * [References](#references)
+
+## Team Information:
+Prof. Giovanni Stilo [Pricipal Investigator]
+Mario Alfonso Prado Romero [Co-Pricipal Investigator]
 
 ## General Information:
 
