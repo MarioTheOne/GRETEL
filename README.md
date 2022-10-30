@@ -12,8 +12,8 @@
 * [References](#references)
 
 ## Team Information:
-Prof. Giovanni Stilo [Pricipal Investigator]
-Mario Alfonso Prado Romero [Co-Pricipal Investigator]
+* Prof. Giovanni Stilo [Pricipal Investigator]
+* Mario Alfonso Prado Romero [Co-Pricipal Investigator]
 
 ## General Information:
 
