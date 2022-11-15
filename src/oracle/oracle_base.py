@@ -47,7 +47,6 @@ class Oracle(ABC):
 
         return self._real_predict(self.embedd(data_instance))
     
-    
     def predict_list(self, dataset: Dataset, split_i=0):
 
         sptest = dataset.get_split_indices()[split_i]['test']

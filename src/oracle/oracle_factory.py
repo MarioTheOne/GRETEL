@@ -2,13 +2,15 @@ from abc import ABC
 
 from src.dataset.dataset_base import Dataset
 from src.oracle.embedder_base import Embedder
-from src.oracle.oracle_base import Oracle
+from src.oracle.embedder_factory import EmbedderFactory
 from src.oracle.embedder_graph2vec import Graph2vec
+from src.oracle.oracle_asd_custom import ASDCustomOracle
+from src.oracle.oracle_base import Oracle
+from src.oracle.oracle_gcn_synthetic_pt import PtGCNSyntheticOracle
+from src.oracle.oracle_gcn_tf import TfGCNOracle
 from src.oracle.oracle_knn import KnnOracle
 from src.oracle.oracle_svm import SvmOracle
-from src.oracle.embedder_factory import EmbedderFactory
-from src.oracle.oracle_asd_custom import ASDCustomOracle
-from src.oracle.oracle_gcn_tf import TfGCNOracle
+
 
 class OracleFactory(ABC):
 
@@ -50,6 +52,9 @@ class OracleFactory(ABC):
         elif oracle_name == 'gcn-tf':
             return self.get_gcn_tf(dataset, -1, oracle_dict)
 
+        elif oracle_name == 'gcn_synthetic_pt':
+            return self.get_gcn_synthetic_pt(dataset, -1, oracle_dict)
+
         # If the oracle name does not match any oracle in the factory
         else:
             raise ValueError('''The provided oracle name does not match any oracle provided by the factory''')
@@ -76,6 +81,13 @@ class OracleFactory(ABC):
 
     def get_gcn_tf(self, data: Dataset, split_index=-1, config_dict=None) -> Oracle:
         clf = TfGCNOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
+        self._oracle_id_counter +=1
+        clf.fit(data, split_index)
+        return clf
+
+    
+    def get_gcn_synthetic_pt(self, data: Dataset, split_index=-1, config_dict=None) -> Oracle:
+        clf = PtGCNSyntheticOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
         self._oracle_id_counter +=1
         clf.fit(data, split_index)
         return clf

@@ -1,15 +1,18 @@
+import os
+import pickle
+import time
+from abc import ABC
+
+import jsonpickle
+from scipy import rand
 from typing_extensions import Self
 
-from scipy import rand
 from src.dataset.dataset_base import Dataset
 from src.evaluation.evaluation_metric_base import EvaluationMetric
-from src.oracle.oracle_base import Oracle
 from src.explainer.explainer_base import Explainer
+from src.oracle.oracle_base import Oracle
+from src.utils.cfgnnexplainer.utils import safe_open
 
-import time
-import jsonpickle
-from abc import ABC
-import os
 
 class Evaluator(ABC):
 
@@ -49,11 +52,10 @@ class Evaluator(ABC):
         self._name = new_name
 
     def evaluate(self):
-
         for m in self._evaluation_metrics:
             self._results[m.name] = []
 
-        for inst in self._data.instances:
+        for inst in self._data.instances[:10]:
             
             start_time = time.time()
             counterfactual = self._explainer.explain(inst, self._oracle, self._data)
@@ -67,9 +69,14 @@ class Evaluator(ABC):
         self.write_results()
 
 
-    def _real_evaluate(self, instance, counterfactual):
+    def _real_evaluate(self, instance, counterfactual, oracle = None):
+        is_alt = False
+        if (oracle is None):
+            is_alt = True
+            oracle = self._oracle
+
         for metric in self._evaluation_metrics:
-            m_result = metric.evaluate(instance, counterfactual, self._oracle)
+            m_result = metric.evaluate(instance, counterfactual, oracle)
             self._results[metric.name].append(m_result)
 
 
@@ -88,6 +95,17 @@ class Evaluator(ABC):
 
         with open(results_uri, 'w') as results_writer:
             results_writer.write(jsonpickle.encode(self._results))
+
+        # alternative results
+        output_explainer_path = os.path.join(output_oracle_dataset_path, self._explainer.name)
+        if not os.path.exists(output_explainer_path):
+            os.mkdir(output_explainer_path)
+
+        results_uri = os.path.join(output_explainer_path, 'results_run-' + str(self._run_number) + '-ALT.json')
+        self._run_number += 1
+
+        with open(results_uri, 'w') as results_writer:
+            results_writer.write(jsonpickle.encode(self._alt_results))
 
         
 

@@ -1,25 +1,9 @@
-import sys
-import numpy as np
-from rdkit import Chem
-from rdkit.Chem import Draw
 
-import exmol
 import sys
-from rdkit.Chem import RDKFingerprint
-from rdkit.Chem import rdMolDescriptors
-import networkx as nx
-import matplotlib.pyplot as plt
 
-from src.dataset.data_instance_molecular import MolecularDataInstance
-from src.dataset.dataset_bbbp import BBBPDataset
-from src.dataset.dataset_factory import DatasetFactory
-from src.oracle.oracle_gcn_tf import TfGCNOracle
 from src.evaluation.evaluator_manager import EvaluatorManager
-from src.evaluation.evaluation_metric_smiles_levenshtein import SmilesLevenshteinMetric
-from src.data_analysis.data_analyzer import DataAnalyzer
 
-
-config_file_path = './config/linux-server/set-3/config_bbbp_gcn_dbs.json'
+config_file_path = './config/linux-server/set-1/config_syn1_gcn-synthetic-pt_cfgnnexplainer.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=0)

@@ -1,3 +1,4 @@
+from src.explainer.explainer_cfgnnexplainer import CFGNNExplainer
 from src.explainer.explainer_maccs import MACCSExplainer
 from src.explainer.explainer_base import Explainer
 from src.explainer.explainer_dce_search import DCESearchExplainer
@@ -73,6 +74,11 @@ class ExplainerFactory:
             # Returning the explainer
             return self.get_maccs_explainer(dist_metric, explainer_dict)
 
+        
+        elif explainer_name == 'cfgnnexplainer':
+            # Returning the explainer
+            return self.get_cfgnn_explainer(explainer_dict)
+
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
             by the factory''')
@@ -102,4 +108,10 @@ class ExplainerFactory:
         result = MACCSExplainer(self._explainer_id_counter, instance_distance_function, config_dict)
         self._explainer_id_counter += 1
         return result
+
+    def get_cfgnn_explainer(self, config_dict=None) -> Explainer:
+        result = CFGNNExplainer(self._explainer_id_counter, config_dict)
+        self._explainer_id_counter += 1
+        return result
+        
         

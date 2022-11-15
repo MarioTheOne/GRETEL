@@ -13,8 +13,6 @@ class DataInstance(ABC):
                  graph_label: int = None,
                  node_labels: dict = None,
                  edge_labels: dict = None,
-                 target_node: int = None,
-                 target_edge: int = None,
                  mcd: int = None) -> None:
         self._id = id
         self._name = name
@@ -27,8 +25,6 @@ class DataInstance(ABC):
         self._np_array = None
         self._n_node_types = 0
         self._max_n_nodes = 0
-        self._target_node = target_node
-        self._target_edge = target_edge
         super().__init__()
 
     @property
@@ -102,22 +98,6 @@ class DataInstance(ABC):
     @max_n_nodes.setter
     def max_n_nodes(self, new_val):
         self._max_n_nodes = new_val
-
-    @property
-    def target_node(self):
-        return self._target_node
-
-    @target_node.setter
-    def target_node(self, new_val):
-        self._target_node = new_val
-
-    @property
-    def target_edge(self):
-        return self._target_edge
-
-    @target_edge.setter
-    def target_edge(self, new_val):
-        self._target_edge = new_val
 
     @property
     def n_node_types(self):
