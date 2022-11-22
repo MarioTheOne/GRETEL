@@ -55,7 +55,7 @@ class Evaluator(ABC):
         for m in self._evaluation_metrics:
             self._results[m.name] = []
 
-        for inst in self._data.instances[:10]:
+        for inst in self._data.instances:
             
             start_time = time.time()
             counterfactual = self._explainer.explain(inst, self._oracle, self._data)
@@ -95,19 +95,4 @@ class Evaluator(ABC):
 
         with open(results_uri, 'w') as results_writer:
             results_writer.write(jsonpickle.encode(self._results))
-
-        # alternative results
-        output_explainer_path = os.path.join(output_oracle_dataset_path, self._explainer.name)
-        if not os.path.exists(output_explainer_path):
-            os.mkdir(output_explainer_path)
-
-        results_uri = os.path.join(output_explainer_path, 'results_run-' + str(self._run_number) + '-ALT.json')
-        self._run_number += 1
-
-        with open(results_uri, 'w') as results_writer:
-            results_writer.write(jsonpickle.encode(self._alt_results))
-
-        
-
-        
 

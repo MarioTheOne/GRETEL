@@ -170,7 +170,7 @@ class CFGNNExplainer(Explainer):
 	def explain(self, instance: SynDataInstance, oracle: PtGCNSyntheticOracle, dataset: Dataset):
 		np.random.seed(self._seed)
 		torch.manual_seed(self._seed)
-		# torch.autograd.set_detect_anomaly(True)
+		torch.autograd.set_detect_anomaly(True)
 
 		data = instance.graph_data
 		adj = torch.Tensor(data["adj"]).squeeze()
@@ -231,8 +231,6 @@ class CFGNNExplainer(Explainer):
 		counterfactual_instance.graph_data = new_data
 		counterfactual_instance.graph = self.generate_networkx(min_counterfactual, adj)
 
-		new_oracle = PtGCNSyntheticOracle(f"cf-gnnexplainer-{dataset.name}-{instance.id}", "./data/oracles/")
-		new_oracle.init_oracle_manually(f"cf-gnnexplainer-{dataset.name}-{instance.id}", explainer.cf_model, dataset)
 		return counterfactual_instance
 
 	def generate_networkx(self, counterfactual, original_adj):

@@ -3,22 +3,25 @@ import sys
 
 from src.evaluation.evaluator_manager import EvaluatorManager
 
-config_file_path = './config/linux-server/set-1/config_syn1_gcn-synthetic-pt_cfgnnexplainer.json'
+for ds in ["1", "4", "5"]:
+    print(f"Initializing test syn{ds}")
 
-print('Creating the evaluation manager.......................................................')
-eval_manager = EvaluatorManager(config_file_path, run_number=0)
+    config_file_path = f'./config/linux-server/set-1/config_syn{ds}_gcn-synthetic-pt_cfgnnexplainer.json'
 
-# print('Generating Synthetic Datasets...........................................................')
-# eval_manager.generate_synthetic_datasets()
+    print('Creating the evaluation manager.......................................................')
+    eval_manager = EvaluatorManager(config_file_path, run_number=0)
 
-# print('Training the oracles......................................................................')
-# eval_manager.train_oracles()
+    # print('Generating Synthetic Datasets...........................................................')
+    # eval_manager.generate_synthetic_datasets()
 
-print('Creating the evaluators...................................................................')
-eval_manager.create_evaluators()
+    # print('Training the oracles......................................................................')
+    # eval_manager.train_oracles() 
 
-print('Evaluating the explainers..................................................................')
-eval_manager.evaluate()
+    print('Creating the evaluators...................................................................')
+    eval_manager.create_evaluators()
+
+    print('Evaluating the explainers..................................................................')
+    eval_manager.evaluate()
 
 # <BEGIN> Generating stats tables ////////////////////////////////////////////////////////////////////////////////////////////////////
 # data_store_path = "C:\\Work\\GNN\\Mine\\Themis\\data\\datasets\\"
