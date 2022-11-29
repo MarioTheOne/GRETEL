@@ -12,8 +12,12 @@
 * [References](#references)
 
 ## Team Information:
-* Prof. Giovanni Stilo [Pricipal Investigator]
-* Mario Alfonso Prado Romero [Co-Pricipal Investigator]
+* Prof. Giovanni Stilo [Project Leader]
+* Mario Alfonso Prado Romero [Pricipal Investigator]
+* Bardh Prenkaj [Investigator]
+* Ernesto Estevanell-Valladares [Contributor]
+* Daniel Alejandro Valdés-Pérez [Contributor]
+* Alessandro Celi [Administrative Staff]
 
 ## General Information:
 
