@@ -13,7 +13,7 @@
 
 ## Team Information:
 * Prof. Giovanni Stilo [Project Leader]
-* Mario Alfonso Prado Romero [Pricipal Investigator]
+* Mario Alfonso Prado Romero [Principal Investigator]
 * Bardh Prenkaj [Investigator]
 * Ernesto Estevanell-Valladares [Contributor]
 * Daniel Alejandro Valdés-Pérez [Contributor]
