@@ -9,7 +9,7 @@ from abc import ABC
 class EnsembleExplainer(Explainer):
 
     def __init__(self, id, config_dict=None, weak_explainers=None) -> None:
-        super().__init__()
+        super().__init__(id)
         self._id = id
         self._name = 'ensemble_explainer'
         self._config_dict=config_dict

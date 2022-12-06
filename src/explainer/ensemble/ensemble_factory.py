@@ -15,12 +15,12 @@ class EnsembleFactory:
 
         explainer_name = ensemble_dict['name']
         explainer_parameters = ensemble_dict['parameters']
-        weak_explainers_names = ensemble_dict['weak_explainers']
+        weak_explainers_dicts = ensemble_dict['weak_explainers']
 
-        if (weak_explainers_names is None or len(weak_explainers_names) == 0):
+        if (weak_explainers_dicts is None or len(weak_explainers_dicts) == 0):
             raise ValueError('''Ensemble require a set of weak explainers''')
 
-        weak_explainers = [self._explainer_factory.get_explainer_by_name(name, metric_factory) for name in weak_explainers_names]
+        weak_explainers = [self._explainer_factory.get_explainer_by_name(dict, metric_factory) for dict in weak_explainers_dicts]
 
         if explainer_name == 'pe_ensemble':
             # Returning the explainer
