@@ -2,7 +2,7 @@ from src.dataset.dataset_hiv import HIVDataset
 from src.dataset.dataset_bbbp import BBBPDataset
 from src.dataset.dataset_adhd import ADHDDataset
 from src.dataset.dataset_asd import ASDDataset
-from src.dataset.dataset_syn import SynDataset
+from src.dataset.dataset_node import NodeDataset
 from src.dataset.dataset_base import Dataset
 from src.dataset.dataset_synthetic_generator import Synthetic_Data
 
@@ -387,7 +387,7 @@ class DatasetFactory():
         ds_name = 'syn'+syn_number
         ds_uri = os.path.join(self._data_store_path, ds_name)
 
-        result = SynDataset(self._dataset_id_counter, ds_name)
+        result = NodeDataset(self._dataset_id_counter, ds_name)
         self._dataset_id_counter+=1
 
         # ds_formatted_exists = os.path.exists(ds_formatted_uri)

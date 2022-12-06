@@ -5,8 +5,8 @@ import torch
 from dgl.data.utils import load_graphs
 
 from experimental.cfgnnexplainer.src.gcn import GCNSynthetic
-from src.dataset.dataset_syn import SynDataInstance, SynDataset
-from src.oracle.oracle_gcn_synthetic_pt import PtGCNSyntheticOracle
+from src.dataset.dataset_syn import NodeDataset, SynDataset
+from oracle.oracle_node import NodeOracle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='syn5')
@@ -37,7 +37,7 @@ for ds in ["1", "4", "5"]:
     dataset.name = "syn" + ds
 
     for i in idx_test:
-        dataset.instances.append(SynDataInstance(name = i.item(), graph_data=data, target_node=i.item()))
+        dataset.instances.append(NodeDataset(name = i.item(), graph_data=data, target_node=i.item()))
 
     dataset.write_data("/home/coder/gretel/data/datasets")
 

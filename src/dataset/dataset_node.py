@@ -1,24 +1,23 @@
+import os
+import pickle
 from ast import List
 
-from sqlalchemy import true
-import torch
-
-from src.dataset.data_instance_syn import SynDataInstance
-from src.dataset.dataset_base import Dataset
-
 import jsonpickle
-import pickle
 import networkx as nx
 import numpy as np
-import os
+import torch
+from sqlalchemy import true
+
+from src.dataset.data_instance_node import NodeDataInstance
+from src.dataset.dataset_base import Dataset
 
 
-class SynDataset(Dataset):
+class NodeDataset(Dataset):
 
     def __init__(self, id, config_dict=None) -> None:
         super().__init__(id, config_dict)
-        self.instances:List[SynDataInstance] = []
-        self.name = 'syn_dataset'
+        self.instances: List[NodeDataInstance] = []
+        self.name = 'node_dataset'
 
     def write_data(self, datasets_folder_path):
         # Creating a folder to contain the dataset
@@ -76,7 +75,7 @@ class SynDataset(Dataset):
         # Iterate over each instance and load them
         for line in f_gnames.readlines():
             target = int(line)
-            inst = SynDataInstance(name = line, id=target, graph_data=graph_data, target_node=target)
+            inst = NodeDataInstance(name = line, id=target, graph_data=graph_data, target_node=target)
             inst.graph = graph
             inst.node_labels = nx.get_node_attributes(graph, "label")
             result.append(inst)

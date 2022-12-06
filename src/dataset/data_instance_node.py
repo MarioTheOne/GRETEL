@@ -1,7 +1,7 @@
 from src.dataset.data_instance_base import DataInstance
 
 
-class TargetEdgeDataInstance(DataInstance):
+class NodeDataInstance(DataInstance):
     def __init__(self,
                  id=None,
                  name: str = None,
@@ -9,11 +9,11 @@ class TargetEdgeDataInstance(DataInstance):
                  graph_label: int = None,
                  node_labels: dict = None,
                  edge_labels: dict = None,
-                 target_edge: int = None,
+                 target_node: int = None,
                  mcd: int = None) -> None:
         super().__init__(id, name, graph_label, node_labels, edge_labels, mcd)
         self._graph_data = graph_data
-        self._target_edge = target_edge
+        self._target_node = target_node
 
     @property
     def max_n_nodes(self):
@@ -40,9 +40,10 @@ class TargetEdgeDataInstance(DataInstance):
         self._graph_data = new_val
 
     @property
-    def target_edge(self):
-        return self._target_edge
+    def target_node(self):
+        return self._target_node
 
-    @target_edge.setter
-    def target_edge(self, new_val):
-        self._target_edge = new_val
+    @target_node.setter
+    def target_node(self, new_val):
+        self._target_node = new_val
+

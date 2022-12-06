@@ -5,8 +5,9 @@ import networkx as nx
 import numpy as np
 import torch
 import torch.optim as optim
-from src.oracle.oracle_gcn_synthetic_pt import PtGCNSyntheticOracle
-from src.dataset.data_instance_syn import SynDataInstance
+from src.explainer.explainer_node import NodeExplainer
+from src.oracle.oracle_node_pt import NodeOracle
+from src.dataset.data_instance_node import NodeDataInstance
 from src.dataset.dataset_base import Dataset
 from src.explainer.explainer_base import Explainer
 from src.utils.cfgnnexplainer.utils import normalize_adj
@@ -23,7 +24,7 @@ class CFExplainer:
 	CF Explainer class, returns counterfactual subgraph
 	"""
 	def __init__(self, sub_adj, sub_feat, n_hid, dropout,
-				  sub_labels, y_pred_orig, num_classes, beta, device, oracle: PtGCNSyntheticOracle = None):
+				  sub_labels, y_pred_orig, num_classes, beta, device, oracle: NodeOracle = None):
 		super(CFExplainer, self).__init__()
 		self._name = 'cfgnnexplainer'
 		self.oracle = oracle
@@ -144,7 +145,7 @@ class CFExplainer:
 		return(cf_stats, loss_total.item())
 
 
-class CFGNNExplainer(Explainer):
+class CFGNNExplainer(NodeExplainer):
 
 	def __init__(self, id, config_dict=None) -> None:
 		super().__init__(id, config_dict)
@@ -167,7 +168,7 @@ class CFGNNExplainer(Explainer):
 		self._weight_decay = param_dict["weight_decay"] if enable_params and "weight_decay" in param_dict.keys() else 0.001
 
 
-	def explain(self, instance: SynDataInstance, oracle: PtGCNSyntheticOracle, dataset: Dataset):
+	def explain(self, instance: NodeDataInstance, oracle: NodeOracle, dataset: Dataset):
 		np.random.seed(self._seed)
 		torch.manual_seed(self._seed)
 		torch.autograd.set_detect_anomaly(True)
@@ -219,7 +220,7 @@ class CFGNNExplainer(Explainer):
 								   n_momentum=self._n_momentum, num_epochs=self._num_epochs)
 
 		#build the counterfactual datainstance
-		counterfactual_instance = SynDataInstance()
+		counterfactual_instance = NodeDataInstance()
 		counterfactual_instance.target_node = instance.target_node
 		new_data = data.copy()
 		if (len(min_counterfactual) > 0):
