@@ -46,3 +46,4 @@ class TargetNodeDataInstance(DataInstance):
     @target_node.setter
     def target_node(self, new_val):
         self._target_node = new_val
+

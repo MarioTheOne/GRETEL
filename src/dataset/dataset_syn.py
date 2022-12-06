@@ -108,3 +108,6 @@ class SynDataset(Dataset):
         nx.set_node_attributes(graph, n_labels, "label")
 
         return graph
+
+    def get_data_vic(self):
+        pass
