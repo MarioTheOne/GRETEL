@@ -1,10 +1,10 @@
 {
     "store_paths": [
-        {"name": "dataset_store_path", "address": "./data/datasets/"},
-        {"name": "embedder_store_path", "address": "./data/embedders/"},
-        {"name": "oracle_store_path", "address": "./data/oracles/"},
-        {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/"}
+        {"name": "dataset_store_path", "address": "/home/coder/gretel/data/datasets/"},
+        {"name": "embedder_store_path", "address": "/home/coder/gretel/data/embedders/"},
+        {"name": "oracle_store_path", "address": "/home/coder/gretel/data/oracles/"},
+        {"name": "explainer_store_path", "address": "/home/coder/gretel/data/explainers/"},
+        {"name": "output_store_path", "address": "/home/coder/gretel/output/"}
     ],
     "datasets": [
         {"name": "squares-triangles", "parameters": {"n_inst": 100} }
