@@ -121,10 +121,20 @@ class EvaluatorManager:
         self.datasets = []
         self.oracles = []
         self.explainers = []
-        self.evaluators = []
+        self._evaluators = []
         self.evaluation_metrics = []
 
     
+    @property
+    def evaluators(self):
+        return self._evaluators
+
+
+    @evaluators.setter
+    def evaluators(self, new_evaluators_list):
+        self._evaluators = new_evaluators_list
+        
+
     def generate_synthetic_datasets(self):
         """Generates the synthetic datasets and stores them on disk, allowing them to be loaded later
          by the other methods without the need for them to be generated on the fly

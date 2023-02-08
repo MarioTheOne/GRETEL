@@ -1,2 +1,2 @@
 ,explainer,runtime,runtime-std,Graph_Edit_Distance,Graph_Edit_Distance-std,Oracle_Calls,Oracle_Calls-std,Correctness,Correctness-std,Sparsity,Sparsity-std,Fidelity,Fidelity-std,Oracle_Accuracy,Oracle_Accuracy-std
-0,dce_search,0.34735616445541384,0.0,5.0,0.0,101.0,0.0,1.0,0.0,0.4819444444444443,0.0,-1.0,0.0,0.0,0.0
+0,dce_search,0.2761323571205139,0.0,0.0,0.0,101.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.53,0.0

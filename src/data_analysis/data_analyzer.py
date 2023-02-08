@@ -6,6 +6,7 @@ import jsonpickle
 import numpy as np
 from sklearn import metrics
 import pandas as pd
+import networkx as nx
 
 
 class DataAnalyzer():
@@ -161,4 +162,21 @@ class DataAnalyzer():
                     
         return result
 
+
+def compare_graphs(G1, G2):
+    intersection = nx.intersection(G1, G2)
+    # Nodes in both graphs
+    nodes_intersection = list(intersection.nodes())
+    # Edges in both graphs
+    edges_intersection = list(intersection.edges())
+    # Nodes only in G1
+    nodes_only_in_G1 = list(G1.nodes() - G2.nodes())
+    # Edges only in G1
+    edges_only_in_G1 = list(G1.edges() - G2.edges())
+    # Nodes only in G2
+    nodes_only_in_G2 = list(G2.nodes() - G1.nodes())
+    # Edges only in G2
+    edges_only_in_G2 = list(G2.edges() - G1.edges())
+
+    return nodes_intersection, edges_intersection, nodes_only_in_G1, edges_only_in_G1, nodes_only_in_G2, edges_only_in_G2
 
