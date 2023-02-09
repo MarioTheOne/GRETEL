@@ -4,16 +4,16 @@
         {"name": "embedder_store_path", "address": "/home/coder/gretel/data/embedders/"},
         {"name": "oracle_store_path", "address": "/home/coder/gretel/data/oracles/"},
         {"name": "explainer_store_path", "address": "/home/coder/gretel/data/explainers/"},
-        {"name": "output_store_path", "address": "/home/coder/gretel/output/"}
+        {"name": "output_store_path", "address": "/home/coder/gretel/examples/output/"}
     ],
     "datasets": [
-        {"name": "tree-cycles", "parameters": {"n_inst": 80, "n_per_inst": 30, "n_in_cycles": 10} }
+        {"name": "trisqr", "parameters": {"n_inst": 80} }
     ],
     "oracles": [
-        {"name": "knn", "parameters": { "embedder": {"name": "graph2vec", "parameters": {} }, "k": 5 } }
+        {"name": "trisqr_custom_oracle", "parameters": {"embedder": {"name": "graph2vec", "parameters": {} }} }
     ],
     "explainers": [
-        {"name": "bidirectional_oblivious_search", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } }
+        {"name": "dce_search", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } }
     ],
     "evaluation_metrics": [ 
         {"name": "graph_edit_distance", "parameters": {}},

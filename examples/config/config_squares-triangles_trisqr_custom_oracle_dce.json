@@ -4,7 +4,7 @@
         {"name": "embedder_store_path", "address": "/home/coder/gretel/data/embedders/"},
         {"name": "oracle_store_path", "address": "/home/coder/gretel/data/oracles/"},
         {"name": "explainer_store_path", "address": "/home/coder/gretel/data/explainers/"},
-        {"name": "output_store_path", "address": "/home/coder/gretel/output/"}
+        {"name": "output_store_path", "address": "/home/coder/gretel/examples/output/"}
     ],
     "datasets": [
         {"name": "squares-triangles", "parameters": {"n_inst": 100} }
