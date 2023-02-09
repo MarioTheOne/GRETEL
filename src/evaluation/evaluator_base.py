@@ -79,6 +79,28 @@ class Evaluator(ABC):
 
         return result
 
+
+    def get_instance_and_counterfactual_classifications(self):
+        # Check if the explanations were generated already
+        if len(self.explanations) < 1:
+            return None
+
+        # iterates over the original instances and the explanations
+        n_ins = len(self.dataset.instances)
+        result = []
+        for i in range(0, n_ins):
+            label_inst = self._oracle.predict(self.dataset.instances[i])
+            label_cf = self._oracle.predict(self.explanations[i])
+            self._oracle._call_counter -= 2 
+
+            result.append({'instance_id': self.dataset.instances[i].id,
+                             'ground_truth_label': self.dataset.instances[i].graph_label,
+                             'instance_label': label_inst,
+                             'counterfactual_label': label_cf})
+
+        return result
+
+
     def evaluate(self):
 
         for m in self._evaluation_metrics:
