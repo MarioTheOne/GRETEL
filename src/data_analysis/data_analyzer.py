@@ -166,9 +166,12 @@ class DataAnalyzer():
         return result
 
 
-    def compare_graphs(self, G1, G2):
+    def compare_graphs(self, data_instance_1, data_instance_2):
         """Given to graph G1 and G2 returns six lists containing: nodes_intersection, edges_intersection,
         nodes_only_in_G1, edges_only_in_G1, nodes_only_in_G2, and edges_only_in_G2"""
+        G1 = data_instance_1.graph
+        G2 = data_instance_2.graph
+
         intersection = nx.intersection(G1, G2)
         # Nodes in both graphs
         nodes_intersection = list(intersection.nodes())
@@ -186,9 +189,47 @@ class DataAnalyzer():
         return (nodes_intersection, edges_intersection, nodes_only_in_G1, 
                 edges_only_in_G1, nodes_only_in_G2, edges_only_in_G2)
 
+    
+    def get_counterfactual_actions(self, data_instance, cf_data_instance):
+        # Getting the similarities and the differences between the two graphs
+        n_inter, e_inter, n_ori, e_ori, n_cf, e_cf = self.compare_graphs(data_instance, cf_data_instance)
 
-    def draw_counterfactual_actions(self, nodes_shared, edges_shared, nodes_deleted, edges_deleted, 
-                                    nodes_added, edges_added, layout='random'):
+        result = {'Remove Nodes': n_ori, 'Remove Edges': e_ori, 'Add Nodes': n_cf, 'Add Edges': e_cf}
+
+        return result
+
+
+    def draw_graph(self, data_instance, layout='random'):
+        G = data_instance.graph
+
+        edge_colors = ['cyan' for u, v in G.edges()]
+        node_colors = ['cyan' for node in G.nodes()]
+
+        # Applying the right layout to the graph
+        if layout == 'circular':
+            nx.draw_circular(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+        elif layout == 'kamada-kawai':
+            nx.draw_kamada_kawai(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+        elif layout == 'planar':
+            nx.draw_planar(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+        elif layout == 'random':
+            nx.draw_random(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+        elif layout == 'spectral':
+            nx.draw_spectral(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+        elif layout == 'spring':
+            nx.draw_spring(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+        elif layout == 'shell':
+            nx.draw_shell(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+        else:
+            raise ValueError('Invalid graph layout')
+
+        plt.show()
+
+
+    def draw_counterfactual_actions(self, data_instance, cf_data_instance, layout='random'):
+
+        nodes_shared, edges_shared, nodes_deleted, edges_deleted, nodes_added, edges_added = self.compare_graphs(data_instance, cf_data_instance)
+
         # Create a new Network object
         G = nx.Graph()
 
@@ -210,27 +251,25 @@ class DataAnalyzer():
         for edge in edges_added:
             G.add_edge(*edge, color='green')
 
-
-        colors = [G[u][v]['color'] for u, v in G.edges()]
+        edge_colors = [G[u][v]['color'] for u, v in G.edges()]
         node_colors = [G.nodes[node]['color'] for node in G.nodes()]
 
+        # Applying the right layout to the graph
         if layout == 'circular':
-            nx.draw_circular(G, node_color=node_colors, edge_color=colors, with_labels=True)
+            nx.draw_circular(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
         elif layout == 'kamada-kawai':
-            nx.draw_kamada_kawai(G, node_color=node_colors, edge_color=colors, with_labels=True)
+            nx.draw_kamada_kawai(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
         elif layout == 'planar':
-            nx.draw_planar(G, node_color=node_colors, edge_color=colors, with_labels=True)
+            nx.draw_planar(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
         elif layout == 'random':
-            nx.draw_random(G, node_color=node_colors, edge_color=colors, with_labels=True)
+            nx.draw_random(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
         elif layout == 'spectral':
-            nx.draw_spectral(G, node_color=node_colors, edge_color=colors, with_labels=True)
+            nx.draw_spectral(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
         elif layout == 'spring':
-            nx.draw_spring(G, node_color=node_colors, edge_color=colors, with_labels=True)
+            nx.draw_spring(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
         elif layout == 'shell':
-            nx.draw_shell(G, node_color=node_colors, edge_color=colors, with_labels=True)
+            nx.draw_shell(G, node_color=node_colors, edge_color=edge_colors, with_labels=True)
         else:
             raise ValueError('Invalid graph layout')
 
         plt.show()
-
-
