@@ -24,6 +24,7 @@ class Evaluator(ABC):
         self._results_store_path = results_store_path
         self._evaluation_metrics = evaluation_metrics
         self._run_number = run_number
+        self._explanations = []
 
         # Building the config file to write into disk
         evaluator_config = {'dataset': data._config_dict, 'oracle': oracle._config_dict, 'explainer': explainer._config_dict, 'metrics': []}
@@ -48,6 +49,58 @@ class Evaluator(ABC):
     def name(self, new_name):
         self._name = new_name
 
+    @property
+    def dataset(self):
+        return self._data
+
+    @dataset.setter
+    def dataset(self, new_dataset: Dataset):
+        self._data = new_dataset
+
+    @property
+    def explanations(self):
+        return self._explanations
+
+    @explanations.setter
+    def explanations(self, new_explanations_list):
+        self._explanations = new_explanations_list
+
+
+    def get_instance_explanation_pairs(self):
+        # Check if the explanations were generated already
+        if len(self.explanations) < 1:
+            return None
+
+        # iterates over the original instances and the explanations
+        n_ins = len(self.dataset.instances)
+        result = []
+        for i in range(0, n_ins):
+            result.append((self.dataset.instances[i], self.explanations[i]))
+
+        return result
+
+
+    def get_instance_and_counterfactual_classifications(self):
+        # Check if the explanations were generated already
+        if len(self.explanations) < 1:
+            return None
+
+        # iterates over the original instances and the explanations
+        n_ins = len(self.dataset.instances)
+        result = []
+        for i in range(0, n_ins):
+            label_inst = self._oracle.predict(self.dataset.instances[i])
+            label_cf = self._oracle.predict(self.explanations[i])
+            self._oracle._call_counter -= 2 
+
+            result.append({'instance_id': self.dataset.instances[i].id,
+                             'ground_truth_label': self.dataset.instances[i].graph_label,
+                             'instance_label': label_inst,
+                             'counterfactual_label': label_cf})
+
+        return result
+
+
     def evaluate(self):
 
         for m in self._evaluation_metrics:
@@ -58,6 +111,9 @@ class Evaluator(ABC):
             start_time = time.time()
             counterfactual = self._explainer.explain(inst, self._oracle, self._data)
             end_time = time.time()
+            # giving the same id to the counterfactual and the original instance 
+            counterfactual.id = inst.id
+            self._explanations.append(counterfactual)
 
             # The runtime metric is built-in inside the evaluator``
             self._results['runtime'].append(end_time - start_time)

@@ -17,9 +17,4 @@ services:
       - "~/.gitconfig:/home/coder/.gitconfig"
     user: "1000:1000"
     command: bash
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [ gpu ]
+
