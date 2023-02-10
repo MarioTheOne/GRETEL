@@ -7,6 +7,7 @@
 * [General Information](#general-information)
 * [Citation Request](#citation-request)
 * [Requirements](#requirements)
+* [Install](#installation)
 * [Resources Provided with the Framework](#resources-provided-with-the-framework)
 * [How to Use](#how-to-use)
 * [References](#references)
@@ -58,6 +59,25 @@ Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactua
 * exmol (maccs method)
 * networkx (Graphs)
 
+## Installation:
+The easiest way to get Gretel up and running with all the dependencies is to pull the development Docker image available in [Docker Hub](https://hub.docker.com/):
+
+```
+docker pull gretel/gretel:latest
+```
+
+The image is based on `tensorflow/tensorflow:latest-gpu` and it's GPU ready. In order to setup the container we recommend you to run:
+
+```
+docker-compose run gretel
+```
+
+For simplicity we provide several **makefile** rules for easy interaction with the Docker interface:
+
+ * `make docker` - builds the development image from scratch
+ * `make pull` - pull the development image
+ * `make push` - push the development image
+ * `make demo` - run the demo in the development image.
 
 ## Resources provided with the Framework:
 

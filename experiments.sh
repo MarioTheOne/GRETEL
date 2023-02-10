@@ -1,5 +1,5 @@
 #!/bin/bash
-search_dir=/NFSHOME/mprado/CODE/Themis/config/set_one
+search_dir=./config/
 for entry in "$search_dir"/*
 do
   qsub launch.sh main.py $entry

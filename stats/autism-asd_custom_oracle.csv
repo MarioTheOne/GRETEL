@@ -1,3 +1,2 @@
-,explainer,runtime,Graph_Edit_Distance,Oracle_Calls,Correctness,Sparsity,Fidelity,Oracle_Accuracy
-0,dce_search,0.06221497412955407,1011.6930693069307,102.0,1.0,1.3111075926736584,0.5445544554455446,0.7722772277227723
-1,dummy_explainer,0.0013289947320919225,1077.3564356435643,2.5346534653465347,1.0,1.3962273707876602,0.5445544554455446,0.7722772277227723
+,explainer,runtime,runtime-std,Graph_Edit_Distance,Graph_Edit_Distance-std,Oracle_Calls,Oracle_Calls-std,Correctness,Correctness-std,Sparsity,Sparsity-std,Fidelity,Fidelity-std,Oracle_Accuracy,Oracle_Accuracy-std
+0,dummy_explainer,0.0011288387940661742,0.0,1068.2376237623762,0.0,2.9306930693069306,0.0,1.0,0.0,1.3844700928339215,0.0,0.5445544554455446,0.0,0.7722772277227723,0.0

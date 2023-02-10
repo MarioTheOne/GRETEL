@@ -19,7 +19,7 @@ from src.evaluation.evaluation_metric_smiles_levenshtein import SmilesLevenshtei
 from src.data_analysis.data_analyzer import DataAnalyzer
 
 
-config_file_path = 'C:\\Work\\GNN\\Mine\\Themis\\config\\windows-local\\manager_config_lite.json'
+config_file_path = './config/linux-server/set-3/config_bbbp_gcn_dbs.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=0)

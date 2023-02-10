@@ -19,7 +19,7 @@ class EvaluatorManager:
         
         # Check that the path to the config file exists
         if not os.path.exists(config_file_path):
-            raise ValueError('''The provided config file does not exist''')
+            raise ValueError(f'''The provided config file does not exist. PATH: {config_file_path}''')
 
         # Read the config dictionary inside the config path
         with open(config_file_path, 'r') as config_reader:
@@ -121,10 +121,20 @@ class EvaluatorManager:
         self.datasets = []
         self.oracles = []
         self.explainers = []
-        self.evaluators = []
+        self._evaluators = []
         self.evaluation_metrics = []
 
     
+    @property
+    def evaluators(self):
+        return self._evaluators
+
+
+    @evaluators.setter
+    def evaluators(self, new_evaluators_list):
+        self._evaluators = new_evaluators_list
+        
+
     def generate_synthetic_datasets(self):
         """Generates the synthetic datasets and stores them on disk, allowing them to be loaded later
          by the other methods without the need for them to be generated on the fly
