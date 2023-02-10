@@ -386,7 +386,7 @@ class DatasetFactory():
         self._dataset_id_counter+=1
 
         # Create the name an uri of the dataset using the provided parameters
-        ds_name = ('squares-triangles_instances-'+ str(n_instances))
+        ds_name = ('triangles-squares_instances-'+ str(n_instances))
         ds_uri = os.path.join(self._data_store_path, ds_name)
         ds_exists = os.path.exists(ds_uri)
 
