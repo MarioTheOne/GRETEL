@@ -1,9 +1,13 @@
-from src.explainer.explainer_maccs import MACCSExplainer
-from src.explainer.explainer_base import Explainer
-from src.explainer.explainer_dce_search import DCESearchExplainer
-from src.explainer.explainer_dce_search import DCESearchExplainerOracleless
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
-from src.explainer.explainer_bidirectional_search import DataDrivenBidirectionalSearchExplainer, ObliviousBidirectionalSearchExplainer
+from src.explainer.ensemble.ensemble_factory import EnsembleFactory
+from src.explainer.explainer_base import Explainer
+from src.explainer.explainer_bidirectional_search import (
+    DataDrivenBidirectionalSearchExplainer,
+    ObliviousBidirectionalSearchExplainer)
+from src.explainer.explainer_cfgnnexplainer import CFGNNExplainer
+from src.explainer.explainer_dce_search import (DCESearchExplainer,
+                                                DCESearchExplainerOracleless)
+from src.explainer.explainer_maccs import MACCSExplainer
 
 
 class ExplainerFactory:
@@ -11,6 +15,7 @@ class ExplainerFactory:
     def __init__(self, explainer_store_path) -> None:
         self._explainer_id_counter = 0
         self._explainer_store_path = explainer_store_path
+        self._ensemble_factory = EnsembleFactory(explainer_store_path, self)
 
     def get_explainer_by_name(self, explainer_dict, metric_factory : EvaluationMetricFactory) -> Explainer:
         explainer_name = explainer_dict['name']
@@ -73,6 +78,16 @@ class ExplainerFactory:
             # Returning the explainer
             return self.get_maccs_explainer(dist_metric, explainer_dict)
 
+        
+        elif explainer_name == 'cfgnnexplainer':
+            # Returning the explainer
+            return self.get_cfgnn_explainer(explainer_dict)
+
+        
+        elif explainer_name == 'ensemble':
+            # Returning the ensemble explainer
+            return self.get_ensemble(explainer_dict, metric_factory)
+
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
             by the factory''')
@@ -102,4 +117,17 @@ class ExplainerFactory:
         result = MACCSExplainer(self._explainer_id_counter, instance_distance_function, config_dict)
         self._explainer_id_counter += 1
         return result
+
+    def get_cfgnn_explainer(self, config_dict=None) -> Explainer:
+        result = CFGNNExplainer(self._explainer_id_counter, config_dict)
+        self._explainer_id_counter += 1
+        return result
+
+    
+    def get_ensemble(self, config_dic = None, metric_factory : EvaluationMetricFactory = None) -> Explainer:
+        result = self._ensemble_factory.build_explainer(config_dic, metric_factory)
+        self._explainer_id_counter += 1
+        return result
+        
+        
         

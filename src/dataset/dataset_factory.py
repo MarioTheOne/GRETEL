@@ -2,6 +2,7 @@ from src.dataset.dataset_hiv import HIVDataset
 from src.dataset.dataset_bbbp import BBBPDataset
 from src.dataset.dataset_adhd import ADHDDataset
 from src.dataset.dataset_asd import ASDDataset
+from src.dataset.dataset_node import NodeDataset
 from src.dataset.dataset_base import Dataset
 from src.dataset.dataset_synthetic_generator import Synthetic_Data
 from src.dataset.dataset_trisqr import TrianglesSquaresDataset
@@ -113,7 +114,7 @@ class DatasetFactory():
                 force_fixed_nodes = params_dict['force_fixed_nodes']
 
             return self.get_hiv_dataset(False, force_fixed_nodes, dataset_dict)
-
+        
         # Check if the dataset is a triangles-squares dataset
         elif dataset_name == 'trisqr':
             if not 'n_inst' in params_dict:
@@ -121,6 +122,15 @@ class DatasetFactory():
                  is mandatory for triangles-squares dataset''')
 
             return self.get_trisqr_dataset(params_dict['n_inst'], False, dataset_dict)
+        
+        elif dataset_name == 'syn1':
+            return self.get_syn_dataset(False, "1")
+        
+        elif dataset_name == 'syn4':
+            return self.get_syn_dataset(False, "4")
+        
+        elif dataset_name == 'syn5':
+            return self.get_syn_dataset(False, "5")
         
         # If the dataset name does not match any of the datasets provided by the factory
         else:
@@ -404,4 +414,28 @@ class DatasetFactory():
             result.generate_splits()
             result.write_data(self._data_store_path)
             
-        return result        
+        return result
+        
+
+    def get_syn_dataset(self, regenerate = False, syn_number: "1" or "4" or "5" = "1") -> Dataset:
+        # Create the name an uri of the dataset using the provided parameters
+        ds_name = 'syn'+syn_number
+        ds_uri = os.path.join(self._data_store_path, ds_name)
+
+        result = NodeDataset(self._dataset_id_counter, ds_name)
+        self._dataset_id_counter+=1
+
+        # ds_formatted_exists = os.path.exists(ds_formatted_uri)
+        ds_exists = os.path.exists(ds_uri)
+
+        # If regenerate is true and the dataset exists then remove it an generate it again
+        if regenerate and ds_exists: 
+            shutil.rmtree(ds_uri)
+
+        # Check if the dataset already exists
+        if(ds_exists):
+            # load the dataset from our formatted data
+            result.read_data(ds_uri)
+            return result
+        
+        raise Exception("Dataset does not exist.")
