@@ -4,6 +4,7 @@ ARG USERNAME=coder
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
+
 # Setup VS code compatibility for easy interaction with code inside container
 RUN mkdir -p /home/$USERNAME/.vscode-server/extensions \
         /home/$USERNAME/.vscode-server-insiders/extensions

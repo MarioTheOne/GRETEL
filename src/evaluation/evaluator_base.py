@@ -55,7 +55,7 @@ class Evaluator(ABC):
         for m in self._evaluation_metrics:
             self._results[m.name] = []
 
-        for inst in self._data.instances:
+        for inst in self._data.instances[:10]:
             
             start_time = time.time()
             counterfactual = self._explainer.explain(inst, self._oracle, self._data)

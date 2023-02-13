@@ -46,6 +46,20 @@ class Oracle(ABC):
         self._call_counter += 1
 
         return self._real_predict(self.embedd(data_instance))
+
+    
+    def predict_proba(self, data_instance):
+        """predicts the probability estimates for a given data instance
+        -------------
+        INPUT:
+            data_instance : The instance whose class is going to be predicted 
+        -------------
+        OUTPUT:
+            The predicted probability estimates for the data instance
+        """
+        self._call_counter += 1
+
+        return self._real_predict_proba(self.embedd(data_instance))
     
     def predict_list(self, dataset: Dataset, split_i=0):
 
@@ -57,6 +71,10 @@ class Oracle(ABC):
 
     @abstractmethod
     def _real_predict(self, data_instance):
+        pass
+    
+    @abstractmethod
+    def _real_predict_proba(self, data_instance):
         pass
     
     @abstractmethod

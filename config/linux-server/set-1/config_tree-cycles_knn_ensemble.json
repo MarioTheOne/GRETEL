@@ -46,11 +46,44 @@
     "explainers": [
         {
             "name": "ensemble",
-            "parameters": {},
+            "parameters": {
+                "sampling_multiplier" : 1
+            },
             "inner": {
                 "name": "pe_ensemble",
-                "parameters": {},
+                "parameters": {
+                    "learning_rate": 0.4,
+                    "population_size": 8,
+                    "select_ratio": 0.3
+                },
                 "weak_explainers": [
+                    {
+                        "name": "dce_search",
+                        "parameters": {
+                            "graph_distance": {
+                                "name": "graph_edit_distance",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "dce_search",
+                        "parameters": {
+                            "graph_distance": {
+                                "name": "graph_edit_distance",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "dce_search",
+                        "parameters": {
+                            "graph_distance": {
+                                "name": "graph_edit_distance",
+                                "parameters": {}
+                            }
+                        }
+                    },
                     {
                         "name": "dce_search",
                         "parameters": {

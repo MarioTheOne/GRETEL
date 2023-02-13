@@ -48,6 +48,9 @@ class KnnOracle(Oracle):
     def _real_predict(self, data_instance):
         return self.clf.predict([data_instance])[0]
 
+    def _real_predict_proba(self, data_instance):
+        return self.clf.predict_proba([data_instance])[0]
+
     def embedd(self, instance):
         return self.emb.get_embedding(instance)
 
