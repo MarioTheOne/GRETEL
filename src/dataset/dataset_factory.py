@@ -5,6 +5,7 @@ from src.dataset.dataset_asd import ASDDataset
 from src.dataset.dataset_node import NodeDataset
 from src.dataset.dataset_base import Dataset
 from src.dataset.dataset_synthetic_generator import Synthetic_Data
+from src.dataset.dataset_trisqr import TrianglesSquaresDataset
 
 import os
 import shutil
@@ -113,7 +114,14 @@ class DatasetFactory():
                 force_fixed_nodes = params_dict['force_fixed_nodes']
 
             return self.get_hiv_dataset(False, force_fixed_nodes, dataset_dict)
+        
+        # Check if the dataset is a triangles-squares dataset
+        elif dataset_name == 'trisqr':
+            if not 'n_inst' in params_dict:
+                raise ValueError('''"n_inst" parameter containing the number of instances in the dataset
+                 is mandatory for triangles-squares dataset''')
 
+            return self.get_trisqr_dataset(params_dict['n_inst'], False, dataset_dict)
         
         elif dataset_name == 'syn1':
             return self.get_syn_dataset(False, "1")
@@ -381,6 +389,33 @@ class DatasetFactory():
             result.generate_splits()
             # result.write_data(ds_uri, graph_format='edge_list')
             return result
+
+
+    def get_trisqr_dataset(self, n_instances=100, regenerate=False, config_dict=None) -> Dataset:
+        result = TrianglesSquaresDataset(self._dataset_id_counter, config_dict)
+        self._dataset_id_counter+=1
+
+        # Create the name an uri of the dataset using the provided parameters
+        ds_name = ('triangles-squares_instances-'+ str(n_instances))
+        ds_uri = os.path.join(self._data_store_path, ds_name)
+        ds_exists = os.path.exists(ds_uri)
+
+        # If regenerate is true and the dataset exists then remove it an generate it again
+        if regenerate and ds_exists: 
+            shutil.rmtree(ds_uri)
+
+        # Check if the dataset already exists
+        if(ds_exists):
+            # load the dataset
+            result.read_data(ds_uri)
+        else:
+            # Generate the dataset
+            result.generate_dataset(n_instances)
+            result.generate_splits()
+            result.write_data(self._data_store_path)
+            
+        return result
+        
 
     def get_syn_dataset(self, regenerate = False, syn_number: "1" or "4" or "5" = "1") -> Dataset:
         # Create the name an uri of the dataset using the provided parameters

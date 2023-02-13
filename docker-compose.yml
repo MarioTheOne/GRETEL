@@ -16,9 +16,4 @@ services:
       - "~/.ssh:/home/coder/.ssh"
       - "~/.gitconfig:/home/coder/.gitconfig"
     command: bash
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [ gpu ]
+

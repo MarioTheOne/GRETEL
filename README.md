@@ -3,6 +3,7 @@
 
 ## Table of Contents
 
+* [Team Information](#team-information)
 * [General Information](#general-information)
 * [Citation Request](#citation-request)
 * [Requirements](#requirements)
@@ -11,9 +12,17 @@
 * [How to Use](#how-to-use)
 * [References](#references)
 
+## Team Information:
+* Prof. Giovanni Stilo [Project Leader]
+* Mario Alfonso Prado Romero [Principal Investigator]
+* Bardh Prenkaj [Investigator]
+* Ernesto Estevanell-Valladares [Contributor]
+* Daniel Alejandro Valdés-Pérez [Contributor]
+* Alessandro Celi [Administrative Staff]
+
 ## General Information:
 
-GRETEL [1] is an open source framework for Evaluating Graph Counerfactual Explanation Methods. It is implemented using the Object Oriented paradigm and the Factory Method design pattern. Our main goal is to create a generic plataform that allows the researchers to speed up the proccess of developing and testing new Graph Counterfactual Explanation Methods.
+GRETEL [1] is an open source framework for Evaluating Graph Counterfactual Explanation Methods. It is implemented using the Object Oriented paradigm and the Factory Method design pattern. Our main goal is to create a generic platform that allows the researchers to speed up the process of developing and testing new Graph Counterfactual Explanation Methods.
 
 
 ## Citation Request:

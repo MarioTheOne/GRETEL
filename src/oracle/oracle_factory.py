@@ -10,6 +10,8 @@ from src.oracle.oracle_node_pt import NodeOracle
 from src.oracle.oracle_gcn_tf import TfGCNOracle
 from src.oracle.oracle_knn import KnnOracle
 from src.oracle.oracle_svm import SvmOracle
+from src.oracle.oracle_triangles_squares_custom import TrianglesSquaresCustomOracle
+from src.oracle.oracle_tree_cycles_custom import TreeCyclesCustomOracle
 
 
 class OracleFactory(ABC):
@@ -54,6 +56,14 @@ class OracleFactory(ABC):
 
         elif oracle_name == 'gcn_synthetic_pt':
             return self.get_pt_syn_oracle(dataset, -1, oracle_dict)
+            
+        # Check if the oracle is a Triangles-Squares Custom Classifier
+        elif oracle_name == 'trisqr_custom_oracle':
+            return self.get_trisqr_custom_oracle(oracle_dict)
+
+        # Check if the oracle is a Tree-Cycles Custom Classifier
+        elif oracle_name == 'tree_cycles_custom_oracle':
+            return self.get_tree_cycles_custom_oracle(oracle_dict)
 
         # If the oracle name does not match any oracle in the factory
         else:
@@ -84,10 +94,19 @@ class OracleFactory(ABC):
         self._oracle_id_counter +=1
         clf.fit(data, split_index)
         return clf
-
     
     def get_pt_syn_oracle(self, data: Dataset, split_index=-1, config_dict=None) -> Oracle:
         clf = SynNodeOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
         self._oracle_id_counter +=1
         clf.fit(data, split_index)
+        return clf
+        
+    def get_trisqr_custom_oracle(self, config_dict=None) -> Oracle:
+        clf = TrianglesSquaresCustomOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
+        self._oracle_id_counter +=1
+        return clf
+
+    def get_tree_cycles_custom_oracle(self, config_dict=None) -> Oracle:
+        clf = TreeCyclesCustomOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
+        self._oracle_id_counter +=1
         return clf

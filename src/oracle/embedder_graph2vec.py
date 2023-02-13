@@ -17,14 +17,16 @@ class Graph2vec(Embedder):
         self._name = 'graph2vec'
 
     def fit(self, dataset : Dataset):
-        graphs = [i.graph for i in dataset.get_data()]
+        # Copies of the graphs are provided because the _check_graphs function modifies the edges of the passed graph
+        graphs = [i.graph.copy(as_view=False) for i in dataset.get_data()]
         self.emb.fit(graphs)
 
     def get_embeddings(self):
         return self.emb.get_embedding()
 
     def get_embedding(self, instance):
-        return self.emb.infer(instance.graph)
+        # A Copy of the graph is provided because the _check_graphs function modifies the edges of the passed graph
+        return self.emb.infer(instance.graph.copy(as_view=False))
 
 
 class custom_g2v(Estimator):

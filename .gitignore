@@ -130,7 +130,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# datasets
+# datas
+data/
+output/
+stats/
 
 # videos
 .mp4
