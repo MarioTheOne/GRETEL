@@ -5,7 +5,7 @@ from src.evaluation.evaluator_manager import EvaluatorManager
 
 print(f"Initializing test ensemble")
 
-config_file_path = f'./config/linux-server/set-1/config_tree-cycles_knn_ensemble.json'
+config_file_path = './config/iron/config_tree-cycles_tree-cycles-custom-oracle_countergan.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=0)

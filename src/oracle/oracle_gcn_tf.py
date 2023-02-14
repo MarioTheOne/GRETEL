@@ -22,6 +22,7 @@ class TfGCNOracle(Oracle):
         self._n_node_types = n_node_types
         self._max_n_nodes = 0
 
+
     def create_model(self):
         # code modified ///////////////////////////////////////
         # ninput = tf.keras.Input(

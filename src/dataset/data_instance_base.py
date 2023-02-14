@@ -133,6 +133,7 @@ class DataInstance(ABC):
     def from_numpy_array(self, np_adj_matrix):
         self.graph = nx.from_numpy_array(np_adj_matrix)
 
+
     def to_numpy_arrays(self, store=False, max_n_nodes=-1, n_node_types=-1):
         """Argument for the RD2NX function should be a valid SMILES sequence
         returns: the graph

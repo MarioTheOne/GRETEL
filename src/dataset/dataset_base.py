@@ -285,7 +285,7 @@ class Dataset(ABC):
         return len(self.instances)
 
     def get_split_indices(self):
-        """Returns a list of dictionaries containing the splits of the instance indices into 'test' and 'training'
+        """Returns a list of dictionaries containing the splits of the instance indices into 'test' and 'train'
         -------------
         OUTPUT:
             A dictionary containing the data splits 
@@ -295,19 +295,21 @@ class Dataset(ABC):
             >>> ds = Dataset()
             >>> ds.read_data('data_path')
             >>> ds.generate_splits()
-            >>> print(ds.get_split_indices(0)['train'])
+            >>> print(ds.get_split_indices()[0]['train'])
                 [1,3,5]
         """
         return self.splits
+    
 
     def generate_splits(self, n_splits=10, shuffle=True):
         kf = KFold(n_splits=n_splits, shuffle=shuffle)
         self.splits = []
-        spl = kf.split([i for i in range(0, len(self.instances))],
-                       [g.graph_label for g in self.instances])
+        spl = kf.split([i for i in range(0, len(self.instances))], 
+            [g.graph_label for g in self.instances])
 
         for train_index, test_index in spl:
             self.splits.append({'train': train_index, 'test': test_index})
+
 
     def gen_tf_data(self):
         for i in self.instances:

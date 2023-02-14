@@ -19,6 +19,9 @@ class TreeCyclesCustomOracle(Oracle):
             return 1 # has cycles
         else:
             return 0 # it has no cycles
+        
+    def _real_predict_proba(self, data_instance):
+        raise NotImplementedError
 
     def embedd(self, instance):
         return instance
