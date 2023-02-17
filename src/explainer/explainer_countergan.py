@@ -222,8 +222,6 @@ class CounteRGANExplainer(Explainer):
                                                     betas=(0.5, 0.999))
         generator_optimizer = torch.optim.RMSprop(generator.parameters(),
                                                     lr=4e-4, weight_decay=1e-8)
-
-        fixed_noise = torch.randn(self.batch_size, self.n_nodes, self.n_nodes, 1, device=self.device)
         
         loss_bce = nn.BCELoss()
         loss_nll = nn.NLLLoss()
@@ -255,10 +253,8 @@ class CounteRGANExplainer(Explainer):
                 D_x = output.mean().item()
 
                 ## Train with all-fake batch
-                # Generate batch of latent vectors
-                noise = torch.randn(self.batch_size, 1, self.n_nodes, self.n_nodes, device=self.device)
                 # Generate fake graph batch with the generator (G)
-                fake_graph = generator(noise)
+                fake_graph = generator(graph)
                 fake_labels = torch.full((self.batch_size, 1), fake_label,
                                         dtype=torch.float, device=self.device)
                 # Classify all fake batch with the discriminator (D)
