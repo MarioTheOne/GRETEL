@@ -5,7 +5,7 @@ import sys
 config_file_path = './config/linux-server/set-1/config_autism_custom-oracle_dce.json'
 
 print('Creating the evaluation manager.......................................................')
-eval_manager = EvaluatorManager(config_file_path, run_number=0)
+eval_manager = EvaluatorManager(config_file_path, run_number=1)
 
 print('Creating the evaluators...................................................................')
 eval_manager.create_evaluators()

@@ -69,16 +69,18 @@ class CounteRGANExplainer(Explainer):
             if(pred_lbl):
                 self.generator_cl0.eval()
                 torch_cf = self.generator_cl0(torch_data_instance)
+                np_cf = torch_cf.squeeze().cpu().numpy().astype(int)
 
                 cf_instance = DataInstance(-1)
-                cf_instance.from_numpy_array(torch_cf.squeeze().cpu().numpy())
+                cf_instance.from_numpy_array(np_cf, store=True)
                 
             else: # If the instance belongs to class 0
                 self.generator_cl1.eval()
                 torch_cf = self.generator_cl1(torch_data_instance)
+                np_cf = torch_cf.squeeze().cpu().numpy().astype(int)
 
                 cf_instance = DataInstance(-1)
-                cf_instance.from_numpy_array(torch_cf.squeeze().cpu().numpy())
+                cf_instance.from_numpy_array(np_cf, store=True)
 
             return cf_instance
     
@@ -297,7 +299,8 @@ class CounteRGANExplainer(Explainer):
                 lbl = labels.to(torch.long)[0]
                 nll_loss = -loss_nll(oracle_prediction, lbl)
 
-                errG = loss_bce(output, fake_labels) + nll_loss  
+
+                errG = loss_bce(output, fake_labels) + nll_loss   
                 # Calculate gradients for G
                 errG.backward()
                 D_G_z2 = output.mean().item()
@@ -412,11 +415,14 @@ class ResidualGenerator(nn.Module):
         x = self.deconv2(x)
         x = self.leaky_relu5(x)
         x = self.final_conv(x)
-        x = torch.tanh(x)
+        x = torch.tanh(x) # Tanh values are in [-1, 1] so allow the residual to add or remove edges
 
+        # building the counterfactual example from the union of the residuals and the original instance
         if self.residuals:
             x = torch.add(graph, x)
 
+        # transforming the output into an adj matrix if the value of a cell is < 0.5 then assign 0 else assign 1
+        x = torch.round(x)
         return x
 
 

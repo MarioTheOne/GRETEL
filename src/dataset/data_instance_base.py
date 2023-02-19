@@ -130,7 +130,11 @@ class DataInstance(ABC):
             # Return the stored numpy array
             return self._np_array
 
-    def from_numpy_array(self, np_adj_matrix):
+    def from_numpy_array(self, np_adj_matrix, store=False):
+        # If store is true we should store the numpy array adjacency matrix
+        if store:
+            self._np_array = np_adj_matrix
+
         self.graph = nx.from_numpy_array(np_adj_matrix)
 
 
