@@ -226,7 +226,8 @@ class CounteRGANExplainer(Explainer):
                                                     lr=4e-4, weight_decay=1e-8)
         
         loss_bce = nn.BCELoss()
-        loss_nll = nn.NLLLoss()
+        #loss_nll = nn.NLLLoss()
+        loss_counterfactual = nn.BCELoss()
 
         G_losses, D_losses = [], []
         
@@ -297,10 +298,11 @@ class CounteRGANExplainer(Explainer):
 
                 oracle_prediction = oracle_prediction.to(torch.float).to(self.device)[None, :]
                 lbl = labels.to(torch.long)[0]
-                nll_loss = -loss_nll(oracle_prediction, lbl)
+                #nll_loss = -loss_nll(oracle_prediction, lbl)
+                counterfactual_loss = loss_counterfactual(oracle_prediction, 1-lbl)
 
 
-                errG = loss_bce(output, fake_labels) + nll_loss   
+                errG = loss_bce(output, fake_labels) + counterfactual_loss   
                 # Calculate gradients for G
                 errG.backward()
                 D_G_z2 = output.mean().item()
