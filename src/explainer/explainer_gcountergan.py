@@ -29,6 +29,35 @@ import torch.nn as nn
 from torch_geometric.nn import GCNConv, GAE
 
 
+class GCounteRGANExplainer(Explainer):
+  
+  def __init__(self, id, explainer_store_path, n_nodes, batch_size_ratio=0.1, device='cuda', training_iterations=20000, real_label=1, fake_label=0, fold_id=0, config_dict=None) -> None:
+        super().__init__(id, config_dict)
+        self.name = 'countergan'
+        self.batch_size_ratio = batch_size_ratio
+        self.batch_size = 1
+        self.real_label = real_label # instance label
+        self.fake_label = fake_label # CF label
+        self.n_nodes = n_nodes
+        self.device = device
+        self.training_iterations = training_iterations
+        self.explainer_store_path = explainer_store_path
+        self.fold_id = fold_id
+        self._fitted = False
+
+        # Creating generator and discriminator for class 0
+        self.generator_cl0 = ResidualGenerator(n_nodes=n_nodes, residuals=True, device=device)
+        self.generator_cl0.to(device)
+        self.discriminator_cl0 = Discriminator(n_nodes, device)
+        self.discriminator_cl0.to(device)
+
+        # Creating generator and discriminator for class 1
+        self.generator_cl1 = ResidualGenerator(n_nodes=n_nodes, residuals=True, device=device)
+        self.generator_cl1.to(device)
+        self.discriminator_cl1 = Discriminator(n_nodes, device)
+        self.discriminator_cl1.to(device)
+
+
 class Discriminator(nn.Module):
 
   def __init__(self, n_nodes=28, n_features=1, batch_size=32, device='cuda'):
@@ -76,6 +105,7 @@ class Discriminator(nn.Module):
   
 
 class GCNGeneratorEncoder(nn.Module):
+  """This class use GCN to generate an embedding of the graph to be used by the generator"""
 
   def __init__(self, in_channels=1, out_channels=64):
     super().__init__()

@@ -65,8 +65,8 @@ class CounteRGANExplainer(Explainer):
             torch_data_instance = torch.from_numpy(instance.to_numpy_array())[None, None, :, :]
             torch_data_instance = torch_data_instance.to(torch.float)
 
-            # If the instance belongs to class 1
-            if(pred_lbl):
+            # If the instance belongs to class 0
+            if(not pred_lbl):
                 self.generator_cl0.eval()
                 torch_cf = self.generator_cl0(torch_data_instance)
                 np_cf = torch_cf.squeeze().cpu().numpy().astype(int)
@@ -74,7 +74,7 @@ class CounteRGANExplainer(Explainer):
                 cf_instance = DataInstance(-1)
                 cf_instance.from_numpy_array(np_cf, store=True)
                 
-            else: # If the instance belongs to class 0
+            else: # If the instance belongs to class 1
                 self.generator_cl1.eval()
                 torch_cf = self.generator_cl1(torch_data_instance)
                 np_cf = torch_cf.squeeze().cpu().numpy().astype(int)
@@ -108,8 +108,8 @@ class CounteRGANExplainer(Explainer):
             os.mkdir(explainer_uri)        
             self.name = explainer_name
 
-            self._real_fit(self.generator_cl0, self.discriminator_cl0, oracle, dataset, fold_id, real_label=1, fake_label=0)
-            self._real_fit(self.generator_cl1, self.discriminator_cl1, oracle, dataset, fold_id, real_label=0, fake_label=1)
+            self._real_fit(self.generator_cl0, self.discriminator_cl0, oracle, dataset, fold_id, real_label=0, fake_label=1)
+            self._real_fit(self.generator_cl1, self.discriminator_cl1, oracle, dataset, fold_id, real_label=1, fake_label=0)
         
             # train_loader = self.transform_data(dataset, fold_id)
             # discriminator_optimizer = torch.optim.Adam(self.discriminator.parameters(),
@@ -226,8 +226,8 @@ class CounteRGANExplainer(Explainer):
                                                     lr=4e-4, weight_decay=1e-8)
         
         loss_bce = nn.BCELoss()
-        #loss_nll = nn.NLLLoss()
-        loss_counterfactual = nn.BCELoss()
+        # loss_counterfactual = nn.BCELoss()
+        loss_counterfactual = nn.NLLLoss()
 
         G_losses, D_losses = [], []
         
@@ -298,8 +298,8 @@ class CounteRGANExplainer(Explainer):
 
                 oracle_prediction = oracle_prediction.to(torch.float).to(self.device)[None, :]
                 lbl = labels.to(torch.long)[0]
-                #nll_loss = -loss_nll(oracle_prediction, lbl)
-                counterfactual_loss = loss_counterfactual(oracle_prediction, 1-lbl)
+                counterfactual_loss = -loss_counterfactual(oracle_prediction, lbl)
+                # counterfactual_loss = loss_counterfactual(oracle_prediction, 1-lbl)
 
 
                 errG = loss_bce(output, fake_labels) + counterfactual_loss   
