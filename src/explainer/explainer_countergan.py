@@ -1,97 +1,101 @@
-from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.explainer.explainer_base import Explainer
 from src.dataset.dataset_base import Dataset
 from src.oracle.oracle_base import Oracle
 from src.dataset.data_instance_base import DataInstance
 
 import numpy as np
-import json
-import pickle
-import time
-import math
-from sklearn.model_selection import train_test_split
+from torch.utils.data import TensorDataset
 import os
 
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
 
 
 class CounteRGANExplainer(Explainer):
 
-    def __init__(self, id, explainer_store_path, n_nodes, batch_size_ratio=0.1, device='cuda', training_iterations=20000, real_label=1, fake_label=0, fold_id=0, config_dict=None) -> None:
+    def __init__(self,
+                 id,
+                 explainer_store_path,
+                 n_nodes,
+                 n_labels=2,
+                 batch_size_ratio=0.1,
+                 training_iterations=20000,
+                 n_discriminator_steps=2,
+                 n_generator_steps=3,
+                 ce_binarization_threshold=.5,
+                 fold_id=0,
+                 device='cuda',
+                 config_dict=None) -> None:
+        
         super().__init__(id, config_dict)
+        
         self.name = 'countergan'
+        
         self.batch_size_ratio = batch_size_ratio
-        self.batch_size = 1
-        self.real_label = real_label # instance label
-        self.fake_label = fake_label # CF label
+        self.n_labels = n_labels
         self.n_nodes = n_nodes
         self.device = device
         self.training_iterations = training_iterations
+        self.n_discriminator_steps = n_discriminator_steps
+        self.n_generator_steps = n_generator_steps
         self.explainer_store_path = explainer_store_path
+        self.ce_binarization_threshold = ce_binarization_threshold
         self.fold_id = fold_id
         self._fitted = False
-        # self.generator = ResidualGenerator(n_nodes=n_nodes, residuals=True, device=device)
-        # self.generator.to(device)
-        # self.discriminator = Discriminator(n_nodes, device)
-        # self.discriminator.to(device)
-
-        # Creating generator and discriminator for class 0
-        self.generator_cl0 = ResidualGenerator(n_nodes=n_nodes, residuals=True, device=device)
-        self.generator_cl0.to(device)
-        self.discriminator_cl0 = Discriminator(n_nodes, device)
-        self.discriminator_cl0.to(device)
-
-        # Creating generator and discriminator for class 1
-        self.generator_cl1 = ResidualGenerator(n_nodes=n_nodes, residuals=True, device=device)
-        self.generator_cl1.to(device)
-        self.discriminator_cl1 = Discriminator(n_nodes, device)
-        self.discriminator_cl1.to(device)
         
-
+        # multi-class support
+        self.explainers = [
+            CounteRGAN(n_nodes,
+                       residuals=True,
+                       device=device).to(device) for _ in range(n_labels)
+        ]
+        
+    def _get_explainer(self, ignore_class):
+        y = -1
+        while True:
+            y = np.random.randint(low=0, high=self.n_labels)
+            if y != ignore_class:
+                break
+        return self.explainers[y].generator
 
     def explain(self, instance, oracle: Oracle, dataset: Dataset):
         if(not self._fitted):
             self.fit(oracle, dataset, self.fold_id)
 
-        # Getting the class of the instance
-        pred_lbl = oracle.predict(instance)
-        cf_instance = instance
+        # Getting the scores/class of the instance
+        pred_scores = oracle.predict_proba(instance)
 
         with torch.no_grad():
             torch_data_instance = torch.from_numpy(instance.to_numpy_array())[None, None, :, :]
             torch_data_instance = torch_data_instance.to(torch.float)
-
-            # If the instance belongs to class 0
-            if(not pred_lbl):
-                self.generator_cl0.eval()
-                torch_cf = self.generator_cl0(torch_data_instance)
-                np_cf = torch_cf.squeeze().cpu().numpy().astype(int)
-
-                cf_instance = DataInstance(-1)
-                cf_instance.from_numpy_array(np_cf, store=True)
-                
-            else: # If the instance belongs to class 1
-                self.generator_cl1.eval()
-                torch_cf = self.generator_cl1(torch_data_instance)
-                np_cf = torch_cf.squeeze().cpu().numpy().astype(int)
-
-                cf_instance = DataInstance(-1)
-                cf_instance.from_numpy_array(np_cf, store=True)
-
+            
+            ignore_index = np.argmax(pred_scores)
+            # naive approach of selecting a generator in multi-class
+            # explainability problem
+            explainer = self._get_explainer(ignore_index)
+            explainer.eval()
+            torch_cf = explainer(torch_data_instance)
+            np_cf = torch_cf.squeeze().cpu().numpy().astype(int)
+            
+            cf_instance = DataInstance(-1)
+            cf_instance.from_numpy_array(np_cf, store=True)
+            
             return cf_instance
     
 
-    def save_explainer(self):
-        torch.save(self.generator_cl0.state_dict(), os.path.join(self.explainer_store_path, self.name, 'explainer_0'))
-        torch.save(self.generator_cl1.state_dict(), os.path.join(self.explainer_store_path, self.name, 'explainer_1'))
+    def save_explainers(self):
+        for i, explainer in enumerate(self.explainers):
+            torch.save(explainer.state_dict(),
+                       os.path.join(self.explainer_store_path, self.name, f'explainer_{i}'))
 
-    def load_explainer(self):
-        self.generator_cl0.load_state_dict(torch.load(os.path.join(self.explainer_store_path, self.name, 'explainer_0')))
-        self.generator_cl1.load_state_dict(torch.load(os.path.join(self.explainer_store_path, self.name, 'explainer_1')))
+    def load_explainers(self):
+        for i in range(self.n_labels):
+            self.explainers[i].load_state_dict(
+                torch.load(
+                    os.path.join(self.explainer_store_path, self.name, f'explainer_{i}')
+                )
+            )
 
 
     def fit(self, oracle: Oracle, dataset : Dataset, fold_id=0):
@@ -101,220 +105,131 @@ class CounteRGANExplainer(Explainer):
         if os.path.exists(explainer_uri):
             # Load the weights of the trained model
             self.name = explainer_name
-            self.load_explainer()
+            self.load_explainers()
 
         else:
             # Create the folder to store the oracle if it does not exist
             os.mkdir(explainer_uri)        
             self.name = explainer_name
-
-            self._real_fit(self.generator_cl0, self.discriminator_cl0, oracle, dataset, fold_id, real_label=0, fake_label=1)
-            self._real_fit(self.generator_cl1, self.discriminator_cl1, oracle, dataset, fold_id, real_label=1, fake_label=0)
-        
-            # train_loader = self.transform_data(dataset, fold_id)
-            # discriminator_optimizer = torch.optim.Adam(self.discriminator.parameters(),
-            #                                             lr=0.0002,
-            #                                             betas=(0.5, 0.999))
-            # generator_optimizer = torch.optim.RMSprop(self.generator.parameters(),
-            #                                             lr=4e-4, weight_decay=1e-8)
-
-            # fixed_noise = torch.randn(self.batch_size, self.n_nodes, self.n_nodes, 1, device=self.device)
             
-            # loss_bce = nn.BCELoss()
-            # loss_nll = nn.NLLLoss()
+            for i in range(self.n_labels):
+                self.__fit(self.explainers[i],
+                          oracle,
+                          dataset,
+                          fold_id,
+                          desired_label=i)
 
-            # G_losses, D_losses = [], []
-            
-            # for iteration in range(self.training_iterations):
-            #     for i, data in enumerate(train_loader):
-            #     # send the data to gpu/cpu
-            #         graph, labels = data
-            #         graph = graph.to(self.device)
-            #         labels = labels.to(self.device)
-            #         graph, labels = graph[:,None,:,:], labels[:,None]
-
-            #         #########################
-            #         # (1) Update the discriminator network (D). max log(D(x)) + log(1-D(G(z)))
-            #         #########################
-            #         ## Train with all-real batch
-            #         discriminator_optimizer.zero_grad()
-            #         self.discriminator.train(True)
-            #         self.discriminator.training = True
-
-            #         # Forward pass real batch through the discriminator
-            #         output = self.discriminator(graph)
-            #         # Calculate loss on all-real batch
-            #         errD_real = loss_bce(output, labels)
-            #         # Calculate gradients for the discriminator
-            #         errD_real.backward()
-            #         D_x = output.mean().item()
-
-            #         ## Train with all-fake batch
-            #         # Generate batch of latent vectors
-            #         noise = torch.randn(self.batch_size, 1, self.n_nodes, self.n_nodes, device=self.device)
-            #         # Generate fake graph batch with the generator (G)
-            #         fake_graph = self.generator(noise)
-            #         fake_labels = torch.full((self.batch_size, 1), self.fake_label,
-            #                                 dtype=torch.float, device=self.device)
-            #         # Classify all fake batch with the discriminator (D)
-            #         output = self.discriminator(fake_graph.detach())
-            #         # Calculate D's loss on the all-fake batch
-            #         errD_fake = loss_bce(output, fake_labels)
-            #         # Calculate the gradients for this batch, accumulated (summed) with previous
-            #         # gradients
-            #         errD_fake.backward()
-            #         D_G_z1 = output.mean().item()
-            #         # Compute error of D as sum over the fake and the real batches
-            #         errD = errD_real + errD_fake
-            #         # Update D
-            #         discriminator_optimizer.step()
-
-            #         ##########################
-            #         # (2) Update the generator (G) network: maximise log(D(G(z)))
-            #         ##########################
-            #         generator_optimizer.zero_grad()
-            #         self.discriminator.train(False)
-            #         self.discriminator.training = False
-            #         # fake labels are real for generator cost
-            #         fake_labels = torch.full((self.batch_size, 1), self.real_label, dtype=torch.float,
-            #                                 device=self.device)
-            #         # Since we just updated D, perform another forward pass of all-fake batch
-            #         # through D
-            #         output = self.discriminator(fake_graph)
-
-            #         # Calculate G's loss based on this output and the counterfactual realism
-            #         fake_inst = DataInstance(-1)
-            #         fake_inst.from_numpy_array(fake_graph.detach().cpu().numpy().squeeze())
-
-            #         pred_label = oracle.predict(fake_inst)
-            #         if not pred_label:
-            #             oracle_prediction = torch.from_numpy(np.array([1, 0]))
-            #         else:
-            #             oracle_prediction = torch.from_numpy(np.array([0, 1]))
-
-            #         oracle_prediction = oracle_prediction.to(torch.float).to(self.device)[None, :]
-            #         lbl = labels.to(torch.long)[0]
-            #         nll_loss = -loss_nll(oracle_prediction, lbl)
-
-            #         errG = loss_bce(output, fake_labels) + nll_loss  
-            #         # Calculate gradients for G
-            #         errG.backward()
-            #         D_G_z2 = output.mean().item()
-            #         # Update G
-            #         generator_optimizer.step()
-
-            #         print(f'Iteration [{iteration}/{self.training_iterations}] [{i}]'\
-            #                 +f'\tLoss_D: {errD.item()}\tLoss_G: {errG.item()}'\
-            #                 +f'\tD(x): {D_x}\tD(G(z)): {D_G_z1} / {D_G_z2}')
-                        
-            #         G_losses.append(errG.item())
-            #         D_losses.append(errD.item())
-
-            # Saving the trained explainer
-            self.save_explainer()        
+            self.save_explainers()        
 
         # setting the flag to signal the explainer was already trained
         self._fitted = True
 
-
-    def _real_fit(self, generator, discriminator, oracle : Oracle, dataset : Dataset, fold_id, real_label, fake_label):
-        train_loader = self.transform_data(dataset, fold_id)
-        discriminator_optimizer = torch.optim.Adam(discriminator.parameters(),
+    def _check_divergence(self, generated_graph: torch.Tensor):
+        return torch.all(torch.isnan(generated_graph))
+    
+    def _infinite_data_stream(self, loader: DataLoader):
+        # Define a generator function that yields batches of data
+        while True:
+            for batch in loader:
+                yield batch
+    
+    def __fit(self, countergan, oracle : Oracle, dataset : Dataset, fold_id, desired_label=0):
+        train_loader = self._infinite_data_stream(self.transform_data(dataset, fold_id))
+        
+        discriminator_optimizer = torch.optim.Adam(countergan.discriminator.parameters(),
                                                     lr=0.0002,
                                                     betas=(0.5, 0.999))
-        generator_optimizer = torch.optim.RMSprop(generator.parameters(),
-                                                    lr=4e-4, weight_decay=1e-8)
         
-        loss_bce = nn.BCELoss()
-        # loss_counterfactual = nn.BCELoss()
-        loss_counterfactual = nn.NLLLoss()
-
-        G_losses, D_losses = [], []
+        countergan_optimizer = torch.optim.NAdam(countergan.parameters(),
+                                                    lr=5e-4,
+                                                    betas=(0.9, 0.5))
+        
+        loss_discriminator = nn.BCELoss(reduction='none')
+        loss_countergan = nn.BCELoss()
         
         for iteration in range(self.training_iterations):
-            for i, data in enumerate(train_loader):
-            # send the data to gpu/cpu
-                graph, labels = data
+            G_losses, D_losses = [], []
+
+            if iteration > 0:
+                generated_graph = countergan.generator(graph)
+                if self._check_divergence(generated_graph):
+                    break
+            
+            countergan.train(False)
+            countergan.set_training_discriminator(True)
+            countergan.discriminator.train(True)
+            countergan.set_training_generator(False)
+            countergan.generator.train(False)
+            discriminator_optimizer.zero_grad()
+            
+            for _ in range(self.n_discriminator_steps):
+                # get the next batch of data
+                graph, _ = next(train_loader)
                 graph = graph.to(self.device)
-                labels = labels.to(self.device)
-                graph, labels = graph[:,None,:,:], labels[:,None]
-
-                #########################
-                # (1) Update the discriminator network (D). max log(D(x)) + log(1-D(G(z)))
-                #########################
-                ## Train with all-real batch
-                discriminator_optimizer.zero_grad()
-                discriminator.train(True)
-                discriminator.training = True
-
-                # Forward pass real batch through the discriminator
-                output = discriminator(graph)
-                # Calculate loss on all-real batch
-                errD_real = loss_bce(output, labels)
-                # Calculate gradients for the discriminator
-                errD_real.backward()
-                D_x = output.mean().item()
-
-                ## Train with all-fake batch
-                # Generate fake graph batch with the generator (G)
-                fake_graph = generator(graph)
-                fake_labels = torch.full((self.batch_size, 1), fake_label,
-                                        dtype=torch.float, device=self.device)
-                # Classify all fake batch with the discriminator (D)
-                output = discriminator(fake_graph.detach())
-                # Calculate D's loss on the all-fake batch
-                errD_fake = loss_bce(output, fake_labels)
-                # Calculate the gradients for this batch, accumulated (summed) with previous
-                # gradients
-                errD_fake.backward()
-                D_G_z1 = output.mean().item()
-                # Compute error of D as sum over the fake and the real batches
-                errD = errD_real + errD_fake
-                # Update D
+                # add the channels' dimension
+                graph = graph[:,None,:,:]
+                # generate the fake graph
+                graph_fake = countergan.generator(graph)
+                
+                graph_batch = torch.cat([graph, graph_fake], dim=0)
+                y_batch = torch.cat(
+                    [
+                        torch.ones((self.batch_size,)),
+                        torch.zeros((self.batch_size,))
+                    ],
+                    dim=0)
+                
+                # shuffle real and fake examples
+                p = torch.randperm(len(y_batch))
+                graph_batch, y_batch = graph_batch[p], y_batch[p]
+                
+                oracle_scores = []
+                temp_instance = DataInstance(-1)
+                for i in range(len(graph_batch)):
+                    temp_instance.from_numpy_array(
+                        graph_batch[i].detach().numpy().squeeze()
+                    )
+                    oracle_scores.append(
+                        oracle.predict_proba(temp_instance)[:, desired_label]
+                    )
+                # The following update to the oracle scores is needed to have
+                # the same order of magnitude between real and generated sample
+                # losses
+                oracle_scores = np.array(oracle_scores, dtype=float).squeeze()
+                real_samples = torch.where(y_batch == 1.)
+                average_score_real_samples = np.mean(oracle_scores[real_samples])
+                if average_score_real_samples != 0:
+                    oracle_scores[real_samples] /= average_score_real_samples
+                
+                fake_samples = torch.where(y_batch == 0.)
+                oracle_scores[fake_samples] = 1.
+                
+                y_pred = countergan.discriminator(graph_batch)
+                loss = torch.mean(loss_discriminator(y_pred.squeeze(), y_batch.float())\
+                    * torch.tensor(oracle_scores, dtype=torch.float))
+                D_losses.append(loss.item())
+                loss.backward()
                 discriminator_optimizer.step()
-
-                ##########################
-                # (2) Update the generator (G) network: maximise log(D(G(z)))
-                ##########################
-                generator_optimizer.zero_grad()
-                discriminator.train(False)
-                discriminator.training = False
-                # fake labels are real for generator cost
-                fake_labels = torch.full((self.batch_size, 1), real_label, dtype=torch.float,
-                                        device=self.device)
-                # Since we just updated D, perform another forward pass of all-fake batch
-                # through D
-                output = discriminator(fake_graph)
-
-                # Calculate G's loss based on this output and the counterfactual realism
-                fake_inst = DataInstance(-1)
-                fake_inst.from_numpy_array(fake_graph.detach().cpu().numpy().squeeze())
-
-                pred_label = oracle.predict(fake_inst)
-                if not pred_label:
-                    oracle_prediction = torch.from_numpy(np.array([1, 0]))
-                else:
-                    oracle_prediction = torch.from_numpy(np.array([0, 1]))
-
-                oracle_prediction = oracle_prediction.to(torch.float).to(self.device)[None, :]
-                lbl = labels.to(torch.long)[0]
-                counterfactual_loss = -loss_counterfactual(oracle_prediction, lbl)
-                # counterfactual_loss = loss_counterfactual(oracle_prediction, 1-lbl)
-
-
-                errG = loss_bce(output, fake_labels) + counterfactual_loss   
-                # Calculate gradients for G
-                errG.backward()
-                D_G_z2 = output.mean().item()
-                # Update G
-                generator_optimizer.step()
-
-                print(f'Iteration [{iteration}/{self.training_iterations}] [{i}]'\
-                        +f'\tLoss_D: {errD.item()}\tLoss_G: {errG.item()}'\
-                        +f'\tD(x): {D_x}\tD(G(z)): {D_G_z1} / {D_G_z2}')
-                    
-                G_losses.append(errG.item())
-                D_losses.append(errD.item())        
+            
+            countergan_optimizer.zero_grad()
+            countergan.set_training_discriminator(False)
+            countergan.train(True)
+            countergan.discriminator.train(False)
+            
+            for _ in range(self.n_generator_steps):
+                graph, _ = next(train_loader)
+                graph = graph[:,None,:,:]
+                graph = graph.to(self.device)
+                y_fake = torch.ones((self.batch_size, ))
+                
+                output = countergan(graph)
+                loss = loss_countergan(output.squeeze(), y_fake.float())
+                loss.backward()
+                G_losses.append(loss.item())
+                countergan_optimizer.step()
+                
+            print(f'Iteration [{iteration}/{self.training_iterations}]'\
+                    +f'\tLoss_D: {np.mean(D_losses)}\tLoss_G: {np.mean(G_losses)}')
     
 
     def transform_data(self, dataset: Dataset, fold_id=0):
@@ -323,23 +238,66 @@ class CounteRGANExplainer(Explainer):
 
         X_train = X[dataset.get_split_indices()[fold_id]['train']]
         y_train = y[dataset.get_split_indices()[fold_id]['train']]
+        
+        self.batch_size = int(len(X_train) * self.batch_size_ratio)
 
-        train_dataset = torch.utils.data.TensorDataset(torch.tensor(X_train, dtype=torch.float), torch.tensor(y_train, dtype=torch.float))
-        # train_loader = DataLoader(train_dataset, batch_size=int(self.batch_size_ratio*len(X_train)), shuffle=True, num_workers=2, drop_last=True)
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=2, drop_last=True)
+        train_dataset = TensorDataset(
+            torch.tensor(X_train, dtype=torch.float),
+            torch.tensor(y_train, dtype=torch.float)
+            )
+
+        train_loader = DataLoader(train_dataset,
+                                  batch_size=self.batch_size,
+                                  shuffle=True,
+                                  num_workers=2,
+                                  drop_last=True)
 
         return train_loader
     
 
+class CounteRGAN(nn.Module):
+    
+    def __init__(self, n_nodes=28,
+                 residuals=True,
+                 ce_binarization_threshold=None,
+                 device='cuda'):
+        super(CounteRGAN, self).__init__()
+        
+        self.n_nodes = n_nodes
+        self.residuals = residuals
+        self.device = device
+        
+        self.generator = ResidualGenerator(n_nodes=n_nodes,
+                                           residuals=residuals,
+                                           threshold=ce_binarization_threshold,
+                                           device=device)
+        
+        self.discriminator = Discriminator(n_nodes=n_nodes,
+                                           device=device)
+        
+    def set_training_discriminator(self, training):
+        self.discriminator.set_training(training)
+        
+    def set_training_generator(self, training):
+        self.generator.set_training(training)
+        
+    def forward(self, graph):
+        graph = self.generator(graph)
+        return self.discriminator(graph)
 
 class ResidualGenerator(nn.Module):
 
-    def __init__(self, n_nodes=28, residuals=True, device='cuda'):
+    def __init__(self,
+                 n_nodes=28,
+                 residuals=True,
+                 threshold=None,
+                 device='cuda'):
         super(ResidualGenerator, self).__init__()
 
         self.n_nodes = n_nodes
         self.residuals = residuals
         self.device = device
+        self.threshold = threshold
 
         self.conv1 = nn.Conv2d(in_channels=1,
                             out_channels=64,
@@ -423,13 +381,19 @@ class ResidualGenerator(nn.Module):
         if self.residuals:
             x = torch.add(graph, x)
 
-        # transforming the output into an adj matrix if the value of a cell is < 0.5 then assign 0 else assign 1
-        x = torch.round(x)
+        # transforming the output into an adj matrix if the value of a cell is < threshold then assign 0 else assign 1
+        if self.threshold:
+            x = torch.sigmoid(x) # need to put everything into [0,1]
+            x = torch.where(x > self.threshold, torch.ones_like(x), torch.zeros_like(x))
+            
         return x
 
 
     def __get_same_padding(self, kernel_size, stride):
         return 0 if stride != 1 else (kernel_size - stride) // 2
+    
+    def set_training(self, training):
+        self.training = training
     
 
 
@@ -439,7 +403,9 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         self.n_nodes = n_nodes
-
+        self.training = False
+        self.device = device
+        
         self.conv1 = nn.Conv2d(in_channels=1,
                             out_channels=64,
                             kernel_size=(3,3),
@@ -473,8 +439,6 @@ class Discriminator(nn.Module):
         self.fc_len = self.init_run([3,3,3], [2,2,2], [0,0,0])
         self.fc = nn.Linear(64*self.fc_len**2, 1)
 
-        self.training = False
-        self.device = device
 
 
     def init_run(self, kernels, strides, paddings):
@@ -495,7 +459,9 @@ class Discriminator(nn.Module):
 
     def get_same_padding(self, kernel_size, stride, input_dim):
         return 0 if stride != 1 else (kernel_size - stride) // 2
-
+    
+    def set_training(self, training):
+        self.training = training
 
     def forward(self, graph):
         x = self.conv1(graph)

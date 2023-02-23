@@ -93,28 +93,27 @@ class ExplainerFactory:
             # Verifying the explainer parameters
             if not 'n_nodes' in explainer_parameters:
                 raise ValueError('''CounteRGAN requires the number of nodes''')
-            if not 'batch_size_ratio' in explainer_parameters:
-                raise ValueError('''CounteRGAN requires a batch size ratio''')
             if not 'device' in explainer_parameters:
                 raise ValueError('''CounteRGAN requires a device''')
-            if not 'training_iterations' in explainer_parameters:
-                raise ValueError('''CounteRGAN requires a number of training iterations''')
-            if not 'real_label' in explainer_parameters:
-                raise ValueError('''CounteRGAN requires a real_label''')
-            if not 'fake_label' in explainer_parameters:
-                raise ValueError('''CounteRGAN requires a fake_label''')
+            if not 'n_labels' in explainer_parameters:
+                raise ValueError('''CounteRGAN requires a n_labels''')
             if not 'fold_id' in explainer_parameters:
                 raise ValueError('''CounteRGAN requires a fold_id''')
             
             n_nodes = int(explainer_parameters['n_nodes'])
-            batch_size_ratio =explainer_parameters['batch_size_ratio']
-            device =explainer_parameters['device']
-            training_iterations =explainer_parameters['training_iterations']
-            real_label =explainer_parameters['real_label']
-            fake_label =explainer_parameters['fake_label']
-            fold_id =explainer_parameters['fold_id']
+            batch_size_ratio = explainer_parameters.get('batch_size_ratio', .1)
+            device = explainer_parameters['device']
+            training_iterations = explainer_parameters.get('training_iterations', 20000)
+            n_generator_steps = explainer_parameters.get('n_generator_steps', 2)
+            n_discriminator_steps = explainer_parameters.get('n_discriminator_steps', 3)
+            n_labels = explainer_parameters['n_labels']
+            fold_id = explainer_parameters['fold_id']
+            ce_binarization_threshold = explainer_parameters.get('ce_binarization_threshold', None)
             
-            return self.get_countergan_explainer(n_nodes, batch_size_ratio, device, training_iterations, real_label, fake_label, fold_id, explainer_dict)
+            return self.get_countergan_explainer(n_nodes, batch_size_ratio, device,
+                                                 training_iterations, n_discriminator_steps,
+                                                 n_generator_steps, n_labels, fold_id,
+                                                 ce_binarization_threshold, explainer_dict)
 
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
@@ -157,8 +156,20 @@ class ExplainerFactory:
         self._explainer_id_counter += 1
         return result
     
-    def get_countergan_explainer(self, n_nodes, batch_size_ratio, device, training_iterations, real_label, fake_label, fold_id, config_dict=None) -> Explainer:
-        result = CounteRGANExplainer(self._explainer_id_counter, self._explainer_store_path, n_nodes, batch_size_ratio, device, training_iterations, real_label, fake_label, fold_id, config_dict)
+    def get_countergan_explainer(self, n_nodes, batch_size_ratio, device,
+                                 training_iterations, n_discriminator_steps, n_generator_steps,
+                                 n_labels, fold_id, ce_binarization_threshold, config_dict=None) -> Explainer:
+        result = CounteRGANExplainer(self._explainer_id_counter,
+                                     self._explainer_store_path,
+                                     n_nodes=n_nodes,
+                                     batch_size_ratio=batch_size_ratio,
+                                     device=device,
+                                     n_labels=n_labels,
+                                     training_iterations=training_iterations,
+                                     n_generator_steps=n_generator_steps,
+                                     n_discriminator_steps=n_discriminator_steps,
+                                     ce_binarization_threshold=ce_binarization_threshold,
+                                     fold_id=fold_id, config_dict=config_dict)
         self._explainer_id_counter += 1
         return result
         
