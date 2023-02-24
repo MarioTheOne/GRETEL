@@ -132,8 +132,6 @@ dmypy.json
 
 # datas
 data/
-output/
-stats/
 
 # videos
 .mp4
