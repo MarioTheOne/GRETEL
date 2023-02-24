@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/steel/set-1
+search_dir=./config/steel/set-2
 
 for i in {1..10}
 do
