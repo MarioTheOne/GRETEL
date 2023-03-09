@@ -228,8 +228,8 @@ class CounteRGANExplainer(Explainer):
                 G_losses.append(loss.item())
                 countergan_optimizer.step()
                 
-            print(f'Iteration [{iteration}/{self.training_iterations}]'\
-                    +f'\tLoss_D: {np.mean(D_losses)}\tLoss_G: {np.mean(G_losses)}')
+            # print(f'Iteration [{iteration}/{self.training_iterations}]'\
+            #         +f'\tLoss_D: {np.mean(D_losses)}\tLoss_G: {np.mean(G_losses)}')
     
 
     def transform_data(self, dataset: Dataset, fold_id=0):
