@@ -9,6 +9,7 @@ from src.explainer.explainer_dce_search import (DCESearchExplainer,
                                                 DCESearchExplainerOracleless)
 from src.explainer.explainer_maccs import MACCSExplainer
 from src.explainer.explainer_countergan import CounteRGANExplainer
+from src.explainer.explainer_clear import CLEARExplainer
 
 
 class ExplainerFactory:
@@ -114,6 +115,44 @@ class ExplainerFactory:
                                                  training_iterations, n_discriminator_steps,
                                                  n_generator_steps, n_labels, fold_id,
                                                  ce_binarization_threshold, explainer_dict)
+            
+        elif explainer_name == 'clear':
+            # Verifying the explainer parameters
+            if not 'n_nodes' in explainer_parameters:
+                raise ValueError('''CLEAR requires the number of nodes''')
+            if not 'n_labels' in explainer_parameters:
+                raise ValueError('''CLEAR requires a n_labels''')
+            if not 'fold_id' in explainer_parameters:
+                raise ValueError('''CLEAR requires a fold_id''')
+        
+            batch_size_ratio = explainer_parameters.get('batch_size_ratio', .1)
+            vae_type = explainer_parameters.get('vae_type', 'graphVAE')
+            h_dim = explainer_parameters.get('h_dim', 16)
+            z_dim = explainer_parameters.get('z_dim', 16)
+            dropout = explainer_parameters.get('dropout', .1)
+            encoder_type = explainer_parameters.get('encoder_type', 'gcn')
+            disable_u = explainer_parameters.get('disable_u', False)
+            lr = explainer_parameters.get('lr', 1e-3)
+            weight_decay = explainer_parameters.get('weight_decay', 1e-5)
+            graph_pool_type = explainer_parameters.get('graph_pool_type', 'mean')
+            epochs = explainer_parameters.get('epochs', 200)
+            alpha = explainer_parameters.get('alpha', 5)
+            feature_dim = explainer_parameters.get('feature_dim', 2)
+            
+            assert feature_dim >= 2
+            
+            n_nodes = int(explainer_parameters['n_nodes'])
+            n_labels = int(explainer_parameters['n_labels'])
+            fold_id = int(explainer_parameters['fold_id'])
+    
+            # max_num_nodes here is equal to n_labels
+            # the authors use it originally to pad the graph adjacency matrices
+            # if they're different within the dataset instances.
+            return self.get_clear_explainer(n_nodes, n_nodes, n_labels, batch_size_ratio,
+                                            vae_type, h_dim, z_dim, dropout,
+                                            encoder_type, graph_pool_type, disable_u,
+                                            epochs, alpha, feature_dim, lr, weight_decay,
+                                            fold_id, explainer_dict)
 
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
@@ -170,6 +209,35 @@ class ExplainerFactory:
                                      n_discriminator_steps=n_discriminator_steps,
                                      ce_binarization_threshold=ce_binarization_threshold,
                                      fold_id=fold_id, config_dict=config_dict)
+        self._explainer_id_counter += 1
+        return result
+       
+   
+    def get_clear_explainer(self, n_nodes, max_num_nodes, n_labels, batch_size_ratio, vae_type,
+                            h_dim, z_dim, dropout, encoder_type, graph_pool_type,
+                            disable_u, epochs, alpha, feature_dim,
+                            lr, weight_decay, fold_id, config_dict=None) -> Explainer:
+        
+        result = CLEARExplainer(self._explainer_id_counter,
+                                self._explainer_store_path,
+                                n_nodes=n_nodes,
+                                n_labels=n_labels,
+                                batch_size_ratio=batch_size_ratio,
+                                vae_type=vae_type,
+                                h_dim=h_dim,
+                                z_dim=z_dim,
+                                dropout=dropout,
+                                encoder_type=encoder_type,
+                                max_num_nodes=max_num_nodes,
+                                graph_pool_type=graph_pool_type,
+                                disable_u=disable_u,
+                                epochs=epochs,
+                                alpha=alpha,
+                                feature_dim=feature_dim,
+                                lr=lr,
+                                weight_decay=weight_decay,
+                                fold_id=fold_id,
+                                config_dict=config_dict)
         self._explainer_id_counter += 1
         return result
         

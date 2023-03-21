@@ -5,7 +5,7 @@ from src.evaluation.evaluator_manager import EvaluatorManager
 
 print(f"Initializing test ensemble")
 
-config_file_path = './config/steel/set-2/config_tree-cycles-500-28_tc-custom-oracle_countergan_fold-0.json'
+config_file_path = './config/steel/clear-set-1/config_tree-cycles-500-28_tc-custom-oracle_clear_fold-0.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=0)
