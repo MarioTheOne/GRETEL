@@ -126,7 +126,6 @@ class ExplainerFactory:
                 raise ValueError('''CLEAR requires a fold_id''')
         
             batch_size_ratio = explainer_parameters.get('batch_size_ratio', .1)
-            vae_type = explainer_parameters.get('vae_type', 'graphVAE')
             h_dim = explainer_parameters.get('h_dim', 16)
             z_dim = explainer_parameters.get('z_dim', 16)
             dropout = explainer_parameters.get('dropout', .1)
@@ -137,7 +136,12 @@ class ExplainerFactory:
             graph_pool_type = explainer_parameters.get('graph_pool_type', 'mean')
             epochs = explainer_parameters.get('epochs', 200)
             alpha = explainer_parameters.get('alpha', 5)
+            beta_x = explainer_parameters.get('beta_x', 10)
+            beta_adj = explainer_parameters.get('beta_adj', 10)
             feature_dim = explainer_parameters.get('feature_dim', 2)
+            lambda_sim = explainer_parameters.get('lambda_sim', 1)
+            lambda_kl = explainer_parameters.get('lambda_kl', 1)
+            lambda_cfe = explainer_parameters.get('lambda_cfe', 1)
             
             assert feature_dim >= 2
             
@@ -148,10 +152,12 @@ class ExplainerFactory:
             # max_num_nodes here is equal to n_labels
             # the authors use it originally to pad the graph adjacency matrices
             # if they're different within the dataset instances.
-            return self.get_clear_explainer(n_nodes, n_nodes, n_labels, batch_size_ratio,
-                                            vae_type, h_dim, z_dim, dropout,
+            return self.get_clear_explainer(n_nodes, n_labels, batch_size_ratio,
+                                            h_dim, z_dim, dropout,
                                             encoder_type, graph_pool_type, disable_u,
-                                            epochs, alpha, feature_dim, lr, weight_decay,
+                                            epochs, alpha, beta_x, beta_adj,
+                                            feature_dim, lr, weight_decay,
+                                            lambda_sim, lambda_kl, lambda_cfe,
                                             fold_id, explainer_dict)
 
         else:
@@ -213,29 +219,33 @@ class ExplainerFactory:
         return result
        
    
-    def get_clear_explainer(self, n_nodes, max_num_nodes, n_labels, batch_size_ratio, vae_type,
+    def get_clear_explainer(self, n_nodes, n_labels, batch_size_ratio,
                             h_dim, z_dim, dropout, encoder_type, graph_pool_type,
-                            disable_u, epochs, alpha, feature_dim,
-                            lr, weight_decay, fold_id, config_dict=None) -> Explainer:
+                            disable_u, epochs, alpha, beta_x, beta_adj, feature_dim,
+                            lr, weight_decay, lambda_sim, lambda_kl, lambda_cfe,
+                            fold_id, config_dict=None) -> Explainer:
         
         result = CLEARExplainer(self._explainer_id_counter,
                                 self._explainer_store_path,
                                 n_nodes=n_nodes,
                                 n_labels=n_labels,
                                 batch_size_ratio=batch_size_ratio,
-                                vae_type=vae_type,
                                 h_dim=h_dim,
                                 z_dim=z_dim,
                                 dropout=dropout,
                                 encoder_type=encoder_type,
-                                max_num_nodes=max_num_nodes,
                                 graph_pool_type=graph_pool_type,
                                 disable_u=disable_u,
                                 epochs=epochs,
                                 alpha=alpha,
+                                beta_x=beta_x,
+                                beta_adj=beta_adj,
                                 feature_dim=feature_dim,
                                 lr=lr,
                                 weight_decay=weight_decay,
+                                lambda_sim=lambda_sim,
+                                lambda_kl=lambda_kl,
+                                lambda_cfe=lambda_cfe,
                                 fold_id=fold_id,
                                 config_dict=config_dict)
         self._explainer_id_counter += 1

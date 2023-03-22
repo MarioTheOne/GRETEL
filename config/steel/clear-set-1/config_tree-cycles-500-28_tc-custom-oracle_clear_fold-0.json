@@ -7,7 +7,7 @@
         {"name": "output_store_path", "address": "./output/steel/tc-500-28/"}
     ],
     "datasets": [
-        {"name": "tree-cycles", "parameters": {"n_inst": 100, "n_per_inst": 28, "n_in_cycles": 7} }
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 7} }
     ],
     "oracles": [
         {"name": "tree_cycles_custom_oracle", "parameters": {} }
@@ -18,7 +18,8 @@
             "parameters":{
                 "n_nodes": 28,
                 "n_labels": 2,
-                "fold_id": 0
+                "fold_id": 0,
+                "epochs": 600
             } 
         }
     ],

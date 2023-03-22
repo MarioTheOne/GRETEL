@@ -24,11 +24,9 @@ class CLEARExplainer(Explainer):
                  n_nodes,
                  n_labels=2,
                  batch_size_ratio=.1,
-                 vae_type='graphVAE',
                  h_dim=10,
                  z_dim=10,
                  dropout=.1,
-                 max_num_nodes=10,
                  encoder_type='gcn',
                  graph_pool_type='mean',
                  disable_u=False,
@@ -37,6 +35,11 @@ class CLEARExplainer(Explainer):
                  feature_dim=2,
                  lr=1e-3,
                  weight_decay=1e-5,
+                 lambda_sim=1,
+                 lambda_kl=1,
+                 lambda_cfe=1,
+                 beta_x=10,
+                 beta_adj=10,
                  fold_id=0,
                  config_dict=None) -> None:
         
@@ -49,28 +52,29 @@ class CLEARExplainer(Explainer):
         self.batch_size_ratio = batch_size_ratio
         self.explainer_store_path = explainer_store_path
         self.fold_id = fold_id
+        self.lambda_sim = lambda_sim
+        self.lambda_kl = lambda_kl
+        self.lambda_cfe = lambda_cfe
         self.epochs = epochs
         self.alpha = alpha
+        self.beta_x = beta_x
+        self.beta_adj = beta_adj
         self.feature_dim = feature_dim
                 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-        self.explainer = CLEAR(init_params={
-            'vae_type': vae_type,
-            'feature_dim': feature_dim,
-            'max_num_nodes': max_num_nodes,
-            'graph_pool_type': graph_pool_type,
-            'encoder_type': encoder_type           
-            }, args={
-                'dim_h': h_dim,
-                'dim_z': z_dim,
-                'dropout': dropout,
-                'disable_u': disable_u,
-                'device': self.device
-            })
-        self.explainer = self.explainer.to(self.device)
-                
+        self.explainer = CLEAR(feature_dim=feature_dim,
+                               n_nodes=n_nodes,
+                               graph_pool_type=graph_pool_type,
+                               encoder_type=encoder_type,
+                               h_dim=h_dim,
+                               z_dim=z_dim,
+                               dropout=dropout,
+                               disable_u=disable_u,
+                               device=self.device
+                            ).to(self.device)
+                        
         self.optimizer = torch.optim.Adam(self.explainer.parameters(),
                                           lr=lr, weight_decay=weight_decay)
         
@@ -108,33 +112,24 @@ class CLEARExplainer(Explainer):
     def save_explainers(self):
         torch.save(self.explainer.state_dict(),
                    os.path.join(self.explainer_store_path, self.name, f'explainer'))
-
-                       
-
+ 
     def load_explainers(self):
         self.explainer.load_state_dict(torch.load(
-            os.path.join(self.explainer_store_path, self.name, f'explainer')
-        ))
-
+            os.path.join(self.explainer_store_path, self.name, f'explainer')))
 
     def fit(self, oracle: Oracle, dataset : Dataset, fold_id=0):
         explainer_name = 'clear_fit_on_' + dataset.name + '_fold_id_' + str(fold_id)
         explainer_uri = os.path.join(self.explainer_store_path, explainer_name)
-
+        self.name = explainer_name
+        
         if os.path.exists(explainer_uri):
             # Load the weights of the trained model
-            self.name = explainer_name
             self.load_explainers()
-
         else:
             # Create the folder to store the oracle if it does not exist
-            os.mkdir(explainer_uri)        
-            self.name = explainer_name
-            
+            os.mkdir(explainer_uri)                    
             self.__fit(oracle, dataset, fold_id)
-
             self.save_explainers()        
-
         # setting the flag to signal the explainer was already trained
         self._fitted = True
 
@@ -153,7 +148,7 @@ class CLEARExplainer(Explainer):
                 features = features.float().to(self.device)
                 u = u.float().to(self.device)
                 adj = adj.float().to(self.device)
-                labels = labels.float().to(self.device)
+                labels = (1 - labels.float()).to(self.device)
             
                 self.optimizer.zero_grad()
                 # forward pass
@@ -208,10 +203,8 @@ class CLEARExplainer(Explainer):
         size = len(features_permuted)
         dist_x = torch.mean(self.__distance_feature(features_permuted.view(size, -1), features_reconst.view(size, -1)))
         dist_a = self.__distance_graph_prob(adj_permuted, adj_reconst)
-        
-        beta = 10
-        
-        loss_sim = beta * dist_x + 10 * dist_a
+                
+        loss_sim = self.beta_x * dist_x + self.beta_adj * dist_a
         
         # CFE loss
         temp_instance = DataInstanceWFeatures(-1)
@@ -233,7 +226,7 @@ class CLEARExplainer(Explainer):
             loss_kl_cf = 0.5 * (((z_logvar_cf - z_logvar) + ((z_logvar.exp() + (z_mu - z_mu_cf).pow(2)) / z_logvar_cf.exp())) - 1)
             loss_kl_cf = torch.mean(loss_kl_cf)
             
-        loss = 1. * loss_sim + 1 * loss_kl + 1.0 * loss_cfe
+        loss = self.lambda_sim * loss_sim + self.lambda_kl * loss_kl + self.lambda_cfe * loss_cfe
 
         loss_results = {'loss': loss, 'loss_kl': loss_kl, 'loss_sim': loss_sim, 'loss_cfe': loss_cfe, 'loss_kl_cf':loss_kl_cf}
         return loss_results  
@@ -245,14 +238,6 @@ class CLEARExplainer(Explainer):
     
     def __distance_graph_prob(self, adj_1, adj_2_prob):
         return F.binary_cross_entropy(adj_2_prob, adj_1)
-
-    def __proximity_feature(self, feat_1, feat_2, type='cos'):
-        if type == 'cos':
-            cos = nn.CosineSimilarity(dim=-1, eps=1e-6)
-            output = cos(feat_1, feat_2)
-            output = torch.mean(output)
-        return output
-    
     
     def transform_data(self, dataset: Dataset, fold_id=0):             
         X_adj  = np.array([i.to_numpy_array() for i in dataset.instances])
@@ -283,20 +268,29 @@ class CLEARExplainer(Explainer):
         
 class CLEAR(nn.Module):
 
-    def __init__(self, init_params, args):
+    def __init__(self,
+                 feature_dim,
+                 h_dim=16,
+                 z_dim=16,
+                 dropout=False,
+                 n_nodes=10,
+                 encoder_type='gcn',
+                 graph_pool_type='mean',
+                 disable_u=False,
+                 device='cuda'
+                ):
         super(CLEAR, self).__init__()
         
-        self.vae_type = init_params['vae_type']  # graphVAE
-        self.x_dim = init_params['feature_dim']
-        self.h_dim = args['dim_h']
-        self.z_dim = args['dim_z']
+        self.x_dim = feature_dim
+        self.h_dim = h_dim
+        self.z_dim = z_dim
+        self.dropout = dropout
+        self.n_nodes = n_nodes
+        self.encoder_type = encoder_type
+        self.graph_pool_type = graph_pool_type
+        self.disable_u = disable_u
+        self.device = device
         self.u_dim = 1 # init_params['u_dim']
-        self.dropout = args['dropout']
-        self.max_num_nodes = init_params['max_num_nodes']
-        self.encoder_type = init_params['encoder_type']
-        self.graph_pool_type = init_params['graph_pool_type']
-        self.disable_u = args['disable_u']
-        self.device = args['device']
         
         if self.disable_u:
             self.u_dim = 0
@@ -341,7 +335,7 @@ class CLEAR(nn.Module):
             nn.BatchNorm1d(self.h_dim),
             nn.Dropout(self.dropout),
             nn.ReLU(),
-            nn.Linear(self.h_dim, self.max_num_nodes * self.x_dim)
+            nn.Linear(self.h_dim, self.n_nodes * self.x_dim)
         )
         
         in_channels_a = self.z_dim + 1 if self.disable_u else self.z_dim + 2
@@ -354,7 +348,7 @@ class CLEAR(nn.Module):
             nn.BatchNorm1d(self.h_dim),
             nn.Dropout(self.dropout),
             nn.ReLU(),
-            nn.Linear(self.h_dim, self.max_num_nodes * self.max_num_nodes),
+            nn.Linear(self.h_dim, self.n_nodes * self.n_nodes),
             nn.Sigmoid()
         )
         
@@ -386,15 +380,15 @@ class CLEAR(nn.Module):
         if self.disable_u:
             adj_reconst = self.decoder_a(
                 torch.cat((z, y_cf), dim=1)
-                ).view(-1, self.max_num_nodes, self.max_num_nodes)
+                ).view(-1, self.n_nodes, self.n_nodes)
         else:
             adj_reconst = self.decoder_a(
                 torch.cat((z, u, y_cf), dim=1)
-                ).view(-1, self.max_num_nodes, self.max_num_nodes)
+                ).view(-1, self.n_nodes, self.n_nodes)
                             
         features_reconst = self.decoder_x(
             torch.cat((z, y_cf), dim=1)
-            ).view(-1, self.max_num_nodes, self.x_dim)
+            ).view(-1, self.n_nodes, self.x_dim)
         
         return features_reconst, adj_reconst
     

@@ -20,8 +20,7 @@ class CausalityConverterAB(metaclass=ABCMeta):
     
     def convert(self, dataset: Dataset) -> Dataset:
         new_dataset = deepcopy(dataset)
-        for instance in dataset.instances:
-            new_dataset.instances[instance.id] = self.convert_instance(instance)
+        new_dataset.instances = [self.convert_instance(instance) for instance in dataset.instances]
         return new_dataset
             
 class DefaultCausalityConverter(CausalityConverterAB):
