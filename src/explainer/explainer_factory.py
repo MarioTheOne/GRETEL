@@ -1,15 +1,18 @@
+from src.dataset.converters.weights_converter import DefaultFeatureAndWeightConverter
+from src.dataset.converters.cf2_converter import CF2TreeCycleConverter
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.explainer.ensemble.ensemble_factory import EnsembleFactory
 from src.explainer.explainer_base import Explainer
 from src.explainer.explainer_bidirectional_search import (
     DataDrivenBidirectionalSearchExplainer,
     ObliviousBidirectionalSearchExplainer)
+from src.explainer.explainer_cf2 import CF2Explainer
 from src.explainer.explainer_cfgnnexplainer import CFGNNExplainer
+from src.explainer.explainer_clear import CLEARExplainer
+from src.explainer.explainer_countergan import CounteRGANExplainer
 from src.explainer.explainer_dce_search import (DCESearchExplainer,
                                                 DCESearchExplainerOracleless)
 from src.explainer.explainer_maccs import MACCSExplainer
-from src.explainer.explainer_countergan import CounteRGANExplainer
-from src.explainer.explainer_clear import CLEARExplainer
 
 
 class ExplainerFactory:
@@ -159,7 +162,38 @@ class ExplainerFactory:
                                             feature_dim, lr, weight_decay,
                                             lambda_sim, lambda_kl, lambda_cfe,
                                             fold_id, explainer_dict)
-
+            
+        elif explainer_name == 'cf2':
+            if not 'n_nodes' in explainer_parameters:
+                raise ValueError('''CF2 requires the number of nodes''')
+            if not 'fold_id' in explainer_parameters:
+                raise ValueError('''CF2 requires a fold_id''')
+            
+            batch_size_ratio = explainer_parameters.get('batch_size_ratio', .1)
+            lr = explainer_parameters.get('lr', 1e-3)
+            weight_decay = explainer_parameters.get('weight_decay', 1e-5)
+            gamma = explainer_parameters.get('gamma', 'mean')
+            epochs = explainer_parameters.get('epochs', 200)
+            alpha = explainer_parameters.get('alpha', 5)
+            lam = explainer_parameters.get('lambda', 5)
+            feature_dim = explainer_parameters.get('feature_dim', 8)
+            weight_dim = explainer_parameters.get('weight_dim', 3)
+            converter_name = explainer_parameters.get('converter', 'tree_cycles')
+            
+            n_nodes = int(explainer_parameters['n_nodes'])
+            fold_id = int(explainer_parameters['fold_id'])
+            
+            converter = None
+            if converter_name == 'tree_cycles':
+                converter = CF2TreeCycleConverter(feature_dim=feature_dim)
+            else:
+                converter = DefaultFeatureAndWeightConverter(feature_dim=feature_dim,
+                                                              weight_dim=n_nodes)
+                 
+            return self.get_cff_explainer(n_nodes, converter,
+                                          batch_size_ratio, lr, weight_decay,
+                                          gamma, lam, alpha, epochs,
+                                          fold_id, explainer_dict)
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
             by the factory''')
@@ -198,6 +232,28 @@ class ExplainerFactory:
     
     def get_ensemble(self, config_dic = None, metric_factory : EvaluationMetricFactory = None) -> Explainer:
         result = self._ensemble_factory.build_explainer(config_dic, metric_factory)
+        self._explainer_id_counter += 1
+        return result
+    
+    
+    def get_cff_explainer(self, n_nodes, converter,
+                          batch_size_ratio,
+                          lr, weight_decay, gamma, lam,
+                          alpha, epochs,
+                          fold_id, config_dict=None) -> Explainer:
+        result = CF2Explainer(self._explainer_id_counter,
+                              self._explainer_store_path,
+                              n_nodes=n_nodes,
+                              batch_size_ratio=batch_size_ratio,
+                              lr=lr,
+                              weight_decay=weight_decay,
+                              gamma=gamma,
+                              lam=lam,
+                              alpha=alpha,
+                              epochs=epochs,
+                              converter=converter,
+                              fold_id=fold_id,
+                              config_dict=config_dict)
         self._explainer_id_counter += 1
         return result
     

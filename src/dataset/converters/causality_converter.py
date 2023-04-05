@@ -1,29 +1,13 @@
 
-from abc import ABCMeta, abstractmethod
-
 import numpy as np
-from copy import deepcopy
+from src.dataset.converters.abstract_converter import ConverterAB
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.data_instance_causality import CausalDataInstance
-from src.dataset.data_instance_features import DataInstanceWFeatures
+from src.dataset.data_instance_features import DataInstanceWFeatures, DataInstanceWFeaturesAndWeights
 from src.dataset.dataset_base import Dataset
 
-
-class CausalityConverterAB(metaclass=ABCMeta):
-    
-    def __init__(self):
-        self.name = 'causality_converter'
-        
-    @abstractmethod
-    def convert_instance(self, instance: DataInstance) -> CausalDataInstance:
-        pass
-    
-    def convert(self, dataset: Dataset) -> Dataset:
-        new_dataset = deepcopy(dataset)
-        new_dataset.instances = [self.convert_instance(instance) for instance in dataset.instances]
-        return new_dataset
             
-class DefaultCausalityConverter(CausalityConverterAB):
+class DefaultCausalityConverter(ConverterAB):
     
     def __init__(self, causality_dim_choice=10):
         super(DefaultCausalityConverter, self).__init__()
@@ -62,5 +46,5 @@ class DefaultCausalityConverter(CausalityConverterAB):
         
         return converted_instance
     
-    def __create_dummy_features(self, instance: DataInstance) -> DataInstanceWFeatures:
+    def __create_dummy_features(self, instance: DataInstance):
         return np.random.normal(0, 1, (instance.graph.number_of_nodes(), 1))
