@@ -3,8 +3,8 @@ from src.data_analysis.data_analyzer import DataAnalyzer
 # data_store_path = './data/datasets/'
 # dtan = DataAnalyzer('./output', './stats')
 
-data_store_path = '/home/coder/gretel/data/datasets'
-dtan = DataAnalyzer('/home/coder/gretel/output/steel/tc-500-28', '/home/coder/gretel/stats/steel/tc-500-28')
+data_store_path = './data/datasets'
+dtan = DataAnalyzer('./output/steel/tc-500-32', './stats/steel/tc-500-32')
 # dtan = DataAnalyzer('C:\\Work\\GNN\\Mine\\GRETEL2\\GRETEL\\output_legacy\\synthetic', 'C:\\Work\\GNN\\Mine\\GRETEL2\\GRETEL\\stats_legacy')
 
 dtan.aggregate_data()
