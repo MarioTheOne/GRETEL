@@ -1,3 +1,6 @@
+from src.explainer.meg.explainer_meg import MEGExplainer
+from src.explainer.meg.utils.encoders import MorganBitFingerprintActionEncoder, TreeCyclesActionEncoder
+from src.explainer.meg.environments.tree_cycles_env import TreeCyclesEnvironment
 from src.dataset.converters.weights_converter import DefaultFeatureAndWeightConverter
 from src.dataset.converters.cf2_converter import CF2TreeCycleConverter
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
@@ -194,10 +197,85 @@ class ExplainerFactory:
                                           batch_size_ratio, lr, weight_decay,
                                           gamma, lam, alpha, epochs,
                                           fold_id, explainer_dict)
+            
+        elif explainer_name == 'meg':
+            if not 'env' in explainer_parameters:
+                raise ValueError('''MEG requires an environment to run reinforcement learning''')
+            if not 'fold_id' in explainer_parameters:
+                raise ValueError('''MEG requires a fold_id''')
+            if not 'action_encoder' in explainer_parameters:
+                raise ValueError('''MEG requires an action_encoder''')
+            
+            environment = None
+            env_name = explainer_parameters['env'].get('name', None)
+            if not env_name:
+                raise ValueError('''MEG requires to have and environment name''')
+            else:
+                if env_name == 'tree-cycles':
+                    environment = TreeCyclesEnvironment(*explainer_parameters['env']['args'])
+                else:
+                    raise ValueError('''MEG supports only "tree-cycles" for environment''')
+                
+            action_encoder = explainer_parameters['action_encoder'].get('name', 'tree-cycles')
+            if action_encoder == 'tree-cycles':
+                action_encoder = TreeCyclesActionEncoder()
+            elif action_encoder == 'morgan_bit_fingerprint':
+                action_encoder = MorganBitFingerprintActionEncoder(*explainer_parameters['action_encoder']['args'])
+            else:
+                raise ValueError('''MEG supports only "tree-cycles", "morgan_bit_fingerprint" to encode actions''')
+            
+            num_input = explainer_parameters.get('num_input', 5)    
+            batch_size = explainer_parameters.get('batch_size', 1)
+            lr = explainer_parameters.get('lr', 1e-4)
+            replay_buffer_size = explainer_parameters.get('replay_buffer_size', 10000)
+            num_epochs = explainer_parameters.get('epochs', 10)
+            max_step_per_episode = explainer_parameters.get('max_steps_per_episode', 1)
+            update_interval = explainer_parameters.get('update_interval', 1)
+            gamma = explainer_parameters.get('gamma', 0.95)
+            discount = explainer_parameters.get('discount', 0.9)
+            polyak = explainer_parameters.get('polyak', 0.995)
+            sort_predicate = lambda result : result['reward']
+            num_counterfactuals = explainer_parameters.get('num_counterfactuals', 10)
+            
+            
+            fold_id = int(explainer_parameters['fold_id'])
+            
+            return self.get_meg_explainer(environment, action_encoder,
+                                          num_input, replay_buffer_size,
+                                          num_epochs, max_step_per_episode,
+                                          update_interval, gamma, polyak,
+                                          sort_predicate, fold_id, num_counterfactuals,
+                                          batch_size,
+                                          explainer_dict)
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
             by the factory''')
 
+    def get_meg_explainer(self, environment, action_encoder,
+                          num_input,
+                          replay_buffer_size, num_epochs,
+                          max_step_per_episode, update_interval, gamma,
+                          polyak, sort_predicate, fold_id, num_counterfactuals,
+                          batch_size,
+                          config_dict=None) -> Explainer:
+        
+        result = MEGExplainer(id=self._explainer_id_counter,
+                              environment=environment,
+                              num_counterfactuals=num_counterfactuals,
+                              action_encoder=action_encoder,
+                              batch_size=batch_size,
+                              replay_buffer_size=replay_buffer_size,
+                              num_epochs=num_epochs,
+                              max_steps_per_episode=max_step_per_episode,
+                              update_interval=update_interval,
+                              gamma=gamma,
+                              polyak=polyak,
+                              sort_predicate=sort_predicate,
+                              fold_id=fold_id,
+                              num_input=num_input,
+                              config_dict=config_dict)
+        self._explainer_id_counter += 1
+        return result
 
     def get_dce_search_explainer(self, instance_distance_function, config_dict=None) -> Explainer:
         result = DCESearchExplainer(self._explainer_id_counter, instance_distance_function, config_dict)

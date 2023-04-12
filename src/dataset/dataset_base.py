@@ -316,3 +316,6 @@ class Dataset(ABC):
             graph = i.to_numpy_arrays(false)
             activity = i.graph_label
             yield graph, activity
+
+    def num_classes(self):
+        return len(np.unique([i.graph_label for i in self.instances]))
