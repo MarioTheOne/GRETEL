@@ -14,11 +14,11 @@
     ],
     "explainers": [
         {
-            "name": "clear",
+            "name": "meg",
             "parameters":{
-                "n_nodes": 32,
+                "env": 32,
                 "n_labels": 2,
-                "fold_id": 5,
+                "fold_id": 0,
                 "epochs": 600
             } 
         }
