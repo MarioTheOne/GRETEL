@@ -1,8 +1,8 @@
 #!/bin/bash
 
-search_dir=./config/steel/tc-500-28-7
+search_dir=./config/steel/clear-set-3
 
-for i in {1..10}
+for i in {1..1}
 do
     for entry in "$search_dir"/*
     do
