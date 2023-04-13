@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/steel/clear-set-3
+search_dir=./config/steel/meg-tc32
 
 for i in {1..1}
 do

@@ -26,7 +26,7 @@
                 },
                 "num_input": 1024,
                 "epochs": 10,
-                "fold_id": 0
+                "fold_id": 8
             } 
         }
     ],
