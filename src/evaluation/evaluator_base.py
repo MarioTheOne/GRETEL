@@ -121,6 +121,7 @@ class Evaluator(ABC):
             self._results['runtime'].append(end_time - start_time)
 
             self._real_evaluate(inst, counterfactual)
+            print('evaluated instance with id ', str(inst.id))
 
         self.write_results()
 
