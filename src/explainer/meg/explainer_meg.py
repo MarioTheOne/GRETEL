@@ -43,16 +43,20 @@ class MEGExplainer(Explainer):
         self.action_encoder = action_encoder
         self.sort_predicate = sort_predicate
         self.fold_id = fold_id
-        
+        self.num_input = num_input
+        self.replay_buffer_size = replay_buffer_size
         self.environment = environment
+        self.lr = lr
         
-        self.explainer = MEGAgent(num_input=num_input + 1,
-                                  num_output=1,
-                                  lr=lr,
-                                  replay_buffer_size=replay_buffer_size)
+        
 
     def explain(self, instance, oracle: Oracle, dataset: Dataset):
         #dataset = self.converter.convert(dataset)              
+        self.explainer = MEGAgent(num_input=self.num_input + 1,
+                                  num_output=1,
+                                  lr=self.lr,
+                                  replay_buffer_size=self.replay_buffer_size)
+        
         self.fit(oracle, dataset, instance, self.fold_id)
         instance = dataset.get_instance(instance.id)
         
