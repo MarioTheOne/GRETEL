@@ -1,3 +1,4 @@
+from src.explainer.explainer_perturbation_rand import PerturbationRandExplainer
 from src.explainer.meg.explainer_meg import MEGExplainer
 from src.explainer.meg.utils.encoders import MorganBitFingerprintActionEncoder, TreeCyclesActionEncoder
 from src.explainer.meg.environments.tree_cycles_env import TreeCyclesEnvironment
@@ -247,10 +248,28 @@ class ExplainerFactory:
                                           sort_predicate, fold_id, num_counterfactuals,
                                           batch_size,
                                           explainer_dict)
+            
+        elif explainer_name == 'perturbation_rand':
+            if not 'fold_id' in explainer_parameters:
+                raise ValueError('''MEG requires a fold_id''')
+            
+            perturbation_percentage = explainer_parameters.get('perturbation_percentage', .05)
+            fold_id = explainer_parameters['fold_id']
+            
+            return self.get_perturb_rand_explainer(fold_id, perturbation_percentage, explainer_dict)
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
             by the factory''')
 
+    def get_perturb_rand_explainer(self, fold_id, perturbation_percentage, config_dict=None):
+        result = PerturbationRandExplainer(id=self._explainer_id_counter,
+                                         perturbation_percentage=perturbation_percentage,
+                                         fold_id=fold_id,
+                                         config_dict=config_dict)
+        self._explainer_id_counter += 1
+        return result
+        
+        
     def get_meg_explainer(self, environment, action_encoder,
                           num_input,
                           replay_buffer_size, num_epochs,
