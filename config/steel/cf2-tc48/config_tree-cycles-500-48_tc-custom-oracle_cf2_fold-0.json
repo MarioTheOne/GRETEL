@@ -4,29 +4,28 @@
         {"name": "embedder_store_path", "address": "./data/embedders/"},
         {"name": "oracle_store_path", "address": "./data/oracles/"},
         {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/steel/tc-500-32/"}
+        {"name": "output_store_path", "address": "./output/steel/tc-500-48/"}
     ],
     "datasets": [
-        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 32, "n_in_cycles": 7} }
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 48, "n_in_cycles": 7} }
     ],
     "oracles": [
         {"name": "tree_cycles_custom_oracle", "parameters": {} }
     ],
     "explainers": [
         {
-            "name": "meg",
+            "name": "cf2",
             "parameters":{
-                "env" : {
-                    "name": "tree-cycles",
-                    "args": {}
-                },
-                "action_encoder": {
-                    "name": "tree-cycles",
-                    "args": {}
-                },
-                "num_input": 1024,
-                "epochs": 10,
-                "fold_id": 4
+                "n_nodes": 48,
+                "fold_id": 0,
+                "alpha": 0.6,
+                "lam": 500,
+                "epochs": 100,
+                "lr": 0.0001,
+                "batch_size": 0.05,
+                "gamma": 0.5,
+                "feature_dim": 8,
+                "converter": "tree_cycles"
             } 
         }
     ],
