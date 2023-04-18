@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/steel/cf2-tc48
+search_dir=./config/steel/clear-asd
 
 for i in {1..1}
 do
