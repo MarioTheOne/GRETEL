@@ -3,8 +3,8 @@ import numpy as np
 from src.dataset.data_instance_molecular import MolecularDataInstance
 from src.dataset.data_instance_base import DataInstance
 from src.explainer.meg.utils.fingerprints import Fingerprint
-from rdkit.Chem import AllChem, MolFromSmiles
 from rdkit import Chem
+from rdkit.Chem import AllChem
 
 
 class ActionEncoderAB(ABC):
@@ -30,23 +30,24 @@ class IDActionEncoder(ActionEncoderAB):
     
 class MorganBitFingerprintActionEncoder(ActionEncoderAB):
     
-    def __init__(self, fp_length=1024, fp_radius=2):
+    def __init__(self, fp_len=1024, fp_rad=2):
         super(MorganBitFingerprintActionEncoder, self).__init__()
-        self._name = 'meg_morgan_bit_fingerprint_action_encoder'
-        
-        self.fp_length = fp_length
-        self.fp_radius = fp_radius
+        self._name = 'morgan_bit_fingerprint_action_encoder'
+        print(fp_len, type(fp_len))
+        print(fp_rad, type(fp_rad))
+        self.fp_length = fp_len
+        self.fp_radius = fp_rad
         
     def encode(self, action: DataInstance) -> np.array:
-        assert isinstance(action, MolecularDataInstance)
-        
-        action = MolFromSmiles(action.smiles())
-        
+        assert isinstance(action, MolecularDataInstance)                
         #if action: 
-        fp = AllChem.GetMorganFingerprintAsBitVect(action,
-                                                    self.fp_radius,
-                                                    self.fp_length,
-                                                    bitInfo=None)
+        molecule = Chem.MolFromSmiles(action.smiles)
+        if molecule is None:
+            print(action.smiles)
+            
+        fp = AllChem.GetMorganFingerprintAsBitVect(molecule,
+                                                   self.fp_radius,
+                                                   self.fp_length)
         return Fingerprint(fp, self.fp_length).numpy()
         """else:
             raise ValueError(f'DataIntance with id={action.id}'\
@@ -63,10 +64,8 @@ class MorganCountFingerprintActionEncoder(ActionEncoderAB):
         
     def encode(self, action: DataInstance) -> np.array:
         assert isinstance(action, MolecularDataInstance)
-        
-        action = MolFromSmiles(action.smiles())
-        
-        fp = AllChem.GetHashedMorganFingerprint(action,
+                
+        fp = AllChem.GetHashedMorganFingerprint(action.molecule,
                                                 self.fp_radius,
                                                 self.fp_length,
                                                 bitInfo=None)
@@ -83,10 +82,8 @@ class RDKitFingerprintActionEncoder(ActionEncoderAB):
         
     def encode(self, action: DataInstance) -> np.array:
         assert isinstance(action, MolecularDataInstance)
-        
-        action = MolFromSmiles(action.smiles())
-        
-        fp = Chem.RDKFingerprint(action,
+                
+        fp = Chem.RDKFingerprint(action.molecule,
                                  self.fp_radius,
                                  self.fp_length,
                                  bitInfo=None)

@@ -28,7 +28,7 @@ class BaseEnvironment(ABC):
         
     @property
     def init_instance(self):
-        return self._instance
+        return self._init_instance
     
     @abstractmethod
     def set_instance(self, new_instance):

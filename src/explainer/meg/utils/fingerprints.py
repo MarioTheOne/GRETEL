@@ -17,3 +17,4 @@ class Fingerprint:
 
     def tensor(self):
         return torch.as_tensor(self.numpy())
+    

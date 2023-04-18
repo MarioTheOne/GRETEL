@@ -131,7 +131,6 @@ class MEGExplainer(Explainer):
                     self.polyak
                 )
                 loss = loss.item()
-                print(f'Current loss = {loss}')
                 batch_losses.append(loss)
             
             it += 1

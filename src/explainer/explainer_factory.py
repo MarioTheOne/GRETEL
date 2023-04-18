@@ -1,9 +1,6 @@
-from src.explainer.explainer_perturbation_rand import PerturbationRandExplainer
-from src.explainer.meg.explainer_meg import MEGExplainer
-from src.explainer.meg.utils.encoders import MorganBitFingerprintActionEncoder, IDActionEncoder
-from src.explainer.meg.environments.basic_policies import AddRemoveEdgesEnvironment
-from src.dataset.converters.weights_converter import DefaultFeatureAndWeightConverter
 from src.dataset.converters.cf2_converter import CF2TreeCycleConverter
+from src.dataset.converters.weights_converter import \
+    DefaultFeatureAndWeightConverter
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.explainer.ensemble.ensemble_factory import EnsembleFactory
 from src.explainer.explainer_base import Explainer
@@ -17,6 +14,13 @@ from src.explainer.explainer_countergan import CounteRGANExplainer
 from src.explainer.explainer_dce_search import (DCESearchExplainer,
                                                 DCESearchExplainerOracleless)
 from src.explainer.explainer_maccs import MACCSExplainer
+from src.explainer.explainer_perturbation_rand import PerturbationRandExplainer
+from src.explainer.meg.environments.bbbp_env import BBBPEnvironment
+from src.explainer.meg.environments.basic_policies import \
+    AddRemoveEdgesEnvironment
+from src.explainer.meg.explainer_meg import MEGExplainer
+from src.explainer.meg.utils.encoders import (
+    IDActionEncoder, MorganBitFingerprintActionEncoder)
 
 
 class ExplainerFactory:
@@ -213,18 +217,17 @@ class ExplainerFactory:
                 raise ValueError('''MEG requires to have and environment name''')
             else:
                 if env_name in ['tree-cycles', 'asd']:
-                    environment = AddRemoveEdgesEnvironment(*explainer_parameters['env']['args'])
-                    """elif env_name == 'asd':
-                    print(explainer_parameters['env']['args'])
-                    environment = ASDEnvironment(**explainer_parameters['env']['args'])"""
+                    environment = AddRemoveEdgesEnvironment(**explainer_parameters['env']['args'])
+                elif env_name == 'bbbp':
+                    environment = BBBPEnvironment(**explainer_parameters['env']['args'])
                 else:
-                    raise ValueError('''MEG supports only "tree-cycles" for environment''')
+                    raise ValueError('''MEG supports only "tree-cycles", "asd", "bbbp", for environment''')
                 
-            action_encoder = explainer_parameters['action_encoder'].get('name', 'tree-cycles')
+            action_encoder = explainer_parameters['action_encoder'].get('name', 'id')
             if action_encoder == 'id':
                 action_encoder = IDActionEncoder()
             elif action_encoder == 'morgan_bit_fingerprint':
-                action_encoder = MorganBitFingerprintActionEncoder(*explainer_parameters['action_encoder']['args'])
+                action_encoder = MorganBitFingerprintActionEncoder(**explainer_parameters['action_encoder']['args'])
             else:
                 raise ValueError('''MEG supports only "tree-cycles", "morgan_bit_fingerprint" to encode actions''')
             
