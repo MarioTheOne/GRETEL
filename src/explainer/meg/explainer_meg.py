@@ -72,16 +72,14 @@ class MEGExplainer(Explainer):
 
     def fit(self, oracle: Oracle, dataset : Dataset, instance: DataInstance, fold_id=0):
         explainer_name = f'meg_fit_on_{dataset.name}_instance={instance.id}_fold_id={fold_id}'
-        #explainer_uri = os.path.join(self.explainer_store_path, explainer_name)
         self.name = explainer_name
-        
+                
         self.cf_queue = SortedQueue(self.num_counterfactuals, sort_predicate=self.sort_predicate)
-        self.environment.init_instance = instance
+        self.environment.set_instance(instance)
+        self.environment.oracle = oracle
+        
         self.environment.initialize()                    
         self.__fit(oracle, dataset, instance, fold_id)
-        #self.save_explainers()        
-        # setting the flag to signal the explainer was already trained
-        #self._fitted = True
 
     def __fit(self, oracle, dataset, instance, fold_id):
         eps = 1.0
@@ -133,6 +131,7 @@ class MEGExplainer(Explainer):
                     self.polyak
                 )
                 loss = loss.item()
+                print(f'Current loss = {loss}')
                 batch_losses.append(loss)
             
             it += 1

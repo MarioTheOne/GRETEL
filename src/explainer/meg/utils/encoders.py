@@ -19,11 +19,11 @@ class ActionEncoderAB(ABC):
     def encode_actions(self, actions):
         return [self.encode(action) for action in actions]
     
-class TreeCyclesActionEncoder(ActionEncoderAB):
+class IDActionEncoder(ActionEncoderAB):
     
     def __init__(self):
-        super(TreeCyclesActionEncoder, self).__init__()
-        self._name = 'meg_tree_cycles_action_encoder'
+        super(IDActionEncoder, self).__init__()
+        self._name = 'meg_id_action_encoder'
         
     def encode(self, action: DataInstance) -> np.array:
         return action.to_numpy_array()
