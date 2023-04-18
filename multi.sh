@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/steel/clear-asd
+search_dir=./config/steel/countergan-tc28
 
 for i in {1..1}
 do
