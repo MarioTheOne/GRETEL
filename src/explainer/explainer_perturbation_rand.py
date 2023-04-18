@@ -24,7 +24,6 @@ class PerturbationRandExplainer(Explainer):
         
     def explain(self, instance, oracle: Oracle, dataset: Dataset):
         self.name = f'perturbation_rand-dataset_{dataset.name}-fold_id={self.fold_id}'
-        print(dataset.get_split_indices()[self.fold_id]['test'])
         adj_matrix = instance.to_numpy_array()
         nodes = adj_matrix.shape[0]
         # all edges (direct graph)

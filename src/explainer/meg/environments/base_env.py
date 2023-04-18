@@ -20,9 +20,19 @@ class BaseEnvironment(ABC):
         self._name = 'base_environment'
         
         self._state: DataInstance = None
+        self._init_instance: DataInstance = None
         self._counter = 0
         self.max_steps = max_steps
         self._target_fn = target_fn
+        
+        
+    @property
+    def init_instance(self):
+        return self._instance
+    
+    @abstractmethod
+    def set_instance(self, new_instance):
+        pass
         
     @property
     def state(self):

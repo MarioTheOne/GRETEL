@@ -4,20 +4,22 @@
         {"name": "embedder_store_path", "address": "./data/embedders/"},
         {"name": "oracle_store_path", "address": "./data/oracles/"},
         {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/steel/tc-500-28/"}
+        {"name": "output_store_path", "address": "./output/steel/asd/"}
     ],
     "datasets": [
-        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 32, "n_in_cycles": 7} }
+        {"name": "autism", "parameters": {
+
+        } }
     ],
     "oracles": [
-        {"name": "tree_cycles_custom_oracle", "parameters": {} }
+        {"name": "asd_custom_oracle", "parameters": {} }
     ],
     "explainers": [
         {
             "name": "meg",
             "parameters":{
                 "env" : {
-                    "name": "tree-cycles",
+                    "name": "asd",
                     "args": {}
                 },
                 "action_encoder": {
@@ -25,8 +27,9 @@
                     "args": {}
                 },
                 "num_input": 1024,
-                "epochs": 10,
+                "epochs": 1,
                 "fold_id": 0
+               
             } 
         }
     ],
