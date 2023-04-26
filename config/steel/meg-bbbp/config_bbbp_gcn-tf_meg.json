@@ -4,31 +4,38 @@
         {"name": "embedder_store_path", "address": "./data/embedders/"},
         {"name": "oracle_store_path", "address": "./data/oracles/"},
         {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/steel/ASD/"}
+        {"name": "output_store_path", "address": "./output/steel/BBBP/"}
     ],
     "datasets": [
-        {"name": "autism", "parameters": {
-
+        {"name": "bbbp", "parameters": {
+            "force_fixed_nodes": true
         } }
     ],
     "oracles": [
-        {"name": "asd_custom_oracle", "parameters": {} }
+        {"name": "gcn-tf", "parameters": {} }
     ],
     "explainers": [
         {
             "name": "meg",
             "parameters":{
                 "env" : {
-                    "name": "asd",
-                    "args": {}
+                    "name": "bbbp",
+                    "args": {
+                        "fp_len": 1024,
+                        "fp_rad": 2
+                    }
                 },
                 "action_encoder": {
-                    "name": "id",
-                    "args": {}
+                    "name": "morgan_bit_fingerprint",
+                    "args": {
+                        "fp_len": 1024,
+                        "fp_rad": 2
+                    }
                 },
-                "num_input": 13456,
-                "epochs": 10,
+                "num_input": 1024,
+                "epochs": 1,
                 "fold_id": -1
+               
             } 
         }
     ],

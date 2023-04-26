@@ -4,33 +4,18 @@
         {"name": "embedder_store_path", "address": "./data/embedders/"},
         {"name": "oracle_store_path", "address": "./data/oracles/"},
         {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/steel/ASD/"}
+        {"name": "output_store_path", "address": "./output/steel/BBBP/"}
     ],
     "datasets": [
-        {"name": "autism", "parameters": {
-
+        {"name": "bbbp", "parameters": {
+            "force_fixed_nodes": true
         } }
     ],
     "oracles": [
-        {"name": "asd_custom_oracle", "parameters": {} }
+        {"name": "gcn-tf", "parameters": {} }
     ],
     "explainers": [
-        {
-            "name": "meg",
-            "parameters":{
-                "env" : {
-                    "name": "asd",
-                    "args": {}
-                },
-                "action_encoder": {
-                    "name": "id",
-                    "args": {}
-                },
-                "num_input": 13456,
-                "epochs": 10,
-                "fold_id": -1
-            } 
-        }
+        {"name": "bidirectional_oblivious_search", "parameters":{"graph_distance": {"name": "graph_edit_distance", "parameters": {}} } }
     ],
     "evaluation_metrics": [ 
         {"name": "graph_edit_distance", "parameters": {}},

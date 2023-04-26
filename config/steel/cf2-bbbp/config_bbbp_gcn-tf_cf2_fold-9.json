@@ -4,31 +4,30 @@
         {"name": "embedder_store_path", "address": "./data/embedders/"},
         {"name": "oracle_store_path", "address": "./data/oracles/"},
         {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/steel/ASD/"}
+        {"name": "output_store_path", "address": "./output/steel/BBBP/"}
     ],
     "datasets": [
-        {"name": "autism", "parameters": {
-
+        {"name": "bbbp", "parameters": {
+            "force_fixed_nodes": true
         } }
     ],
     "oracles": [
-        {"name": "asd_custom_oracle", "parameters": {} }
+        {"name": "gcn-tf", "parameters": {} }
     ],
     "explainers": [
         {
-            "name": "meg",
+            "name": "cf2",
             "parameters":{
-                "env" : {
-                    "name": "asd",
-                    "args": {}
-                },
-                "action_encoder": {
-                    "name": "id",
-                    "args": {}
-                },
-                "num_input": 13456,
-                "epochs": 10,
-                "fold_id": -1
+                "n_nodes": 116,
+                "fold_id": 9,
+                "alpha": 0.6,
+                "lam": 500,
+                "epochs": 100,
+                "lr": 0.0001,
+                "batch_size": 0.05,
+                "gamma": 0.5,
+                "feature_dim": 8,
+                "converter": "bbbp"
             } 
         }
     ],
