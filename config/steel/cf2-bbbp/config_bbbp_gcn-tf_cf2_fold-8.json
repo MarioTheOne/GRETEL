@@ -18,7 +18,7 @@
         {
             "name": "cf2",
             "parameters":{
-                "n_nodes": 116,
+                "n_nodes": 269,
                 "fold_id": 8,
                 "alpha": 0.6,
                 "lam": 500,

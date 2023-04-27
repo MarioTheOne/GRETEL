@@ -1,8 +1,8 @@
 #!/bin/bash
 
-search_dir=./config/steel/dbs-bbbp
+search_dir=./config/steel/cf2-bbbp
 
-for i in {1..10}
+for i in {1..1}
 do
     for entry in "$search_dir"/*
     do
