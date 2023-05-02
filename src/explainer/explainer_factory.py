@@ -21,6 +21,7 @@ from src.explainer.meg.environments.basic_policies import \
 from src.explainer.meg.explainer_meg import MEGExplainer
 from src.explainer.meg.utils.encoders import (
     IDActionEncoder, MorganBitFingerprintActionEncoder)
+from src.explainer.explainer_incremental_rand import IRandExplainer
 
 
 class ExplainerFactory:
@@ -256,15 +257,37 @@ class ExplainerFactory:
             
         elif explainer_name == 'perturbation_rand':
             if not 'fold_id' in explainer_parameters:
-                raise ValueError('''MEG requires a fold_id''')
+                raise ValueError('''Random explainer requires a fold_id''')
             
             perturbation_percentage = explainer_parameters.get('perturbation_percentage', .05)
             fold_id = explainer_parameters['fold_id']
             
             return self.get_perturb_rand_explainer(fold_id, perturbation_percentage, explainer_dict)
+        
+        elif explainer_name == 'i-rand':
+            if not 'fold_id' in explainer_parameters:
+                raise ValueError('''IRandom explainer requires a fold_id''')
+            
+            perturbation_percentage = explainer_parameters.get('perturbation_percentage', .05)
+            tries = explainer_parameters.get('tries', 10)
+            fold_id = explainer_parameters['fold_id']
+
+            return self.get_irand_explainer(fold_id=fold_id, perturbation_percentage=perturbation_percentage, 
+                                            tries=tries, config_dict=explainer_dict)
+
         else:
             raise ValueError('''The provided explainer name does not match any explainer provided 
             by the factory''')
+        
+    def get_irand_explainer(self, fold_id, perturbation_percentage, tries, config_dict=None):
+        result = IRandExplainer(id=self._explainer_id_counter, 
+                                perturbation_percentage=perturbation_percentage, 
+                                tries=tries,
+                                fold_id=fold_id,
+                                config_dict=config_dict)
+    
+        self._explainer_id_counter += 1
+        return result
 
     def get_perturb_rand_explainer(self, fold_id, perturbation_percentage, config_dict=None):
         result = PerturbationRandExplainer(id=self._explainer_id_counter,

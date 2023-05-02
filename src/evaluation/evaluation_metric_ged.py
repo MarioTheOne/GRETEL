@@ -21,6 +21,9 @@ class GraphEditDistanceMetric(EvaluationMetric):
         G1 = instance_1.graph
         G2 = instance_2.graph
 
+        A_g1 = instance_1.to_numpy_array()
+        A_g2 = instance_2.to_numpy_array()
+
         edit_distance = 0.0
 
         for n in G1.nodes:
