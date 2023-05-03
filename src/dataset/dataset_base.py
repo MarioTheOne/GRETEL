@@ -310,6 +310,21 @@ class Dataset(ABC):
         for train_index, test_index in spl:
             self.splits.append({'train': train_index, 'test': test_index})
 
+    
+    def load_or_generate_splits(self, dataset_folder, n_splits=10, shuffle=True):
+
+         # Reading the splits of the dataset
+        splits_uri = os.path.join(dataset_folder, 'splits.json')
+        if os.path.exists(splits_uri):
+            with open(splits_uri, 'r') as split_reader:
+                sp = jsonpickle.decode(split_reader.read())
+                self.splits = sp
+        else:
+            self.generate_splits(n_splits=n_splits, shuffle=shuffle)
+            with open(os.path.join(dataset_folder, 'splits.json'), 'w') as split_writer:
+                split_writer.write(jsonpickle.encode(self.splits))
+        
+
 
     def gen_tf_data(self):
         for i in self.instances:

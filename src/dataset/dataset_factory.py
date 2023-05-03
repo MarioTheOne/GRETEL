@@ -149,7 +149,7 @@ class DatasetFactory():
             result.read_data(ds_uri)
         else:
             result.read_adjacency_matrices(ds_uri)
-            result.generate_splits()
+            result.load_or_generate_splits(ds_uri)
             
         return result
 
@@ -265,7 +265,7 @@ class DatasetFactory():
         #     result.write_data(ds_uri, graph_format='adj_matrix')
 
         result.read_adjacency_matrices(ds_uri)
-        result.generate_splits()
+        result.load_or_generate_splits(ds_uri)
             
         return result
 
@@ -297,7 +297,7 @@ class DatasetFactory():
         #     result.write_data(ds_uri, graph_format='adj_matrix')
 
         result.read_adjacency_matrices(ds_uri)
-        result.generate_splits()
+        result.load_or_generate_splits(ds_uri)
             
         return result
 
@@ -363,8 +363,7 @@ class DatasetFactory():
             # load the dataset from original
             # result.read_molecules_file(ds_uri)
             result.read_csv_file(ds_uri)
-            result.generate_splits()
-            # result.write_data(ds_uri, graph_format='edge_list')
+            result.load_or_generate_splits(ds_uri)
             return result
 
 
@@ -400,8 +399,7 @@ class DatasetFactory():
         else:
             # load the dataset from original
             result.read_csv_file(ds_uri)
-            result.generate_splits()
-            # result.write_data(ds_uri, graph_format='edge_list')
+            result.load_or_generate_splits(ds_uri)
             return result
 
 
