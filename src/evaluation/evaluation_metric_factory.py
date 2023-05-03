@@ -61,10 +61,10 @@ class EvaluationMetricFactory:
         return result
 
     def get_graph_edit_distance_metric(self, node_insertion_cost=1.0, node_deletion_cost=1.0, 
-                                        edge_insertion_cost=1.0, edge_deletion_cost=1.0, config_dict=None) -> EvaluationMetric:
+                                        edge_insertion_cost=1.0, edge_deletion_cost=1.0, undirected=True, config_dict=None) -> EvaluationMetric:
         
         result = GraphEditDistanceMetric(node_insertion_cost, node_deletion_cost, edge_insertion_cost, 
-                                            edge_deletion_cost, config_dict)
+                                            edge_deletion_cost, undirected, config_dict)
 
         return result
 
