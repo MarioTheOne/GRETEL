@@ -27,7 +27,7 @@
                 "batch_size": 0.05,
                 "gamma": 0.5,
                 "feature_dim": 8,
-                "converter": "bbbp"
+                "converter": "tree_cycles"
             } 
         }
     ],

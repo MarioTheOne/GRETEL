@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/steel/cf2-tc32
+search_dir=./config/steel/cf2-bbbp
 
 for i in {1..1}
 do
