@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/steel/cf2-bbbp
+search_dir=./config/steel/clear-bbbp
 
 for i in {1..1}
 do
