@@ -1,0 +1,50 @@
+{
+    "store_paths": [
+        {"name": "dataset_store_path", "address": "./data/datasets/"},
+        {"name": "embedder_store_path", "address": "./data/embedders/"},
+        {"name": "oracle_store_path", "address": "./data/oracles/"},
+        {"name": "explainer_store_path", "address": "./data/explainers/"},
+        {"name": "output_store_path", "address": "./output/steel/BBBP/"}
+    ],
+    "datasets": [
+        {"name": "bbbp", "parameters": {
+            "force_fixed_nodes": true
+        } }
+    ],
+    "oracles": [
+        {"name": "gcn-tf", "parameters": {} }
+    ],
+    "explainers": [
+        {
+            "name": "meg",
+            "parameters":{
+                "env" : {
+                    "name": "bbbp",
+                    "args": {
+                        "fp_len": 1024,
+                        "fp_rad": 2
+                    }
+                },
+                "action_encoder": {
+                    "name": "morgan_bit_fingerprint",
+                    "args": {
+                        "fp_len": 1024,
+                        "fp_rad": 2
+                    }
+                },
+                "num_input": 1024,
+                "epochs": 10,
+                "fold_id": 7
+               
+            } 
+        }
+    ],
+    "evaluation_metrics": [ 
+        {"name": "graph_edit_distance", "parameters": {}},
+        {"name": "oracle_calls", "parameters": {}},
+        {"name": "correctness", "parameters": {}},
+        {"name": "sparsity", "parameters": {}},
+        {"name": "fidelity", "parameters": {}},
+        {"name": "oracle_accuracy", "parameters": {}}
+    ]
+}
