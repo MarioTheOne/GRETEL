@@ -2,20 +2,16 @@ from src.evaluation.evaluator_manager import EvaluatorManager
 import sys
 
 
-config_file_path = './config/linux-server/set-1/config_autism_custom-oracle_dce.json'
+# config_file_path = './config/steel/set-1/config_autism_custom-oracle_dce.json'
 
-print('Creating the evaluation manager.......................................................')
-eval_manager = EvaluatorManager(config_file_path, run_number=0)
+# print('Creating the evaluation manager.......................................................')
+# eval_manager = EvaluatorManager(config_file_path, run_number=1)
 
-print('Creating the evaluators...................................................................')
-eval_manager.create_evaluators()
+# print('Creating the evaluators...................................................................')
+# eval_manager.create_evaluators()
 
-print('Evaluating the explainers..................................................................')
-eval_manager.evaluate()
-
-
-
-
+# print('Evaluating the explainers..................................................................')
+# eval_manager.evaluate()
 
 
 

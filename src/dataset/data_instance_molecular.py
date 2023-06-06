@@ -96,42 +96,64 @@ class MolecularDataInstance(DataInstance):
             return G
         else:
             # For each atom in the molecule create a node in the graph and add the necessary attributes
-            atoms = self.molecule.GetAtoms()
-            atoms_in_mol = len(atoms)
-            # iterate from 0 to the max number of atoms in any molecule in the dataset
-            for string_pos in range(0, self._max_mol_len):
+            for atom in self.molecule.GetAtoms():
+                G.add_node(atom.GetIdx(),
+                        atomic_num=atom.GetAtomicNum(),
+                        is_aromatic=atom.GetIsAromatic(),
+                        atom_symbol=atom.GetSymbol())
+                
+            # Add extra dummy atoms present in the molecules dataset
+            for i in range(len(self.molecule.GetAtoms()), self.max_n_nodes):
+                G.add_node(i,
+                        atomic_num=-1,
+                        is_aromatic=False,
+                        atom_symbol='C')
 
-                # Initialize with an impossible atomic number
-                atomic_num = 0
-                # If the current position is lower than the number of atoms in the current molecule
-                if(string_pos < atoms_in_mol):
-                    atom = atoms[string_pos]
-                    atomic_num = atom.GetAtomicNum()
-
-                # Iterate over the possible types of atoms
-                for atom_i in range(0, self._max_n_atoms):
-                    # If we reach the position matching the atomic number of the atom in the molecule
-                    if atom_i == (atomic_num - 1): # if atomic number is greater than the max_n_atoms this could create a problem
-                        G.add_node( (string_pos * self._max_n_atoms + atom_i),
-                                atomic_num=atom.GetAtomicNum(),
-                                is_aromatic=atom.GetIsAromatic(),
-                                atom_symbol=atom.GetSymbol())
-
-                    else: # Add a dummy carbon atom
-                        G.add_node( (string_pos * self._max_n_atoms + atom_i),
-                                atomic_num=6,
-                                is_aromatic=False,
-                                atom_symbol='C')
-
-            # For each bond between atoms add an edge in the graph with the corresponding attributes 
+            # For each bond between atoms add an edge in the graph with the corresponding attributes    
             for bond in self.molecule.GetBonds():
-                a1 = bond.GetBeginAtomIdx()
-                a2 = bond.GetEndAtomIdx()
-                G.add_edge((a1*self._max_n_atoms + atoms[a1].GetAtomicNum()) - 1,
-                           (a2*self._max_n_atoms + atoms[a2].GetAtomicNum()) - 1,
-                           bond_type=bond.GetBondType())
+                G.add_edge(bond.GetBeginAtomIdx(),
+                        bond.GetEndAtomIdx(),
+                        bond_type=bond.GetBondType())
                 
             return G
+
+            # # For each atom in the molecule create a node in the graph and add the necessary attributes
+            # atoms = self.molecule.GetAtoms()
+            # atoms_in_mol = len(atoms)
+            # # iterate from 0 to the max number of atoms in any molecule in the dataset
+            # for string_pos in range(0, self._max_mol_len):
+
+            #     # Initialize with an impossible atomic number
+            #     atomic_num = 0
+            #     # If the current position is lower than the number of atoms in the current molecule
+            #     if(string_pos < atoms_in_mol):
+            #         atom = atoms[string_pos]
+            #         atomic_num = atom.GetAtomicNum()
+
+            #     # Iterate over the possible types of atoms
+            #     for atom_i in range(0, self._max_n_atoms):
+            #         # If we reach the position matching the atomic number of the atom in the molecule
+            #         if atom_i == (atomic_num - 1): # if atomic number is greater than the max_n_atoms this could create a problem
+            #             G.add_node( (string_pos * self._max_n_atoms + atom_i),
+            #                     atomic_num=atom.GetAtomicNum(),
+            #                     is_aromatic=atom.GetIsAromatic(),
+            #                     atom_symbol=atom.GetSymbol())
+
+            #         else: # Add a dummy carbon atom
+            #             G.add_node( (string_pos * self._max_n_atoms + atom_i),
+            #                     atomic_num=6,
+            #                     is_aromatic=False,
+            #                     atom_symbol='C')
+
+            # # For each bond between atoms add an edge in the graph with the corresponding attributes 
+            # for bond in self.molecule.GetBonds():
+            #     a1 = bond.GetBeginAtomIdx()
+            #     a2 = bond.GetEndAtomIdx()
+            #     G.add_edge((a1*self._max_n_atoms + atoms[a1].GetAtomicNum()) - 1,
+            #                (a2*self._max_n_atoms + atoms[a2].GetAtomicNum()) - 1,
+            #                bond_type=bond.GetBondType())
+                
+            # return G
 
 
     def graph_to_molecule(self, store=True, force_fixed_node_positions=False):

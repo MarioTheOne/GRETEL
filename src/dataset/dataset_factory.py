@@ -1,3 +1,4 @@
+from src.dataset.dataset_imbd import IMDBDataset
 from src.dataset.dataset_hiv import HIVDataset
 from src.dataset.dataset_bbbp import BBBPDataset
 from src.dataset.dataset_adhd import ADHDDataset
@@ -101,18 +102,13 @@ class DatasetFactory():
 
         # Check if the dataset is the human blood-brain barrier (BBB) penetration dataset
         elif dataset_name == 'bbbp':
-            force_fixed_nodes = False
-            if 'force_fixed_nodes' in params_dict:
-                force_fixed_nodes = params_dict['force_fixed_nodes']
+            force_fixed_nodes = params_dict.get('force_fixed_nodes', False)
 
             return self.get_bbbp_dataset(False, force_fixed_nodes, dataset_dict)
 
         # Check if the dataset is the human blood-brain barrier (BBB) penetration dataset
         elif dataset_name == 'hiv':
-            force_fixed_nodes = False
-            if 'force_fixed_nodes' in params_dict:
-                force_fixed_nodes = params_dict['force_fixed_nodes']
-
+            force_fixed_nodes = params_dict.get('force_fixed_nodes', False)
             return self.get_hiv_dataset(False, force_fixed_nodes, dataset_dict)
         
         # Check if the dataset is a triangles-squares dataset
@@ -131,13 +127,31 @@ class DatasetFactory():
         
         elif dataset_name == 'syn5':
             return self.get_syn_dataset(False, "5")
+
+        elif dataset_name == 'imdb':
+            self_loops = params_dict.get('self_loops', False)
+            return self.get_imdb(self_loops, dataset_dict)
         
         # If the dataset name does not match any of the datasets provided by the factory
         else:
             raise ValueError('''The provided dataset name is not valid. Valid names include: tree-cycles,
              tree-cycles-balanced, tree-cycles-dummy''')
 
-
+    def get_imbd(self, self_loops=False, config_dict=None):
+        result = IMDBDataset(self._dataset_id_counter, self_loops=self_loops, config_dict=config_dict)
+        self._dataset_id_counter += 1
+        
+        ds_name = 'imdb-instances'
+        ds_uri = os.path.join(self._data_store_path, ds_name)
+        ds_exists = os.path.exists(ds_uri)
+        
+        if ds_exists:
+            result.read_data(ds_uri)
+        else:
+            result.read_adjacency_matrices(ds_uri)
+            result.load_or_generate_splits(ds_uri)
+            
+        return result
 
     def get_tree_cycles_dataset(self, n_instances=300, n_total=300, n_in_cycles=200, regenerate=False, config_dict=None) -> Dataset:
         result = Synthetic_Data(self._dataset_id_counter, config_dict)
@@ -251,7 +265,7 @@ class DatasetFactory():
         #     result.write_data(ds_uri, graph_format='adj_matrix')
 
         result.read_adjacency_matrices(ds_uri)
-        result.generate_splits()
+        result.load_or_generate_splits(ds_uri)
             
         return result
 
@@ -283,7 +297,7 @@ class DatasetFactory():
         #     result.write_data(ds_uri, graph_format='adj_matrix')
 
         result.read_adjacency_matrices(ds_uri)
-        result.generate_splits()
+        result.load_or_generate_splits(ds_uri)
             
         return result
 
@@ -349,8 +363,7 @@ class DatasetFactory():
             # load the dataset from original
             # result.read_molecules_file(ds_uri)
             result.read_csv_file(ds_uri)
-            result.generate_splits()
-            # result.write_data(ds_uri, graph_format='edge_list')
+            result.load_or_generate_splits(ds_uri)
             return result
 
 
@@ -386,8 +399,7 @@ class DatasetFactory():
         else:
             # load the dataset from original
             result.read_csv_file(ds_uri)
-            result.generate_splits()
-            # result.write_data(ds_uri, graph_format='edge_list')
+            result.load_or_generate_splits(ds_uri)
             return result
 
 

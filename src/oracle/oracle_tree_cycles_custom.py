@@ -14,11 +14,19 @@ class TreeCyclesCustomOracle(Oracle):
         pass
 
     def _real_predict(self, data_instance):
-        # Classify
-        if len(nx.cycle_basis(data_instance.graph)) > 0:
-            return 1 # has cycles
-        else:
-            return 0 # it has no cycles
+        try:
+            nx.find_cycle(data_instance.graph, orientation='ignore')
+            return 1
+        except nx.exception.NetworkXNoCycle:
+            return 0
+        
+    def _real_predict_proba(self, data_instance):
+        # softmax-style probability predictions
+        try:
+            nx.find_cycle(data_instance.graph, orientation='ignore')
+            return np.array([[1,0]])
+        except nx.exception.NetworkXNoCycle:
+            return np.array([[0,1]])
 
     def embedd(self, instance):
         return instance

@@ -285,7 +285,7 @@ class Dataset(ABC):
         return len(self.instances)
 
     def get_split_indices(self):
-        """Returns a list of dictionaries containing the splits of the instance indices into 'test' and 'training'
+        """Returns a list of dictionaries containing the splits of the instance indices into 'test' and 'train'
         -------------
         OUTPUT:
             A dictionary containing the data splits 
@@ -295,22 +295,42 @@ class Dataset(ABC):
             >>> ds = Dataset()
             >>> ds.read_data('data_path')
             >>> ds.generate_splits()
-            >>> print(ds.get_split_indices(0)['train'])
+            >>> print(ds.get_split_indices()[0]['train'])
                 [1,3,5]
         """
         return self.splits
+    
 
     def generate_splits(self, n_splits=10, shuffle=True):
         kf = KFold(n_splits=n_splits, shuffle=shuffle)
         self.splits = []
-        spl = kf.split([i for i in range(0, len(self.instances))],
-                       [g.graph_label for g in self.instances])
+        spl = kf.split([i for i in range(0, len(self.instances))], 
+            [g.graph_label for g in self.instances])
 
         for train_index, test_index in spl:
             self.splits.append({'train': train_index, 'test': test_index})
+
+    
+    def load_or_generate_splits(self, dataset_folder, n_splits=10, shuffle=True):
+
+         # Reading the splits of the dataset
+        splits_uri = os.path.join(dataset_folder, 'splits.json')
+        if os.path.exists(splits_uri):
+            with open(splits_uri, 'r') as split_reader:
+                sp = jsonpickle.decode(split_reader.read())
+                self.splits = sp
+        else:
+            self.generate_splits(n_splits=n_splits, shuffle=shuffle)
+            with open(os.path.join(dataset_folder, 'splits.json'), 'w') as split_writer:
+                split_writer.write(jsonpickle.encode(self.splits))
+        
+
 
     def gen_tf_data(self):
         for i in self.instances:
             graph = i.to_numpy_arrays(false)
             activity = i.graph_label
             yield graph, activity
+
+    def num_classes(self):
+        return len(np.unique([i.graph_label for i in self.instances]))

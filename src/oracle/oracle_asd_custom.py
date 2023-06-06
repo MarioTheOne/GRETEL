@@ -37,9 +37,9 @@ class ASDCustomOracle(Oracle):
         
 
     def fit(self, dataset: Dataset, split_i=-1):
-        pass
-
-    def _real_predict(self, data_instance):
+        pass     
+        
+    def _real_predict_proba(self, data_instance):
         g = data_instance.to_numpy_array()
         f = self._feature_extraction(g)
         # Apply the rule
@@ -47,11 +47,10 @@ class ASDCustomOracle(Oracle):
         w_2 = 0.04327200353999672
         bk = 3.2844839747590915 
         x = bk + w_1*f[0] + w_2*f[1]
-        # Classify
-        if x>0:
-            return 1#,a,b #'ASD'
-        else:
-            return 0#,a,b#'TD'
+        return x
+        
+    def _real_predict(self, data_instance):
+        return 1 if self._real_predict_proba(data_instance) > 0 else 0
 
     def embedd(self, instance):
         return instance

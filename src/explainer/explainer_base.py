@@ -10,6 +10,7 @@ class Explainer(ABC):
         super().__init__()
         self._id = id
         self._name = 'abstract_explainer'
+        self.fold_id = -1
         self._config_dict = config_dict
 
     @property

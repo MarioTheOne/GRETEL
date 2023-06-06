@@ -46,9 +46,9 @@ class DataInstance(ABC):
     @property
     def graph(self):
         return self._graph
-
+   
     @graph.setter
-    def graph(self, new_graph):
+    def graph(self, new_graph):     
         self._graph = new_graph
 
     @property
@@ -129,9 +129,17 @@ class DataInstance(ABC):
         else:
             # Return the stored numpy array
             return self._np_array
+        
+    def node_degrees(self):
+        return [val for _, val in self.graph.degree()]
 
-    def from_numpy_array(self, np_adj_matrix):
+    def from_numpy_array(self, np_adj_matrix, store=False):
+        # If store is true we should store the numpy array adjacency matrix
+        if store:
+            self._np_array = np_adj_matrix
+
         self.graph = nx.from_numpy_array(np_adj_matrix)
+
 
     def to_numpy_arrays(self, store=False, max_n_nodes=-1, n_node_types=-1):
         """Argument for the RD2NX function should be a valid SMILES sequence

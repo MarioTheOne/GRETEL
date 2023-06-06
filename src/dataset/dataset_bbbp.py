@@ -131,6 +131,7 @@ class BBBPDataset(MolecularDataSet):
             mdi.smiles = bbbp_data.smiles[i]
             mdi.graph_label = int(bbbp_data.p_np[i])
             mdi._max_n_atoms = self.max_n_atoms
+            mdi._force_fixed_nodes = self.force_fixed_nodes
 
             sanitized = mdi.sanitize_smiles(store=True)
 
