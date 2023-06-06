@@ -3,12 +3,14 @@ from src.oracle.oracle_base import Oracle
 
 from abc import ABC
 
+
 class Explainer(ABC):
 
     def __init__(self, id, config_dict=None) -> None:
         super().__init__()
         self._id = id
         self._name = 'abstract_explainer'
+        self.fold_id = -1
         self._config_dict = config_dict
 
     @property
@@ -27,5 +29,5 @@ class Explainer(ABC):
     def name(self, new_name):
         self._name = new_name
 
-    def explain(self, instance, oracle : Oracle, dataset : Dataset):
+    def explain(self, instance, oracle: Oracle, dataset: Dataset):
         pass

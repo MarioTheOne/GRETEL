@@ -1,19 +1,13 @@
-FROM tensorflow/tensorflow:latest-gpu
+FROM tensorflow/tensorflow:2.7.4-gpu
 
 ARG USERNAME=coder
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -p "$(openssl passwd -1 $USERNAME)"
 
 # Setup VS code compatibility for easy interaction with code inside container
 RUN mkdir -p /home/$USERNAME/.vscode-server/extensions \
-        /home/$USERNAME/.vscode-server-insiders/extensions \
-    && chown -R $USERNAME \
-        /home/$USERNAME/.vscode-server \
-        /home/$USERNAME/.vscode-server-insiders
+        /home/$USERNAME/.vscode-server-insiders/extensions
 
 RUN apt update \
  && apt install -y \
@@ -31,7 +25,7 @@ RUN apt update \
     python3-dev \
     python3-tk
 
-RUN mkdir -p /home/$USERNAME/.gretel/data && chown $USERNAME:$USERNAME /home/$USERNAME/.gretel
+RUN mkdir -p /home/$USERNAME/.gretel/data
 VOLUME /home/$USERNAME/.gretel
 COPY ./ /home/$USERNAME/gretel
 
@@ -41,4 +35,16 @@ RUN python3 -m pip install -r /home/$USERNAME/requirements.txt
 RUN python3 -m pip install poetry
 RUN python3 -m pip install IPython
 
+# Install Pytorch
+RUN pip install torch==1.11.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
+RUN pip install torchvision==0.12.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
+RUN pip install torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
+
+# Install DGL
+RUN pip install dgl
+
+# Install Geo-Pytorch
+RUN pip install torch-scatter -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
+RUN pip install torch-sparse -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
+RUN pip install torch-geometric
 CMD ["/bin/bash"]

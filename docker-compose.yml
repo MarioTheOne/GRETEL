@@ -15,6 +15,5 @@ services:
       - "./:/home/coder/gretel"
       - "~/.ssh:/home/coder/.ssh"
       - "~/.gitconfig:/home/coder/.gitconfig"
-    user: "1000:1000"
     command: bash
 

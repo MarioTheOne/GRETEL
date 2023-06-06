@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/linux-server/set-5
+search_dir=./config/steel/i-rand-tc48
 
 for i in {1..10}
 do

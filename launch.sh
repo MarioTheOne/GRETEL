@@ -2,8 +2,8 @@
 #$ -S /bin/bash
 #$ -pe mpi 1
 #$ -cwd
-#$ -o ./out/std_$JOB_ID.out
-#$ -e ./out/err_$JOB_ID.out
+#$ -o ./output/std/std_$JOB_ID.out
+#$ -e ./output/err/err_$JOB_ID.out
 #$ -q parallel.q
 
 

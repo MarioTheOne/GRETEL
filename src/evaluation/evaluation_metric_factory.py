@@ -1,3 +1,5 @@
+from src.evaluation.evaluation_metric_fidelity_node import FidelityNodeMetric
+from src.evaluation.evaluation_metric_oracle_accuracy_node_classification import OracleAccuracyNodeMetric
 from src.evaluation.evaluation_metric_correctness import CorrectnessMetric
 from src.evaluation.evaluation_metric_fidelity import FidelityMetric
 from src.evaluation.evaluation_metric_base import EvaluationMetric
@@ -32,12 +34,18 @@ class EvaluationMetricFactory:
 
         elif metric_name == 'fidelity':
             return self.get_fidelity_metric(config_dict=metric_dict)
+        
+        elif metric_name == 'fidelity_node':
+            return self.get_fidelity_node_metric(config_dict=metric_dict)
 
         elif metric_name == 'oracle_accuracy':
             return self.get_oracle_accuracy_metric(config_dict=metric_dict)
 
         elif metric_name == 'smiles_levenshtein':
             return self.get_smiles_levenshtein_metric(config_dict=metric_dict)
+        
+        elif metric_name == 'oracle_accuracy_node':
+            return self.get_oracle_accuracy_node_metric(config_dict=metric_dict)
 
         else:
             raise ValueError('''The provided evaluation metric name does not match any evaluation
@@ -53,10 +61,10 @@ class EvaluationMetricFactory:
         return result
 
     def get_graph_edit_distance_metric(self, node_insertion_cost=1.0, node_deletion_cost=1.0, 
-                                        edge_insertion_cost=1.0, edge_deletion_cost=1.0, config_dict=None) -> EvaluationMetric:
+                                        edge_insertion_cost=1.0, edge_deletion_cost=1.0, undirected=True, config_dict=None) -> EvaluationMetric:
         
         result = GraphEditDistanceMetric(node_insertion_cost, node_deletion_cost, edge_insertion_cost, 
-                                            edge_deletion_cost, config_dict)
+                                            edge_deletion_cost, undirected, config_dict)
 
         return result
 
@@ -70,10 +78,18 @@ class EvaluationMetricFactory:
         result = FidelityMetric(config_dict)
         return result
 
+    
+    def get_fidelity_node_metric(self, config_dict=None) -> EvaluationMetric:
+        result = FidelityNodeMetric(config_dict)
+        return result
+
     def get_oracle_accuracy_metric(self, config_dict=None) -> EvaluationMetric:
         result = OracleAccuracyMetric(config_dict)
         return result
 
+    def get_oracle_accuracy_node_metric(self, config_dict=None) -> EvaluationMetric:
+        result = OracleAccuracyNodeMetric(config_dict)
+        return result
     
     def get_smiles_levenshtein_metric(self, config_dict=None) -> EvaluationMetric:
         result = SmilesLevenshteinMetric(config_dict)

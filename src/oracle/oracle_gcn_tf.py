@@ -22,6 +22,7 @@ class TfGCNOracle(Oracle):
         self._n_node_types = n_node_types
         self._max_n_nodes = 0
 
+
     def create_model(self):
         # code modified ///////////////////////////////////////
         # ninput = tf.keras.Input(
@@ -137,15 +138,13 @@ class TfGCNOracle(Oracle):
     def _real_predict(self, data_instance):
         nodes, adj_mat = data_instance.to_numpy_arrays(false, self._max_n_nodes, self._n_node_types)
         pred = self._clf((nodes[np.newaxis, ...], adj_mat[np.newaxis, ...])).numpy()
-
         labels = np.array(pred).flatten()
         bin_labels = np.where(labels > 0.5, np.ones(len(labels)), np.zeros(len(labels)))
-        # For binary classification problems
         return int(np.array(bin_labels).flatten())
 
-        # return pred
-
-
+    def _real_predict_proba(self, data_instance):
+        return self._real_predict(data_instance)
+    
     def embedd(self, instance):
         return instance
 

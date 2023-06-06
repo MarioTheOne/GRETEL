@@ -13,7 +13,7 @@ requirements:
 
 # docker       Builds the development image from scratch.
 .PHONY: docker
-docker: requirements
+docker:
 	docker build -t gretelxai/gretel:dev-latest .
 
 # pull         Pull the development image.

@@ -1,14 +1,19 @@
 from abc import ABC
-
+from src.oracle.oracle_cf2 import CF2Oracle
+from src.dataset.converters.abstract_converter import ConverterAB
+from src.dataset.converters.cf2_converter import CF2TreeCycleConverter
+from src.dataset.converters.weights_converter import DefaultFeatureAndWeightConverter
+from src.oracle.oracle_node_syn_pt import SynNodeOracle
 from src.dataset.dataset_base import Dataset
 from src.oracle.embedder_base import Embedder
-from src.oracle.oracle_base import Oracle
+from src.oracle.embedder_factory import EmbedderFactory
 from src.oracle.embedder_graph2vec import Graph2vec
+from src.oracle.oracle_asd_custom import ASDCustomOracle
+from src.oracle.oracle_base import Oracle
+from src.oracle.oracle_node_pt import NodeOracle
+from src.oracle.oracle_gcn_tf import TfGCNOracle
 from src.oracle.oracle_knn import KnnOracle
 from src.oracle.oracle_svm import SvmOracle
-from src.oracle.embedder_factory import EmbedderFactory
-from src.oracle.oracle_asd_custom import ASDCustomOracle
-from src.oracle.oracle_gcn_tf import TfGCNOracle
 from src.oracle.oracle_triangles_squares_custom import TrianglesSquaresCustomOracle
 from src.oracle.oracle_tree_cycles_custom import TreeCyclesCustomOracle
 
@@ -53,18 +58,65 @@ class OracleFactory(ABC):
         elif oracle_name == 'gcn-tf':
             return self.get_gcn_tf(dataset, -1, oracle_dict)
 
+        elif oracle_name == 'gcn_synthetic_pt':
+            return self.get_pt_syn_oracle(dataset, -1, oracle_dict)
+            
         # Check if the oracle is a Triangles-Squares Custom Classifier
         elif oracle_name == 'trisqr_custom_oracle':
             return self.get_trisqr_custom_oracle(oracle_dict)
 
         # Check if the oracle is a Tree-Cycles Custom Classifier
         elif oracle_name == 'tree_cycles_custom_oracle':
-            return self.get_tree_cycles_custom_oracle(oracle_dict)
-
+            return self.get_tree_cycles_custom_oracle(oracle_dict) 
+        
+        elif oracle_name == 'cf2':
+            if not 'converter' in oracle_parameters:
+                raise ValueError('''The parameter "converter" is required for cf2''')
+            
+            converter_name = oracle_parameters['converter'].get('name')
+            if not converter_name:
+                raise ValueError('''The parameter "name" for the converter is required for cf2''')
+            
+            converter = None
+            feature_dim = oracle_parameters.get('feature_dim', 36)
+            weight_dim = oracle_parameters.get('weight_dim', 28)
+            if converter_name == 'tree_cycles':
+                converter = CF2TreeCycleConverter(feature_dim=feature_dim)
+            else:
+                converter = DefaultFeatureAndWeightConverter(feature_dim=feature_dim,
+                                                              weight_dim=weight_dim)
+            lr = oracle_parameters.get('lr', 1e-3)
+            batch_size_ratio = oracle_parameters.get('batch_size_ratio', .1)
+            weight_decay = oracle_parameters.get('weight_decay', 5e-4)
+            epochs = oracle_parameters.get('epochs', 100)
+            fold_id = oracle_parameters.get('fold_id', 0)
+            threshold = oracle_parameters.get('threshold', .5)
+            
+            return self.get_cf2(dataset, converter, feature_dim, weight_dim, lr,
+                                      weight_decay, epochs, batch_size_ratio,
+                                      threshold, fold_id, oracle_dict)
         # If the oracle name does not match any oracle in the factory
         else:
             raise ValueError('''The provided oracle name does not match any oracle provided by the factory''')
 
+    def get_cf2(self, dataset: Dataset, converter: ConverterAB, in_dim: int, h_dim: int, lr: float,
+                weight_decay: float, epochs: int, batch_size_ratio: float, threshold: float, 
+                fold_id: int, config_dict=None) -> Oracle:
+        clf = CF2Oracle(id=self._oracle_id_counter,
+                        oracle_store_path=self._oracle_store_path,
+                        converter=converter,
+                        in_dim=in_dim,
+                        h_dim=h_dim,
+                        lr=lr,
+                        weight_decay=weight_decay,
+                        epochs=epochs,
+                        threshold=threshold,
+                        batch_size_ratio=batch_size_ratio,
+                        fold_id=fold_id,
+                        config_dict=config_dict)
+        self._oracle_id_counter += 1
+        clf.fit(dataset, split_i=fold_id)
+        return clf
 
     def get_knn(self, data: Dataset, embedder: Embedder, k, split_index=-1, config_dict=None) -> Oracle:
         embedder.fit(data)
@@ -90,7 +142,13 @@ class OracleFactory(ABC):
         self._oracle_id_counter +=1
         clf.fit(data, split_index)
         return clf
-
+    
+    def get_pt_syn_oracle(self, data: Dataset, split_index=-1, config_dict=None) -> Oracle:
+        clf = SynNodeOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
+        self._oracle_id_counter +=1
+        clf.fit(data, split_index)
+        return clf
+        
     def get_trisqr_custom_oracle(self, config_dict=None) -> Oracle:
         clf = TrianglesSquaresCustomOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
         self._oracle_id_counter +=1
