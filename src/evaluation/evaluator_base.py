@@ -5,7 +5,6 @@ from abc import ABC
 
 import jsonpickle
 from scipy import rand
-from typing_extensions import Self
 
 from src.dataset.dataset_base import Dataset
 from src.evaluation.evaluation_metric_base import EvaluationMetric
