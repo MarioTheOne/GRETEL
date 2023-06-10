@@ -17,26 +17,38 @@ class ActionabilityEvaluator(ABC):
     def __init__(self, id):
         super().__init__()
         self.id = id
-        self.restricted_edges = []
-        self.restricted_nodes = []
-        self.restricted_node_features = []
-        self.restricted_edge_features
+        self.name = 'abstract_actionability_evaluator'
 
-    def evaluate_graph(original_instance : DataInstance, 
+
+    def evaluate_graph(self, 
+                       original_instance : DataInstance, 
                        cf_instance : DataInstance):
         return True
 
-    def evaluate_edge(original_instance : DataInstance, 
+
+    def evaluate_edge(self,
+                      original_instance : DataInstance, 
                       cf_instance : DataInstance, 
                       target_edge):
         return True
 
-    def evaluate_node(original_instance : DataInstance, 
+
+    def evaluate_node(self,
+                      original_instance : DataInstance, 
                       cf_instance : DataInstance, 
                       target_node):
         return True
 
-    def evaluate_node_features(original_instance : DataInstance, 
+
+    def evaluate_node_features(self,
+                               original_instance : DataInstance, 
+                               original_features, 
+                               new_features):
+        return True
+    
+
+    def evaluate_edge_features(self,
+                               original_instance : DataInstance, 
                                original_features, 
                                new_features):
         return True
