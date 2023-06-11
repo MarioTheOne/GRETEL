@@ -4,6 +4,7 @@ from src.oracle.oracle_factory import OracleFactory
 from src.explainer.explainer_factory import ExplainerFactory
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.evaluation.evaluator_base import Evaluator
+from src.evaluation.actionability_evaluator_factory import ActionabilityEvaluatorFactory
 
 import os
 import jsonpickle
@@ -15,7 +16,8 @@ class EvaluatorManager:
                     embedder_factory: EmbedderFactory=None, 
                     oracle_factory: OracleFactory=None, 
                     explainer_factory: ExplainerFactory=None, 
-                    evaluation_metric_factory: EvaluationMetricFactory=None) -> None:
+                    evaluation_metric_factory: EvaluationMetricFactory=None,
+                    actionability_evaluator_factory: ActionabilityEvaluatorFactory=None) -> None:
         
         # Check that the path to the config file exists
         if not os.path.exists(config_file_path):
@@ -31,7 +33,12 @@ class EvaluatorManager:
         self._explainer_factory = None
         self._output_store_path = None
         self._evaluation_metric_factory = None
+        self._actionability_evaluator_factory = actionability_evaluator_factory
         self._run_number = run_number
+
+        # If an actionability_evaluator_factory is not provided then use the default one
+        if self._actionability_evaluator_factory is None:
+            self._actionability_evaluator_factory = ActionabilityEvaluatorFactory()
 
         # iterate over the store paths and initialize the factories
         for store_path in self._config_dict['store_paths']:
@@ -94,7 +101,8 @@ class EvaluatorManager:
                     self._explainer_factory._explainer_store_path = explainer_store_path
                 else:
                     # Create the factory with the corresponding store path
-                    self._explainer_factory = ExplainerFactory(explainer_store_path)
+                    self._explainer_factory = ExplainerFactory(explainer_store_path, 
+                                                               self._actionability_evaluator_factory)
 
             if(store_path['name'] == 'output_store_path'):
                 output_store_path = store_path['address']
@@ -116,7 +124,7 @@ class EvaluatorManager:
         if evaluation_metric_factory is not None:
             self._evaluation_metric_factory = evaluation_metric_factory
         else:
-            self._evaluation_metric_factory = EvaluationMetricFactory()
+            self._evaluation_metric_factory = EvaluationMetricFactory(self._actionability_evaluator_factory)
 
         self.datasets = []
         self.oracles = []

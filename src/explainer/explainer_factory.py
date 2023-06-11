@@ -26,10 +26,12 @@ from src.explainer.explainer_incremental_rand import IRandExplainer
 
 class ExplainerFactory:
 
-    def __init__(self, explainer_store_path) -> None:
+    def __init__(self, explainer_store_path, actionability_evaluator_factory=None) -> None:
         self._explainer_id_counter = 0
         self._explainer_store_path = explainer_store_path
         self._ensemble_factory = EnsembleFactory(explainer_store_path, self)
+        self._actionability_evaluator_factory = actionability_evaluator_factory
+        
 
     def get_explainer_by_name(self, explainer_dict, metric_factory : EvaluationMetricFactory) -> Explainer:
         explainer_name = explainer_dict['name']

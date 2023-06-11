@@ -14,10 +14,11 @@ from src.oracle.oracle_base import Oracle
 
 class ActionabilityEvaluator(ABC):
 
-    def __init__(self, id):
+    def __init__(self, id, config_dict):
         super().__init__()
         self.id = id
         self.name = 'abstract_actionability_evaluator'
+        self.config_dict = config_dict
 
 
     def evaluate_graph(self, 

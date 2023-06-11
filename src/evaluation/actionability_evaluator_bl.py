@@ -14,9 +14,11 @@ class BLActionabilityEvaluator(ActionabilityEvaluator):
                  restricted_nodes=[], 
                  restricted_edges=[], 
                  restricted_node_features=[], 
-                 restricted_edge_features=[]):
-        super().__init__()
-        self.id = id
+                 restricted_edge_features=[], 
+                 config_dict=None):
+        # Initializing the base class
+        super().__init__(id=id, config_dict=config_dict)
+        # Initializing the BLActionabilityExplainer
         self.name = 'abstract_actionability_evaluator'
         self._restricted_nodes = restricted_nodes
         self._restricted_edges = restricted_edges

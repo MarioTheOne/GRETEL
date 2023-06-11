@@ -13,8 +13,9 @@ from src.evaluation.evaluation_metric_smiles_levenshtein import SmilesLevenshtei
 
 class EvaluationMetricFactory:
 
-    def __init__(self) -> None:
+    def __init__(self, actionability_evaluator_factory=None) -> None:
         self._evaluation_metric_id_counter = 0
+        self._actionability_evaluator_factory = actionability_evaluator_factory
 
     def get_evaluation_metric_by_name(self, metric_dict) -> EvaluationMetric:
         metric_name = metric_dict['name']
