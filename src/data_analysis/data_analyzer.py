@@ -273,3 +273,52 @@ class DataAnalyzer():
             raise ValueError('Invalid graph layout')
 
         plt.show()
+
+
+    def draw_graph_custom_position(self, data_instance, position, img_store_address=None):
+        G = data_instance.graph
+
+        edge_colors = ['cyan' for u, v in G.edges()]
+        node_colors = ['cyan' for node in G.nodes()]
+
+        nx.draw(G=G, pos=position, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+
+        if img_store_address:
+            plt.savefig(img_store_address, format='svg')
+
+        plt.show(block=False)
+
+
+    def draw_counterfactual_actions_custom_position(self, data_instance, cf_data_instance, position, img_store_address=None):
+        nodes_shared, edges_shared, nodes_deleted, edges_deleted, nodes_added, edges_added = self.compare_graphs(data_instance, cf_data_instance)
+
+        # Create a new Network object
+        G = nx.Graph()
+
+        # Add shared nodes and edges in grey
+        for node in nodes_shared:
+            G.add_node(node, color='cyan')
+        for edge in edges_shared:
+            G.add_edge(*edge, color='cyan')
+
+        # Add deleted nodes and edges in red
+        for node in nodes_deleted:
+            G.add_node(node, color='red')
+        for edge in edges_deleted:
+            G.add_edge(*edge, color='red')
+
+        # Add added nodes and edges in green color
+        for node in nodes_added:
+            G.add_node(node, color='green')
+        for edge in edges_added:
+            G.add_edge(*edge, color='green')
+
+        edge_colors = [G[u][v]['color'] for u, v in G.edges()]
+        node_colors = [G.nodes[node]['color'] for node in G.nodes()]
+        
+        nx.draw(G=G, pos=position, node_color=node_colors, edge_color=edge_colors, with_labels=True)
+
+        if img_store_address:
+            plt.savefig(img_store_address, format='svg')
+
+        plt.show(block=False)
