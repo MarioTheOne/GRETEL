@@ -8,7 +8,10 @@ dtan = DataAnalyzer('./output/steel/BBBP', './stats/steel/')
 
 
 datasets =[
-    {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 32, "n_in_cycles": 7} }
+    {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 32, "n_in_cycles": 7}},
+    {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 7}},
+    {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 48, "n_in_cycles": 7}},
+    {"name": "autism", "parameters": {} }
 ]
 
 dtan.get_datasets_stats(datasets, data_store_path)
