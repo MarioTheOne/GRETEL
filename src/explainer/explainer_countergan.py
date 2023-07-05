@@ -25,7 +25,7 @@ class CounteRGANExplainer(Explainer):
                  n_generator_steps=3,
                  ce_binarization_threshold=.5,
                  fold_id=0,
-                 device='cuda',
+                 device='cpu',
                  config_dict=None) -> None:
         
         super().__init__(id, config_dict)
@@ -294,7 +294,7 @@ class CounteRGAN(nn.Module):
     def __init__(self, n_nodes=28,
                  residuals=True,
                  ce_binarization_threshold=None,
-                 device='cuda'):
+                 device='cpu'):
         super(CounteRGAN, self).__init__()
         
         self.n_nodes = n_nodes
@@ -325,7 +325,7 @@ class ResidualGenerator(nn.Module):
                  n_nodes=28,
                  residuals=True,
                  threshold=None,
-                 device='cuda'):
+                 device='cpu'):
         super(ResidualGenerator, self).__init__()
 
         self.n_nodes = n_nodes
@@ -434,7 +434,7 @@ class ResidualGenerator(nn.Module):
 
 class Discriminator(nn.Module):
 
-    def __init__(self, n_nodes, device='cuda'):
+    def __init__(self, n_nodes, device='cpu'):
         super(Discriminator, self).__init__()
 
         self.n_nodes = n_nodes
