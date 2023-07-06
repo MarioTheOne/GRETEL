@@ -24,9 +24,9 @@ class TreeCyclesCustomOracle(Oracle):
         # softmax-style probability predictions
         try:
             nx.find_cycle(data_instance.graph, orientation='ignore')
-            return np.array([[1,0]])
-        except nx.exception.NetworkXNoCycle:
             return np.array([[0,1]])
+        except nx.exception.NetworkXNoCycle:
+            return np.array([[1,0]])
 
     def embedd(self, instance):
         return instance
