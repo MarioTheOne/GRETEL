@@ -8,9 +8,11 @@ class TrianglesSquaresCustomOracle(Oracle):
     def __init__(self, id, oracle_store_path, config_dict=None) -> None:
         super().__init__(id, oracle_store_path, config_dict)
         self._name = 'triangles_squares_custom_oracle'
+        
 
     def fit(self, dataset: Dataset, split_i=-1):
         pass
+
 
     def _real_predict(self, data_instance):
         # Classify
@@ -18,6 +20,15 @@ class TrianglesSquaresCustomOracle(Oracle):
             return 1 # triangle
         else:
             return 0 # other shape (squares)
+
+
+    def _real_predict_proba(self, data_instance):
+        # Classify
+        if len(data_instance.graph.nodes) == 3 and len(data_instance.graph.edges) == 3:
+            return np.array([[0,1]]) # triangle
+        else:
+            return np.array([[1,0]]) # other shape (squares)
+
 
     def embedd(self, instance):
         return instance

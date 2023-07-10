@@ -40,6 +40,14 @@ class ASDCustomOracle(Oracle):
         pass     
         
     def _real_predict_proba(self, data_instance):
+        cls = self._real_predict(data_instance)
+        if cls:
+            return np.array([[0,1]])
+        else:
+            return np.array([[1,0]])
+        
+        
+    def _real_predict(self, data_instance):
         g = data_instance.to_numpy_array()
         f = self._feature_extraction(g)
         # Apply the rule
@@ -47,10 +55,8 @@ class ASDCustomOracle(Oracle):
         w_2 = 0.04327200353999672
         bk = 3.2844839747590915 
         x = bk + w_1*f[0] + w_2*f[1]
-        return x
-        
-    def _real_predict(self, data_instance):
-        return 1 if self._real_predict_proba(data_instance) > 0 else 0
+
+        return 1 if x > 0 else 0
 
     def embedd(self, instance):
         return instance

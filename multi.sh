@@ -1,8 +1,8 @@
 #!/bin/bash
 
-search_dir=./config/steel/i-rand-tc48
+search_dir=./config/steel/countergan-asd
 
-for i in {1..10}
+for i in {1..1}
 do
     for entry in "$search_dir"/*
     do

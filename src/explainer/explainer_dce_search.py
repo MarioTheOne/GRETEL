@@ -2,6 +2,7 @@ from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.explainer.explainer_base import Explainer
 from src.dataset.dataset_base import Dataset
 from src.oracle.oracle_base import Oracle
+from src.dataset.data_instance_base import DataInstance
 
 import sys
 
@@ -34,8 +35,16 @@ class DCESearchExplainer(Explainer):
                 if (d_inst_dist < min_counterfactual_dist):
                     min_counterfactual_dist = d_inst_dist
                     min_counterfactual = d_inst
-        
-        return min_counterfactual
+
+
+        result = DataInstance(min_counterfactual.id)
+        result.graph = min_counterfactual.graph
+        result.max_n_nodes = min_counterfactual.max_n_nodes
+        result._np_array = min_counterfactual._np_array
+        result.graph_dgl = min_counterfactual.graph_dgl
+        result.n_node_types = min_counterfactual.n_node_types
+
+        return result
 
 
 class DCESearchExplainerOracleless(Explainer):
@@ -68,7 +77,14 @@ class DCESearchExplainerOracleless(Explainer):
                 if (d_inst_dist < min_counterfactual_dist):
                     min_counterfactual_dist = d_inst_dist
                     min_counterfactual = d_inst
-        
-        return min_counterfactual
+
+        result = DataInstance(min_counterfactual.id)
+        result.graph = min_counterfactual.graph
+        result.max_n_nodes = min_counterfactual.max_n_nodes
+        result._np_array = min_counterfactual._np_array
+        result.graph_dgl = min_counterfactual.graph_dgl
+        result.n_node_types = min_counterfactual.n_node_types
+
+        return result
 
 
