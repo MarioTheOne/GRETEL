@@ -280,9 +280,9 @@ class GraphCounteRGANExplainer(Explainer):
         print(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
           
         wandb.log({
-          'iteration': iteration,
-          'loss_d': np.mean(D_losses),
-          'loss_g': np.mean(G_losses)
+          f'iteration_cls={desired_label}': iteration,
+          f'loss_d_cls={desired_label}': np.mean(D_losses),
+          f'loss_g_cls={desired_label}': np.mean(G_losses)
         })
       
       
