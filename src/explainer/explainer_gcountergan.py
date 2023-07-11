@@ -9,6 +9,8 @@ from torch_geometric.data import Dataset as GeometricDataset
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import GAE, GCNConv
 
+import wandb
+
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.data_instance_features import DataInstanceWFeaturesAndWeights
 from src.dataset.dataset_base import Dataset
@@ -29,6 +31,8 @@ class GraphCounteRGANExplainer(Explainer):
                n_features=4,
                fold_id=0,
                sampling_iterations=10,
+               lr_generator=0.001,
+               lr_discriminator=0.001,
                config_dict=None) -> None:
     
     super().__init__(id, config_dict)
@@ -47,6 +51,10 @@ class GraphCounteRGANExplainer(Explainer):
     self.converter = converter
     self.n_features = n_features
     self.sampling_iterations = sampling_iterations
+    
+    self.lr_discriminator = lr_discriminator
+    self.lr_generator = lr_generator
+    
     
     self._fitted = False
 
@@ -148,7 +156,10 @@ class GraphCounteRGANExplainer(Explainer):
 
 
   def fit(self, oracle: Oracle, dataset : Dataset, fold_id=0):
-    explainer_name = 'graph_countergan_fit_on_' + dataset.name + '_fold_id_' + str(fold_id)
+    explainer_name = f'graph_countergan_fit_on_{dataset.name}_fold_id_{fold_id}'\
+      + f'_lr_gen_{self.lr_generator}_lr_discr_{self.lr_discriminator}_epochs_{self.training_iterations}'\
+        +f'_sampl_iters_{self.sampling_iterations}'
+        
     explainer_uri = os.path.join(self.explainer_store_path, explainer_name)
 
     if os.path.exists(explainer_uri):
@@ -179,8 +190,8 @@ class GraphCounteRGANExplainer(Explainer):
   def __fit(self, countergan, oracle : Oracle, dataset : Dataset, desired_label=0):
     generator_loader, discriminator_loader = self.transform_data(dataset, oracle, class_to_explain=desired_label)
   
-    discriminator_optimizer = torch.optim.Adam(countergan.discriminator.parameters(), lr=1e-2)
-    generator_optimizer = torch.optim.Adam(countergan.generator.parameters(), lr=1e-2)
+    discriminator_optimizer = torch.optim.Adam(countergan.discriminator.parameters(), lr=self.lr_discriminator)
+    generator_optimizer = torch.optim.Adam(countergan.generator.parameters(), lr=self.lr_generator)
     
     loss = nn.BCELoss()
     
@@ -228,9 +239,11 @@ class GraphCounteRGANExplainer(Explainer):
           fake_label = fake_label[1].to(self.device)
           
           label.fill_(fake_label.item())
-
+          
+          # put the fake data through the generator
+          embed_features, edge_probs = countergan.generator(fake_features, fake_edge_index, fake_edge_attr)
           # Classify fake batch with D
-          output = countergan.discriminator(fake_features, fake_edge_index, fake_edge_attr).view(-1)
+          output = countergan.discriminator(embed_features.detach(), fake_edge_index.detach(), edge_probs.detach()).view(-1)
           # Calculate D's loss on all-fake graphs
           errD_fake = loss(output, label)
           # Calculate the gradients for this batch, accumulated with previous grads
@@ -251,7 +264,7 @@ class GraphCounteRGANExplainer(Explainer):
           # fake labels are real for generator cost
           label.fill_(real_label.item())
           # Since we just updated D, perform another forward pass of all-fake batch through D
-          output = countergan.discriminator(fake_features, fake_edge_index, fake_edge_attr).view(-1)
+          output = countergan.discriminator(embed_features, fake_edge_index, edge_probs).view(-1)
           # Calculate G's loss based on this output
           errG = loss(output, label)
           # Calculate gradients for G
@@ -263,8 +276,14 @@ class GraphCounteRGANExplainer(Explainer):
           # Save Losses for plotting later
           G_losses.append(errG.item())
           D_losses.append(errD.item())
-          print(f'iteration={iteration}\tLoss_D: {errD.item():.4f}\tLoss_G: {errG.item(): .4f}\tD(x): {D_x: .4f}\tD(G(z)): {D_G_z1: .4f} / {D_G_z2: .4f}')
-        
+          
+        print(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
+          
+        wandb.log({
+          'iteration': iteration,
+          'loss_d': np.mean(D_losses),
+          'loss_g': np.mean(G_losses)
+        })
       
       
   def transform_data(self, dataset: Dataset, oracle: Oracle, class_to_explain=0):

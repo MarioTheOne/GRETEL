@@ -143,6 +143,8 @@ class ExplainerFactory:
             n_labels = explainer_parameters['n_labels']
             feature_dim = explainer_parameters.get('feature_dim', 4)
             sampling_iterations = explainer_parameters.get('sampling_iterations', 10)
+            lr_discriminator = explainer_parameters.get('lr_discriminator', 0.01)
+            lr_generator = explainer_parameters.get('lr_generator', 0.01)
             
             converter_name = explainer_parameters.get('converter', 'tree_cycles')
             
@@ -160,6 +162,7 @@ class ExplainerFactory:
                 
             return self.get_graph_countergan_explainer(converter, n_nodes, batch_size_ratio,
                                                  training_iterations, n_labels, fold_id,
+                                                 lr_generator, lr_discriminator,
                                                  feature_dim, sampling_iterations, explainer_dict)
                         
         elif explainer_name == 'clear':
@@ -438,6 +441,7 @@ class ExplainerFactory:
     
     def get_graph_countergan_explainer(self, converter, n_nodes, batch_size_ratio,
                                        training_iterations, n_labels, fold_id,
+                                       lr_generator, lr_discriminator,
                                        feature_dim,
                                        sampling_iterations,
                                        config_dict=None) -> Explainer:
@@ -452,6 +456,8 @@ class ExplainerFactory:
                                           n_features=feature_dim,
                                           fold_id=fold_id,
                                           sampling_iterations=sampling_iterations,
+                                          lr_generator=lr_generator,
+                                          lr_discriminator=lr_discriminator,
                                           config_dict=config_dict)
        
         self._explainer_id_counter += 1
