@@ -1,0 +1,10 @@
+wandb_version: 1
+
+lr_discriminator:
+  value: 0.006170920683688569
+lr_generator:
+  value: 0.006831656001024492
+sampling_iterations:
+  value: 6
+training_iterations:
+  value: 11

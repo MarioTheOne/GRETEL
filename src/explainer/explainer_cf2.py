@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from dgl import from_networkx, to_networkx
 from torch.utils.data import Dataset
+import wandb
 
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.data_instance_features import DataInstanceWFeaturesAndWeights
@@ -135,6 +136,9 @@ class CF2Explainer(Explainer):
                 self.optimizer.step()
             
             print(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
+
+            # Logging into wandb
+            wandb.log({f'loss_{self.fold_id}': np.mean(losses)})
 
     def transform_data(self, dataset: Dataset):
         adj  = np.array([i.to_numpy_array() for i in dataset.instances])

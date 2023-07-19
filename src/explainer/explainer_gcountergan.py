@@ -281,8 +281,8 @@ class GraphCounteRGANExplainer(Explainer):
           
         wandb.log({
           f'iteration_cls={desired_label}': iteration,
-          f'loss_d_cls={desired_label}': np.mean(D_losses),
-          f'loss_g_cls={desired_label}': np.mean(G_losses)
+          f'loss_d_cls={desired_label}_{self.fold_id}': np.mean(D_losses),
+          f'loss_g_cls={desired_label}_{self.fold_id}': np.mean(G_losses)
         })
       
       

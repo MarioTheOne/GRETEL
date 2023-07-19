@@ -18,7 +18,7 @@ sweep_configuration = {
     'metric': {'goal': 'maximize', 'name': 'Correctness'},
     'parameters': 
     {
-        'training_iterations': {'values': list(range(5, 100, 5))},
+        'training_iterations': {'values': list(range(1, 21, 5))},
         'sampling_iterations': {'values': list(range(1, 21))},
         'lr_generator': {'max': 0.01, 'min': 0.001},
         'lr_discriminator': {'max': 0.01, 'min': 0.001}
@@ -73,4 +73,4 @@ def main():
     })
 
 # Start the sweep job
-wandb.agent(sweep_id, function=main, count=10)
+wandb.agent(sweep_id, function=main, count=5)
