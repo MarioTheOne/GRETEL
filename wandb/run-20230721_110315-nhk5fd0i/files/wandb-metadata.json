@@ -1,0 +1,200 @@
+{
+    "os": "Linux-3.10.0-693.5.2.el7.x86_64-x86_64-with-centos-7.4.1708-Core",
+    "python": "3.7.13",
+    "heartbeatAt": "2023-07-21T09:03:16.395456",
+    "startedAt": "2023-07-21T09:03:15.571524",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "./config/steel/cf2-tc28/config_tree-cycles-500-28_tc-custom-oracle_cf2_fold-0.json",
+        "0"
+    ],
+    "state": "running",
+    "program": "hypop_cf2.py",
+    "codePath": "hypop_cf2.py",
+    "git": {
+        "remote": "https://github.com/MarioTheOne/GRETEL.git",
+        "commit": "00d9a660025e0f936bf30c37b213b83f237e4389"
+    },
+    "email": "m.a.prado89@outlook.com",
+    "root": "/NFSHOME/mprado/CODE/gretel-steel/GRETEL",
+    "host": "compute-0-7.local",
+    "username": "mprado",
+    "executable": "/NFSHOME/mprado/miniconda3/envs/XAI37/bin/python",
+    "cpu_count": 16,
+    "cpu_count_logical": 32,
+    "cpu_freq": {
+        "current": 2760.290999999999,
+        "min": 0.0,
+        "max": 0.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2760.291,
+            "min": 0.0,
+            "max": 0.0
+        }
+    ],
+    "disk": {
+        "total": 15.623897552490234,
+        "used": 3.2413482666015625
+    },
+    "memory": {
+        "total": 125.72706985473633
+    }
+}
