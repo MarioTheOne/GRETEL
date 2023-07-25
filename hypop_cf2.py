@@ -6,28 +6,27 @@ import numpy as np
 import random
 
 
-# config_file_path = sys.argv[1]
-# runno = int(sys.argv[2])
+config_file_path = sys.argv[1]
+runno = int(sys.argv[2])
 
-# print('Executing:'+sys.argv[1])
+print('Executing:'+sys.argv[1])
 
-config_file_path = './config/steel/cf2-tc28/config_tree-cycles-500-28_tc-custom-oracle_cf2_fold-0.json'
-runno = 1
+# config_file_path = './config/steel/cf2-tc28/config_tree-cycles-500-28_tc-custom-oracle_cf2_fold-0.json'
+# runno = 1
 
 # Define sweep config
 sweep_configuration = {
-    'method': 'grid',
-    'name': f'Runno={runno}',
+    'method': 'bayes',
+    'name': f'CF2_Runno={runno}',
     'metric': {'goal': 'maximize', 'name': 'Correctness'},
     'parameters': 
     {
-        "alpha": {'values': list(np.arange(0.1, 0.8, 0.1, dtype=float))},
-        "lam": {'values': list(range(100, 1000, 50))},
-        "epochs": {'values': list(range(10, 200, 10))},
-        "lr": {'values': list(np.arange(0.001, 0.01, 0.001, dtype=float))},
-        "batch_size": {'values': list(np.arange(0.01, 0.1, 0.01, dtype=float))},
-        "gamma": {'values': list(np.arange(0.1, 0.8, 0.1, dtype=float))},
-        "feature_dim": {'values': [8]}
+        "alpha": {'values': list(np.arange(0.5, 1.01, 0.1, dtype=float))},
+        "lam": {'values': [20, 100, 500, 1000]},
+        "lr": {'values': [1e-4, 1e-3, 1e-2]},
+        "epochs": {'values': [50,100,200,250,500]},
+        "batch_size": {'values': [0.1, 0.15, 0.2]},
+        "gamma": {'values': list(np.arange(0.1, 1.1, 0.1, dtype=float))},
      }
 }
 
@@ -60,7 +59,6 @@ def main():
         lr = wandb.config.lr
         batch_size = wandb.config.batch_size
         gamma = wandb.config.gamma
-        feature_dim = wandb.config.feature_dim
     
         print('Creating the evaluators...................................................................')
         eval_manager.create_evaluators()
@@ -72,7 +70,6 @@ def main():
         eval_manager.explainers[0].lr = lr
         eval_manager.explainers[0].batch_size = batch_size
         eval_manager.explainers[0].gamma = gamma
-        eval_manager.explainers[0].feature_dim = feature_dim
         
         print('Evaluating the explainers..................................................................')
         eval_manager.evaluate()
@@ -84,12 +81,6 @@ def main():
         for evaluator in eval_manager.evaluators:
             for metric in eval_manager.evaluation_metrics:
                 metric_reports[f'{metric.name}'].append(evaluator._results[f'{metric.name}'])
-
-    # metrics_to_log = {}
-    # for metric in eval_manager.evaluation_metrics:
-    #     metrics_to_log[f'{metric.name}'] = np.mean(metric_reports[f'{metric.name}'])
-
-    # b_metrics = [metric_reports[f'{metric.name}'] for metric in eval_manager.evaluation_metrics]
 
     wandb.log({
         f'{metric.name}': np.mean(metric_reports[f'{metric.name}']) for metric in eval_manager.evaluation_metrics

@@ -16,30 +16,21 @@ runno = 1
 
 # Define sweep config
 sweep_configuration = {
-    'method': 'grid',
-    'name': f'Runno={runno}',
+    'method': 'bayes',
+    'name': f'CLEAR_Runno={runno}',
     'metric': {'goal': 'maximize', 'name': 'Correctness'},
     'parameters': 
     {
 
-            "batch_size_ratio": {'values': list(np.arange(0.1, 0.3, 0.1, dtype=float))},
-            "alpha": {'values': list(np.arange(0.1, 0.8, 0.1, dtype=float))},
-            "lr": {'values': list(np.arange(0.001, 0.01, 0.001, dtype=float))},
-            "epochs": {'values': list(range(10, 200, 10))},
-            "dropout": {'values': list(np.arange(0.01, 0.1, 0.01, dtype=float))},
+            "batch_size_ratio": {'values': [0.1, 0.15, 0.2]},
+            "alpha": {'values': list(np.arange(0, 1.1, 0.1, dtype=float))},
+            "lr": {'values': [1e-4, 1e-3, 1e-2]},
+            "epochs": {'values': [50,100,200,250,500]},
+            "dropout": {'values': list(np.arange(0, 0.51, 0.1, dtype=float))},
             "weight_decay": {'values': [0.00001, 0.00004, 0.00007, 0.0001]},
-            # fixed ones
-            "graph_pool_type": {'values': ['mean']},
-            "encoder_type": {'values': ['gcn']},
-            "feature_dim": {'values': [2]},
-            "h_dim": {'values': [16]},
-            "z_dim": {'values': [16]},
-            "disable_u": {'values': [False]},
-            "beta_x": {'values': [10]},
-            "beta_adj": {'values': [10]},
-            "lambda_sim": {'values': [1]},
-            "lambda_kl": {'values': [1]},
-            "lambda_cfe": {'values': [1]}
+            "lambda_sim": {'values': list(np.arange(0.1, 1.1 ,0.2, dtype=float))},
+            "lambda_kl": {'values': list(np.arange(0.1, 1.1, 0.2, dtype=float))},
+            "lambda_cfe": {'values': list(np.arange(0.1 ,1.1, 0.2, dtype=float))}
      }
 }
 
@@ -72,15 +63,6 @@ def main():
         epochs = wandb.config.epochs
         dropout = wandb.config.dropout
         weight_decay = wandb.config.weight_decay
-        # fixed ones
-        graph_pool_type = wandb.config.graph_pool_type
-        encoder_type = wandb.config.encoder_type
-        feature_dim = wandb.config.feature_dim
-        h_dim = wandb.config.h_dim    
-        z_dim = wandb.config.z_dim
-        disable_u = wandb.config.disable_u    
-        beta_x = wandb.config.beta_x
-        beta_adj = wandb.config.beta_adj
         lambda_sim = wandb.config.lambda_sim
         lambda_kl = wandb.config.lambda_kl
         lambda_cfe = wandb.config.lambda_cfe
@@ -96,18 +78,10 @@ def main():
         eval_manager.explainers[0].epochs = epochs
         eval_manager.explainers[0].dropout = dropout
         eval_manager.explainers[0].weight_decay = weight_decay
-        
-        eval_manager.explainers[0].graph_pool_type = graph_pool_type
-        eval_manager.explainers[0].encoder_type = encoder_type
-        eval_manager.explainers[0].feature_dim = feature_dim
-        eval_manager.explainers[0].h_dim = h_dim
-        eval_manager.explainers[0].z_dim = z_dim
-        eval_manager.explainers[0].disable_u = disable_u
-        eval_manager.explainers[0].beta_x = beta_x
-        eval_manager.explainers[0].beta_adj = beta_adj
         eval_manager.explainers[0].lambda_sim = lambda_sim
         eval_manager.explainers[0].lambda_kl = lambda_kl
         eval_manager.explainers[0].lambda_cfe = lambda_cfe
+
         
         print('Evaluating the explainers..................................................................')
         eval_manager.evaluate()
@@ -120,15 +94,9 @@ def main():
             for metric in eval_manager.evaluation_metrics:
                 metric_reports[f'{metric.name}'].append(evaluator._results[f'{metric.name}'])
 
-    # metrics_to_log = {}
-    # for metric in eval_manager.evaluation_metrics:
-    #     metrics_to_log[f'{metric.name}'] = np.mean(metric_reports[f'{metric.name}'])
-
-    # b_metrics = [metric_reports[f'{metric.name}'] for metric in eval_manager.evaluation_metrics]
-
     wandb.log({
         f'{metric.name}': np.mean(metric_reports[f'{metric.name}']) for metric in eval_manager.evaluation_metrics
     })
 
 # Start the sweep job
-wandb.agent(sweep_id, function=main, count=20)
+wandb.agent(sweep_id, function=main, count=10)

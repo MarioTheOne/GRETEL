@@ -1,0 +1,20 @@
+wandb_version: 1
+
+alpha:
+  value: 0
+batch_size_ratio:
+  value: 0.1
+dropout:
+  value: 0
+epochs:
+  value: 50
+lambda_cfe:
+  value: 0.1
+lambda_kl:
+  value: 0.1
+lambda_sim:
+  value: 0.1
+lr:
+  value: 0.0001
+weight_decay:
+  value: 7.0e-05

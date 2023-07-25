@@ -47,19 +47,29 @@ class CLEARExplainer(Explainer):
         
         self.name = 'clear'
         
+        self.explainer_store_path = explainer_store_path
+
         self.n_labels = n_labels
         self.n_nodes = n_nodes
+
         self.batch_size_ratio = batch_size_ratio
-        self.explainer_store_path = explainer_store_path
-        self.fold_id = fold_id
+        self.h_dim = h_dim
+        self.z_dim = z_dim
+        self.dropout = dropout
+        self.encoder_type = encoder_type
+        self.graph_pool_type = graph_pool_type
+        self.disable_u = disable_u
+        self.epochs = epochs
+        self.alpha = alpha
+        self.feature_dim = feature_dim
+        self.lr = lr
+        self.weight_decay = weight_decay
         self.lambda_sim = lambda_sim
         self.lambda_kl = lambda_kl
         self.lambda_cfe = lambda_cfe
-        self.epochs = epochs
-        self.alpha = alpha
         self.beta_x = beta_x
         self.beta_adj = beta_adj
-        self.feature_dim = feature_dim
+        self.fold_id = fold_id
                 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -118,7 +128,16 @@ class CLEARExplainer(Explainer):
             os.path.join(self.explainer_store_path, self.name, f'explainer')))
 
     def fit(self, oracle: Oracle, dataset : Dataset, fold_id=0):
-        explainer_name = 'clear_fit_on_' + dataset.name + '_fold_id_' + str(fold_id)
+        # explainer_name = 'clear_fit_on_' + dataset.name + '_fold_id_' + str(fold_id)
+
+        explainer_name = (
+            f'clear_fit_on_{dataset.name}_fold_id={self.fold_id}_batch_size_ratio={self.batch_size_ratio}_alpha={self.alpha}'\
+                + f'_lr={self.lr}_weight_decay={self.weight_decay}_epochs={self.epochs}_dropout={self.dropout}'\
+                # + f'_z_dim={self.z_dim}_encoder_type={self.encoder_type}_graph_pool_type={self.graph_pool_type}'\
+                # + f'_disable_u={self.disable_u}_lambda_sim={self.lambda_sim}_lambda_kl={self.lambda_kl}_h_dim={self.h_dim}'\
+                # + f'_lambda_cfe={self.lambda_cfe}_beta_x={self.beta_x}_beta_adj={self.beta_adj}_feature_dim={self.feature_dim}'
+        )
+
         explainer_uri = os.path.join(self.explainer_store_path, explainer_name)
         self.name = explainer_name
         

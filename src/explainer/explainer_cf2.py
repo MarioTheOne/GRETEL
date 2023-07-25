@@ -63,6 +63,7 @@ class CF2Explainer(Explainer):
         if(not self._fitted):
             self.explainer.train()
             self.fit(dataset, oracle)
+            self._fitted = True
 
         self.explainer.eval()
         
