@@ -83,7 +83,6 @@ class GraphCounteRGANExplainer(Explainer):
       batch = TorchGeometricDataset.to_geometric(instance)
       explainer = self.explainers[pred_label].generator
       embedded_features, _, edge_probs = explainer(batch.x, batch.edge_index, batch.edge_attr)
-      print(batch.x)
       cf_instance = self.sampler.sample(instance, oracle, **{'embedded_features': embedded_features,
                                                              'edge_probabilities': edge_probs,
                                                              'edge_index': batch.edge_index})
@@ -385,8 +384,8 @@ class GCNGeneratorEncoder(nn.Module):
     self.training = training
     
     
-  def __len__(self):
-    return len(self.instances)
-  
-  def __getitem__(self, idx):
-    return self.instances[idx]
+def rebuild_adj_matrix(self, num_nodes: int, edge_indices: Tensor, edge_weight: Tensor) -> Tensor:
+    truth = torch.zeros(size=(num_nodes, num_nodes)).double()
+    truth[edge_indices[0,:], edge_indices[1,:]] = edge_weight
+    truth[edge_indices[1,:], edge_indices[0,:]] = edge_weight
+    return truth
