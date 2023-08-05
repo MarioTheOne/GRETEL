@@ -384,7 +384,7 @@ class GCNGeneratorEncoder(nn.Module):
     self.training = training
     
     
-def rebuild_adj_matrix(self, num_nodes: int, edge_indices: Tensor, edge_weight: Tensor) -> Tensor:
+def rebuild_adj_matrix(num_nodes: int, edge_indices: Tensor, edge_weight: Tensor) -> Tensor:
     truth = torch.zeros(size=(num_nodes, num_nodes)).double()
     truth[edge_indices[0,:], edge_indices[1,:]] = edge_weight
     truth[edge_indices[1,:], edge_indices[0,:]] = edge_weight
