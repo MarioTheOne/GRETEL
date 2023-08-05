@@ -1,4 +1,4 @@
-from src.dataset.converters.cf2_tree_cycle import CF2TreeCycleConverter
+from src.dataset.converters.tree_cycles_converter import TreeCyclesConverter
 from src.dataset.converters.weights_converter import \
     DefaultFeatureAndWeightConverter
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
@@ -23,6 +23,7 @@ from src.explainer.meg.environments.bbbp_env import BBBPEnvironment
 from src.explainer.meg.explainer_meg import MEGExplainer
 from src.explainer.meg.utils.encoders import (
     IDActionEncoder, MorganBitFingerprintActionEncoder)
+from src.utils.samplers.partial_order_samplers import PositiveAndNegativeEdgeSampler
 
 
 class ExplainerFactory:
@@ -146,6 +147,8 @@ class ExplainerFactory:
             lr_discriminator = explainer_parameters.get('lr_discriminator', 0.01)
             lr_generator = explainer_parameters.get('lr_generator', 0.01)
             
+            sampling_strategy = PositiveAndNegativeEdgeSampler(sampling_iterations)
+            
             converter_name = explainer_parameters.get('converter', 'tree_cycles')
             
             n_nodes = int(explainer_parameters['n_nodes'])
@@ -153,7 +156,7 @@ class ExplainerFactory:
             
             converter = None
             if converter_name == 'tree_cycles':
-                converter = CF2TreeCycleConverter(feature_dim=feature_dim)
+                converter = TreeCyclesConverter(feature_dim=feature_dim)
                 # change else in the future to support all datasets
             else:
                 converter = DefaultFeatureAndWeightConverter(feature_dim=feature_dim,
@@ -163,7 +166,7 @@ class ExplainerFactory:
             return self.get_graph_countergan_explainer(converter, n_nodes, batch_size_ratio,
                                                  training_iterations, n_labels, fold_id,
                                                  lr_generator, lr_discriminator,
-                                                 feature_dim, sampling_iterations, explainer_dict)
+                                                 feature_dim, sampling_strategy, explainer_dict)
                         
         elif explainer_name == 'clear':
             # Verifying the explainer parameters
@@ -443,7 +446,7 @@ class ExplainerFactory:
                                        training_iterations, n_labels, fold_id,
                                        lr_generator, lr_discriminator,
                                        feature_dim,
-                                       sampling_iterations,
+                                       sampling_strategy,
                                        config_dict=None) -> Explainer:
         
         result = GraphCounteRGANExplainer(self._explainer_id_counter,
@@ -455,7 +458,7 @@ class ExplainerFactory:
                                           training_iterations=training_iterations,
                                           n_features=feature_dim,
                                           fold_id=fold_id,
-                                          sampling_iterations=sampling_iterations,
+                                          sampler=sampling_strategy,
                                           lr_generator=lr_generator,
                                           lr_discriminator=lr_discriminator,
                                           config_dict=config_dict)
