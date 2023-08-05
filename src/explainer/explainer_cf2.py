@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from dgl import from_networkx, to_networkx
 from torch.utils.data import Dataset
+import wandb
 
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.data_instance_features import DataInstanceWFeaturesAndWeights
@@ -62,6 +63,7 @@ class CF2Explainer(Explainer):
         if(not self._fitted):
             self.explainer.train()
             self.fit(dataset, oracle)
+            self._fitted = True
 
         self.explainer.eval()
         
@@ -100,7 +102,10 @@ class CF2Explainer(Explainer):
 
     def fit(self, dataset: Dataset, oracle: Oracle):
         explainer_name = (
-            f"cf2_fit_on_{dataset.name}_fold_id={self.fold_id}"
+            f'cf2_fit_on_{dataset.name}_fold_id={self.fold_id}_alpha={self.alpha}_lam={self.lam}'\
+                + f'_epochs={self.epochs}_lr={self.lr}_batch_size={self.batch_size_ratio}'\
+                + f'_gamma={self.gamma}_weight_decay={self.weight_decay}'
+            # f"cf2_fit_on_{dataset.name}_fold_id={self.fold_id}"
         )
         explainer_uri = os.path.join(self.explainer_store_path, explainer_name)
         self.name = explainer_name
@@ -135,6 +140,9 @@ class CF2Explainer(Explainer):
                 self.optimizer.step()
             
             print(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
+
+            # Logging into wandb
+            wandb.log({f'loss': np.mean(losses)})
 
     def transform_data(self, dataset: Dataset):
         adj  = np.array([i.to_numpy_array() for i in dataset.instances])
