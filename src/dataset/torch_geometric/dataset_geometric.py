@@ -34,10 +34,6 @@ class TorchGeometricDataset(Dataset):
     
     return Data(x=x, y=label, edge_index=a.T, edge_attr=w)
   
-  @property
-  def num_nodes(self):
-    return self.x.shape[0]
-  
   
   
 

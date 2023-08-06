@@ -139,7 +139,6 @@ class ExplainerFactory:
             if not 'fold_id' in explainer_parameters:
                 raise ValueError('''CounteRGAN requires a fold_id''')
             
-            batch_size_ratio = explainer_parameters.get('batch_size_ratio', .1)
             training_iterations = explainer_parameters.get('training_iterations', 20000)
             n_labels = explainer_parameters['n_labels']
             feature_dim = explainer_parameters.get('feature_dim', 4)
@@ -163,7 +162,7 @@ class ExplainerFactory:
                                                              weight_dim=1)
                 
                 
-            return self.get_graph_countergan_explainer(converter, n_nodes, batch_size_ratio,
+            return self.get_graph_countergan_explainer(converter, n_nodes,
                                                  training_iterations, n_labels, fold_id,
                                                  lr_generator, lr_discriminator,
                                                  feature_dim, sampling_strategy, explainer_dict)
@@ -442,7 +441,7 @@ class ExplainerFactory:
         return result
     
     
-    def get_graph_countergan_explainer(self, converter, n_nodes, batch_size_ratio,
+    def get_graph_countergan_explainer(self, converter, n_nodes,
                                        training_iterations, n_labels, fold_id,
                                        lr_generator, lr_discriminator,
                                        feature_dim,
@@ -453,7 +452,6 @@ class ExplainerFactory:
                                           self._explainer_store_path,
                                           converter=converter,
                                           n_nodes=n_nodes,
-                                          batch_size_ratio=batch_size_ratio,
                                           n_labels=n_labels,
                                           training_iterations=training_iterations,
                                           n_features=feature_dim,

@@ -81,8 +81,9 @@ class GraphCounteRGANExplainer(Explainer):
     with torch.no_grad():
       instance = dataset.get_instance(instance.id)
       batch = TorchGeometricDataset.to_geometric(instance)
-      explainer = self.explainers[pred_label].generator
-      embedded_features, _, edge_probs = explainer(batch.x, batch.edge_index, batch.edge_attr)
+      explainer = self.explainers[pred_label]
+      explainer.set_training_generator(False)
+      embedded_features, _, edge_probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr)
       cf_instance = self.sampler.sample(instance, oracle, **{'embedded_features': embedded_features,
                                                              'edge_probabilities': edge_probs,
                                                              'edge_index': batch.edge_index})
@@ -152,11 +153,11 @@ class GraphCounteRGANExplainer(Explainer):
     generator_loader = self._infinite_data_stream(generator_loader)
     discriminator_loader = self._infinite_data_stream(discriminator_loader)
     
-    discriminator_optimizer = torch.optim.Adam(countergan.discriminator.parameters(), lr=self.lr_discriminator)
+    discriminator_optimizer = torch.optim.SGD(countergan.discriminator.parameters(), lr=self.lr_discriminator)
         
-    countergan_optimizer = torch.optim.NAdam(countergan.parameters(), lr=self.lr_generator)
+    countergan_optimizer = torch.optim.SGD(countergan.generator.parameters(), lr=self.lr_generator)
     
-    loss_discriminator = nn.BCELoss(reduction='none')
+    loss_discriminator = nn.BCELoss()
     loss_countergan = nn.BCELoss()
 
     for iteration in range(self.training_iterations):
@@ -256,13 +257,9 @@ class GraphCounteRGANExplainer(Explainer):
     discriminator_data = TorchGeometricDataset(data_list[class_to_not_explain_indices].tolist())    
     
     #### change in the future to handle more than 1 graph
-    self.batch_size = 1
-    
-    print(generator_data.len())
-    print(discriminator_data.len())
-    
-    generator_loader = DataLoader(generator_data, batch_size=1, shuffle=True, num_workers=2)
-    discriminator_loader = DataLoader(discriminator_data, batch_size=1, shuffle=True, num_workers=2)
+    self.batch_size = 1    
+    generator_loader = DataLoader(generator_data, batch_size=1, num_workers=2)
+    discriminator_loader = DataLoader(discriminator_data, batch_size=1, num_workers=2)
   
     return generator_loader, discriminator_loader
         
@@ -304,8 +301,8 @@ class Discriminator(nn.Module):
     self.training = False
     self.n_nodes = n_nodes
 
-    self.conv1 = GCNConv(n_features, 64)
-    self.fc = nn.Linear(self.n_nodes * 64, 1)
+    self.conv1 = GCNConv(n_features, 2)
+    self.fc = nn.Linear(self.n_nodes * 2, 1)
     
     self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -340,7 +337,7 @@ class ResidualGenerator(nn.Module):
     super(ResidualGenerator, self).__init__()
 
     self.n_features = n_features
-    self.gcn_encoder = GCNGeneratorEncoder(self.n_features, 64)
+    self.gcn_encoder = GCNGeneratorEncoder(self.n_features, 4)
     self.gcn_encoder.double()
     self.model = GAE(encoder=self.gcn_encoder)
     self.residuals = residuals
@@ -354,6 +351,7 @@ class ResidualGenerator(nn.Module):
     edge_probabilities = torch.nan_to_num(edge_probabilities, 0)
 
     if self.residuals:
+      encoded_node_features = encoded_node_features.repeat(1, node_features.size(1) // encoded_node_features.size(1))
       encoded_node_features = torch.add(encoded_node_features, node_features)
       edge_probabilities = rebuild_adj_matrix(len(node_features), edge_list, edge_attr) + edge_probabilities
       edge_probabilities = torch.sigmoid(edge_probabilities)
@@ -366,7 +364,7 @@ class GCNGeneratorEncoder(nn.Module):
   def __init__(self, in_channels=1, out_channels=64):
     super().__init__()
     self.conv1 = GCNConv(in_channels, out_channels)
-    self.conv2 = GCNConv(out_channels, in_channels)
+    self.conv2 = GCNConv(out_channels, out_channels // 2)
     
     self.training = False
 

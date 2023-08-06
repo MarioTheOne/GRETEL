@@ -62,6 +62,8 @@ class TreeCyclesConverter(DefaultFeatureAndWeightConverter):
     
     def __generate_node_features(self, instance: DataInstance) -> DataInstanceWFeatures:
         graph = instance.graph
+        # Calculate the degree of each node
+        degree = dict(graph.degree())
         # Calculate the betweenness centrality
         betweenness_centrality = nx.betweenness_centrality(graph)
         # Calculate the closeness centrality
@@ -70,12 +72,22 @@ class TreeCyclesConverter(DefaultFeatureAndWeightConverter):
         harmonic_centrality = nx.harmonic_centrality(graph)
         # Calculate the clustering coefficient
         clustering_coefficient = nx.clustering(graph)
+        # Calculate the Katz centrality
+        katz_centrality = nx.katz_centrality(graph)
+        # Calculate the second order centrality
+        second_order_centrality = nx.second_order_centrality(graph)
+        # Calculate the Laplacian centrality
+        laplacian_centrality = nx.laplacian_spectrum(graph)
         # stack the above calculations and transpose the matrix
         # the new dimensionality is num_nodes x 4
-        features = np.stack((list(betweenness_centrality.values()),
+        features = np.stack((list(degree.values()),
+                             list(betweenness_centrality.values()),
                              list(closeness_centrality.values()),
                              list(harmonic_centrality.values()),
-                             list(clustering_coefficient.values())), axis=0).T
+                             list(clustering_coefficient.values()),
+                             list(katz_centrality.values()),
+                             list(second_order_centrality.values()),
+                             list(laplacian_centrality)), axis=0).T
         # copy the instance information and set the node features
         new_instance = DataInstanceWFeatures(id=instance.id)
         new_instance.from_numpy_matrix(nx.adjacency_matrix(graph))
