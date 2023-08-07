@@ -83,7 +83,7 @@ class CLEARExplainer(Explainer):
                                dropout=dropout,
                                disable_u=disable_u,
                                device=self.device
-                            ).to(self.device)
+                            ).to(torch.device(self.device))
                         
         self.optimizer = torch.optim.Adam(self.explainer.parameters(),
                                           lr=lr, weight_decay=weight_decay)
@@ -113,8 +113,8 @@ class CLEARExplainer(Explainer):
             adj_reconst_binary = torch.bernoulli(adj_reconst.squeeze())
             
             cf_instance = DataInstanceWFeatures(instance.id)
-            cf_instance.from_numpy_array(adj_reconst_binary.detach().numpy())
-            cf_instance.features = features_reconst.squeeze().detach().numpy()
+            cf_instance.from_numpy_array(adj_reconst_binary.to("cpu").detach().numpy())
+            cf_instance.features = features_reconst.squeeze().to("cpu").detach().numpy()
             
             print(f'Finished evaluating for instance {instance.id}')
             return cf_instance
@@ -132,7 +132,7 @@ class CLEARExplainer(Explainer):
 
         explainer_name = (
             f'clear_fit_on_{dataset.name}_fold_id={self.fold_id}_batch_size_ratio={self.batch_size_ratio}_alpha={self.alpha}'\
-                + f'_lr={self.lr}_weight_decay={self.weight_decay}_epochs={self.epochs}_dropout={self.dropout}'\
+                + f'_lr={self.lr}_weight_decay={self.weight_decay}_epochs={self.epochs}_dropout={self.dropout}'
                 # + f'_z_dim={self.z_dim}_encoder_type={self.encoder_type}_graph_pool_type={self.graph_pool_type}'\
                 # + f'_disable_u={self.disable_u}_lambda_sim={self.lambda_sim}_lambda_kl={self.lambda_kl}_h_dim={self.h_dim}'\
                 # + f'_lambda_cfe={self.lambda_cfe}_beta_x={self.beta_x}_beta_adj={self.beta_adj}_feature_dim={self.feature_dim}'
@@ -230,13 +230,13 @@ class CLEARExplainer(Explainer):
         y_pred = []
         for i in range(len(adj_reconst)):
             temp_instance.from_numpy_array(
-                adj_reconst[i].detach().numpy().squeeze()
+                adj_reconst[i].to("cpu").detach().numpy().squeeze()
             )
-            temp_instance.features = features_reconst[i].detach().numpy().squeeze()
+            temp_instance.features = features_reconst[i].to("cpu").detach().numpy().squeeze()
             y_pred.append(oracle.predict_proba(temp_instance))
             
         y_pred = torch.from_numpy(np.array(y_pred)).float().squeeze()
-        loss_cfe = F.nll_loss(F.log_softmax(y_pred, dim=-1), y_cf.view(-1).long())
+        loss_cfe = F.nll_loss(F.log_softmax(y_pred, dim=-1), y_cf.to("cpu").view(-1).long())
         
         # rep loss
         if z_mu_cf is None:
