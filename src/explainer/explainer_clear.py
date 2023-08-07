@@ -337,13 +337,14 @@ class CLEAR(nn.Module):
             nn.ReLU()
         )
         
+        
         self.encoder_var = nn.Sequential(
             nn.Linear(self.h_dim + self.u_dim + 1, self.z_dim),
             nn.BatchNorm1d(self.z_dim),
             nn.ReLU(),
             nn.Sigmoid()
         )
-        
+                
         # decoder
         self.decoder_x = nn.Sequential(
             nn.Linear(self.z_dim + 1, self.h_dim),
@@ -370,8 +371,7 @@ class CLEAR(nn.Module):
             nn.Linear(self.h_dim, self.n_nodes * self.n_nodes),
             nn.Sigmoid()
         )
-        
-        self.grpah_norm = nn.BatchNorm1d(self.h_dim)
+        self.graph_norm = nn.BatchNorm1d(self.h_dim)
         
         
     def encoder(self, features, u, adj, y_cf):
@@ -380,7 +380,7 @@ class CLEAR(nn.Module):
         # output: z
         graph_rep = self.graph_model(features, adj) # n x num_node x h_dim
         graph_rep  = self.graph_pooling(graph_rep, self.graph_pool_type) # n x h_dim
-        # graph_rep = self.graph_norm(graph_rep)
+        graph_rep = self.graph_norm(graph_rep)
         
         if self.disable_u:
             z_mu = self.encoder_mean(torch.cat((graph_rep, y_cf), dim=1))
@@ -520,7 +520,6 @@ class MLP(nn.Module):
             _fc_list.append(nn.Linear(self.hidden_dim[self.n_layers - 2], self.output_dim))
             
         self.fc = nn.ModuleList(_fc_list)
-        self.to(self.device)
         
         
     @staticmethod
