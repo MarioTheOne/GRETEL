@@ -135,6 +135,7 @@ data/
 output/
 stats/
 legacy/
+wandb/
 
 # videos
 .mp4
