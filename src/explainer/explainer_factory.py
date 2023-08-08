@@ -13,7 +13,7 @@ from src.explainer.explainer_clear import CLEARExplainer
 from src.explainer.explainer_countergan import CounteRGANExplainer
 from src.explainer.explainer_dce_search import (DCESearchExplainer,
                                                 DCESearchExplainerOracleless)
-from src.explainer.explainer_gcountergan import GraphCounteRGANExplainer
+from src.explainer.explainer_rsgg_ce import GraphCounteRGANExplainer
 from src.explainer.explainer_incremental_rand import IRandExplainer
 from src.explainer.explainer_maccs import MACCSExplainer
 from src.explainer.explainer_perturbation_rand import PerturbationRandExplainer

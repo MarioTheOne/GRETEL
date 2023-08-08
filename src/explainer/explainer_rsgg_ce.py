@@ -70,19 +70,27 @@ class GraphCounteRGANExplainer(Explainer):
     ]
 
   def explain(self, instance, oracle: Oracle, dataset: Dataset):
-    dataset = self.converter.convert(dataset)
-
     if(not self._fitted):
+      dataset = self.converter.convert(dataset)
       self.fit(oracle, dataset, self.fold_id)
 
     # Getting the scores/class of the instance
     pred_label = oracle.predict(instance)
 
     with torch.no_grad():
-      instance = dataset.get_instance(instance.id)
+      #######################################################
+      # optimization
+      # we only convert a single instance instead 
+      # of the entire dataset for each instance at inference
+      new_dataset = Dataset(id='dummy')
+      instance.id = 0
+      new_dataset.instances.append(instance)
+      new_dataset = self.converter.convert(new_dataset)
+      instance = new_dataset.get_instance(instance.id)
+      #######################################################
       batch = TorchGeometricDataset.to_geometric(instance)
       explainer = self.explainers[pred_label]
-      explainer.set_training_generator(False)
+      #explainer.set_training_generator(False)
       embedded_features, _, edge_probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr)
       cf_instance = self.sampler.sample(instance, oracle, **{'embedded_features': embedded_features,
                                                              'edge_probabilities': edge_probs,
