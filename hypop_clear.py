@@ -23,14 +23,14 @@ sweep_configuration = {
     {
 
             "batch_size_ratio": {'values': [0.1, 0.15, 0.2]},
-            "alpha": {'values': list(np.arange(0, 1.1, 0.1, dtype=float))},
+            "alpha": {'values': list(np.arange(0, 1.1, 0.2, dtype=float))},
             "lr": {'values': [1e-4, 1e-3, 1e-2]},
-            "epochs": {'values': [50,100,200,250,500]},
-            "dropout": {'values': list(np.arange(0, 0.51, 0.1, dtype=float))},
-            "weight_decay": {'values': [0.00001, 0.00004, 0.00007, 0.0001]},
-            "lambda_sim": {'values': list(np.arange(0.1, 1.1 ,0.2, dtype=float))},
-            "lambda_kl": {'values': list(np.arange(0.1, 1.1, 0.2, dtype=float))},
-            "lambda_cfe": {'values': list(np.arange(0.1 ,1.1, 0.2, dtype=float))}
+            "epochs": {'values': [600]},
+            "dropout": {'values': [0.1, 0.25, 0.5]},
+            "weight_decay": {'values': [0.00001, 0.00005, 0.0001]},
+            "lambda_sim": {'values': list(np.arange(0.1, 1.1 ,0.3, dtype=float))},
+            "lambda_kl": {'values': list(np.arange(0.1, 1.1, 0.3, dtype=float))},
+            "lambda_cfe": {'values': list(np.arange(0.1 ,1.1, 0.3, dtype=float))}
      }
 }
 

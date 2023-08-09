@@ -11,6 +11,8 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 import torch.nn as nn
 
+import wandb
+
 
 class CounteRGANExplainer(Explainer):
 
@@ -31,11 +33,13 @@ class CounteRGANExplainer(Explainer):
         super().__init__(id, config_dict)
         
         self.name = 'countergan'
+
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # self.device = device
         
         self.batch_size_ratio = batch_size_ratio
         self.n_labels = n_labels
         self.n_nodes = n_nodes
-        self.device = device
         self.training_iterations = training_iterations
         self.n_discriminator_steps = n_discriminator_steps
         self.n_generator_steps = n_generator_steps
@@ -48,8 +52,7 @@ class CounteRGANExplainer(Explainer):
         self.explainers = [
             CounteRGAN(n_nodes,
                        residuals=True,
-                       ce_binarization_threshold=ce_binarization_threshold,
-                       device=device).to(device) for _ in range(n_labels)
+                       ce_binarization_threshold=ce_binarization_threshold).to(self.device) for _ in range(n_labels)
         ]
         
     def _get_softmax_label(self, desired_label=0):
@@ -102,7 +105,11 @@ class CounteRGANExplainer(Explainer):
 
 
     def fit(self, oracle: Oracle, dataset : Dataset, fold_id=0):
-        explainer_name = 'countergan_fit_on_' + dataset.name + '_fold_id_' + str(fold_id)
+        explainer_name = f'countergan_fit_on_{dataset.name}_fold_id_{fold_id}'\
+        + f'_batch_ratio_{self.batch_size_ratio}_training_iter_{self.training_iterations}'\
+        + f'gen_steps_{self.n_generator_steps}_disc_steps_{self.n_discriminator_steps}'\
+        + f'bin_threshold_{self.ce_binarization_threshold}'
+
         explainer_uri = os.path.join(self.explainer_store_path, explainer_name)
 
         if os.path.exists(explainer_uri):
@@ -196,10 +203,10 @@ class CounteRGANExplainer(Explainer):
                 temp_instance = DataInstance(-1)
                 for i in range(len(graph_batch)):
                     temp_instance.from_numpy_array(
-                        graph_batch[i].detach().numpy().squeeze()
+                        graph_batch[i].to("cpu").detach().numpy().squeeze()
                     )
                     oracle_scores.append(
-                        oracle.predict_proba(temp_instance)[:, self._get_softmax_label(desired_label)]
+                        oracle.predict_proba(temp_instance)[self._get_softmax_label(desired_label)]
                     )
                 # The following update to the oracle scores is needed to have
                 # the same order of magnitude between real and generated sample
@@ -242,8 +249,14 @@ class CounteRGANExplainer(Explainer):
                 G_losses.append(loss.item())
                 countergan_optimizer.step()
                 
-            # print(f'Iteration [{iteration}/{self.training_iterations}]'\
-            #         +f'\tLoss_D: {np.mean(D_losses)}\tLoss_G: {np.mean(G_losses)}')
+            print(f'Iteration [{iteration}/{self.training_iterations}]'\
+                    +f'\tLoss_D: {np.mean(D_losses)}\tLoss_G: {np.mean(G_losses)}')
+
+           # wandb.log({
+           # f'iteration_cls={desired_label}': iteration,
+           # f'loss_d_cls={desired_label}_{self.fold_id}': np.mean(D_losses),
+           # f'loss_g_cls={desired_label}_{self.fold_id}': np.mean(G_losses)
+           # })
     
 
     def transform_data(self, dataset: Dataset, fold_id=0, class_to_explain=0):
@@ -293,21 +306,17 @@ class CounteRGAN(nn.Module):
     
     def __init__(self, n_nodes=28,
                  residuals=True,
-                 ce_binarization_threshold=None,
-                 device='cpu'):
+                 ce_binarization_threshold=None):
         super(CounteRGAN, self).__init__()
         
         self.n_nodes = n_nodes
         self.residuals = residuals
-        self.device = device
         
         self.generator = ResidualGenerator(n_nodes=n_nodes,
                                            residuals=residuals,
-                                           threshold=ce_binarization_threshold,
-                                           device=device)
+                                           threshold=ce_binarization_threshold)
         
-        self.discriminator = Discriminator(n_nodes=n_nodes,
-                                           device=device)
+        self.discriminator = Discriminator(n_nodes=n_nodes)
         
     def set_training_discriminator(self, training):
         self.discriminator.set_training(training)
@@ -324,14 +333,13 @@ class ResidualGenerator(nn.Module):
     def __init__(self,
                  n_nodes=28,
                  residuals=True,
-                 threshold=None,
-                 device='cpu'):
+                 threshold=None):
         super(ResidualGenerator, self).__init__()
 
         self.n_nodes = n_nodes
         self.residuals = residuals
-        self.device = device
         self.threshold = threshold
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         self.conv1 = nn.Conv2d(in_channels=1,
                             out_channels=64,
@@ -434,12 +442,12 @@ class ResidualGenerator(nn.Module):
 
 class Discriminator(nn.Module):
 
-    def __init__(self, n_nodes, device='cpu'):
+    def __init__(self, n_nodes):
         super(Discriminator, self).__init__()
 
         self.n_nodes = n_nodes
         self.training = False
-        self.device = device
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         self.conv1 = nn.Conv2d(in_channels=1,
                             out_channels=64,

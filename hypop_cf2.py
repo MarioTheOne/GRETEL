@@ -21,12 +21,19 @@ sweep_configuration = {
     'metric': {'goal': 'maximize', 'name': 'Correctness'},
     'parameters': 
     {
-        "alpha": {'values': list(np.arange(0.5, 1.01, 0.1, dtype=float))},
-        "lam": {'values': [20, 100, 500, 1000]},
-        "lr": {'values': [1e-4, 1e-3, 1e-2]},
-        "epochs": {'values': [50,100,200,250,500]},
-        "batch_size": {'values': [0.1, 0.15, 0.2]},
-        "gamma": {'values': list(np.arange(0.1, 1.1, 0.1, dtype=float))},
+        # "alpha": {'values': list(np.arange(0.5, 1.01, 0.1, dtype=float))},
+        # "lam": {'values': [20, 100, 500, 1000]},
+        # "lr": {'values': [1e-4, 1e-3, 1e-2]},
+        # "epochs": {'values': [50,100,200,250,500]},
+        # "batch_size": {'values': [0.1, 0.15, 0.2]},
+        # "gamma": {'values': list(np.arange(0.1, 1.1, 0.1, dtype=float))},
+
+        "alpha": {'values': [0.7]},
+        "lam": {'values': [20]},
+        "lr": {'values': [1e-2]},
+        "epochs": {'values': [500]},
+        "batch_size": {'values': [0.2]},
+        "gamma": {'values': [0.9]},
      }
 }
 
@@ -49,7 +56,7 @@ sweep_id = wandb.sweep(
 def main():
     metric_reports = None
 
-    for fold_id in range(1):
+    for fold_id in range(10):
         run = wandb.init()
         # note that we define values from `wandb.config`  
         # instead of defining hard values
