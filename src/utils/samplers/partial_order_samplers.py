@@ -15,8 +15,7 @@ class PositiveAndNegativeEdgeSampler(Sampler):
     def __init__(self, sampling_iterations):
         super().__init__()
         self._name = 'positive_and_negative_edge_sampler'
-        self.sampling_iterations = sampling_iterations
-        
+        self.sampling_iterations = sampling_iterations      
           
     def sample(self, instance: DataInstance, oracle: Oracle, **kwargs) -> List[DataInstance]:
         kwargs = SimpleNamespace(**kwargs)
@@ -30,17 +29,16 @@ class PositiveAndNegativeEdgeSampler(Sampler):
         if oracle.predict(cf_instance) != oracle.predict(instance):
             return cf_instance
         else:
+            # get the "negative" edges that aren't estimated
+            missing_edges = self.__negative_edges(edge_list, instance.graph.number_of_nodes())
+            edge_probs = torch.from_numpy(np.array([1 / len(missing_edges) for _ in range(len(missing_edges))]))
+            # check sampling for sampling_iterations
+            # and see if we find a valid counterfactual
             for _ in range(self.sampling_iterations):
-                # get the "negative" edges that aren't estimated
-                missing_edges = self.__negative_edges(edge_list, instance.graph.number_of_nodes())
-                # check sampling for sampling_iterations and see if we find a valid counterfactual
-                temp = self.__sample(cf_instance, embedded_features, edge_probs[missing_edges], missing_edges)
-                # add this edge to the previous counterfactual candidate
-                cf_instance.from_numpy_array(np.logical_or(cf_instance.to_numpy_array(), temp.to_numpy_array(), dtype=int))
+                cf_instance = self.__sample(cf_instance, embedded_features, edge_probs, missing_edges)
                 if oracle.predict(cf_instance) != oracle.predict(instance):
                     return cf_instance
-                edge_list = torch.nonzero(torch.triu(torch.from_numpy(cf_instance.to_numpy_array())))
-        return None       
+        return None 
                 
     def __negative_edges(self, edges, num_vertices):
         i, j = np.triu_indices(num_vertices, k=1)
@@ -54,10 +52,8 @@ class PositiveAndNegativeEdgeSampler(Sampler):
         weights = torch.zeros((n_nodes, n_nodes)).double()
         ##################################################
         cf_instance = DataInstanceWFeaturesAndWeights(id=instance.id)
-        try:    
-            selected_indices = set(torch.multinomial(probabilities, num_samples=num_samples, replacement=True).numpy().tolist())
-            selected_indices = np.array(list(selected_indices))
-            
+        try:
+            selected_indices = torch.multinomial(probabilities, num_samples=num_samples, replacement=True).numpy()
             adj[edge_list[selected_indices]] = 1
             adj = adj + adj.T - torch.diag(torch.diag(adj))
             
