@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/steel/gcountergan-tc28
+search_dir=./config/optimus/gcountergan-asd
 
 for i in {1..1}
 do

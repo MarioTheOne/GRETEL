@@ -4,7 +4,7 @@
 		{"name": "embedder_store_path", "address": "./data/embedders/"},
 		{"name": "oracle_store_path", "address": "./data/oracles/"},
 		{"name": "explainer_store_path", "address": "./data/explainers/"},
-		{"name": "output_store_path", "address": "./output/"}
+		{"name": "output_store_path", "address": "./output/TC-28/"}
 	],
 	"datasets": [
 		{"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 7} }

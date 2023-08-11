@@ -43,7 +43,11 @@ class DataAnalyzer():
                 # getting the data for each metric
                 metrics = {}
                 for k, v in stat_dict.items():
-                    if k != 'config':
+                    if k != 'config' and k != 'Correctness' and k != 'Fidelity':
+                        v_filtered = [item for item, flag in zip(v, stat_dict['Correctness']) if flag == 1]
+                        v_mean = np.mean(v_filtered)
+                        metrics[k] = v_mean
+                    elif k == 'Correctness' or k == 'Fidelity':
                         v_mean = np.mean(v)
                         metrics[k] = v_mean
 

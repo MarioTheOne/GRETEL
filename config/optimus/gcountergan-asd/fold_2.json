@@ -7,25 +7,25 @@
 		{"name": "output_store_path", "address": "./output/optimus/ASD/"}
 	],
 	"datasets": [
-		{"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 7} }
-	],
-	"oracles": [
-		{"name": "tree_cycles_custom_oracle", "parameters": {} }
-	],
+        {"name": "autism", "parameters": {} }
+    ],
+    "oracles": [
+        {"name": "asd_custom_oracle", "parameters": {} }
+    ],
 	"explainers": [
 		{
 			"name": "graph_countergan",
 			"parameters": {
-				"n_nodes": 116,
-				"batch_size_ratio": 0.1,
-				"device": "gpu",
-				"lr_generator": 0.01,
-				"lr_discriminator": 0.01,
-				"training_iterations": 100,
-				"sampling_iterations": 10,
-				"n_labels": 2,
 				"fold_id": 2,
-				"converter": "tree_cycle"
+				"n_nodes": 116,
+				"device": "cpu",
+				"converter": "tree_cycles",
+				"n_labels": 2,
+				"training_iterations": 500,
+				"sampling_iterations": 10,
+				"feature_dim": 8,
+				"lr_generator": 0.001,
+				"lr_discriminator": 0.001
 			}
 		}
 	],

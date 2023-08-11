@@ -136,6 +136,7 @@ output/
 stats/
 legacy/
 wandb/
+data/oracles/
 
 # videos
 .mp4

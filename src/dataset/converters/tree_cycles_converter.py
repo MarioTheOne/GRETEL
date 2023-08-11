@@ -73,9 +73,14 @@ class TreeCyclesConverter(DefaultFeatureAndWeightConverter):
         # Calculate the clustering coefficient
         clustering_coefficient = nx.clustering(graph)
         # Calculate the Katz centrality
-        katz_centrality = nx.katz_centrality(graph)
+        # katz_centrality = nx.katz_centrality(graph)
+        katz_centrality = nx.katz_centrality_numpy(graph)
         # Calculate the second order centrality
-        second_order_centrality = nx.second_order_centrality(graph)
+        second_order_centrality = None
+        if nx.is_connected(graph):
+            second_order_centrality = nx.second_order_centrality(graph)
+        else:
+            second_order_centrality = self.calculate_second_order_centrality_for_unconnected_graph(graph)
         # Calculate the Laplacian centrality
         laplacian_centrality = nx.laplacian_spectrum(graph)
         # stack the above calculations and transpose the matrix
@@ -99,3 +104,17 @@ class TreeCyclesConverter(DefaultFeatureAndWeightConverter):
         new_instance.name = instance.name
         # return the new instance with features
         return new_instance
+    
+    def calculate_second_order_centrality_for_unconnected_graph(self, G):
+        result = {}
+        connected_components = list(nx.connected_components(G))
+
+        for cn in connected_components:
+            so_cen = nx.second_order_centrality(G.subgraph(cn))
+
+            for k, v in so_cen.items():
+                result[k] = v
+
+        return result
+
+        

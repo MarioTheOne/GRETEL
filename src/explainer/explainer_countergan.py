@@ -34,8 +34,9 @@ class CounteRGANExplainer(Explainer):
         
         self.name = 'countergan'
 
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        # self.device = device
+        # self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # activate cuda later
+        self.device = 'cpu'
         
         self.batch_size_ratio = batch_size_ratio
         self.n_labels = n_labels
@@ -339,7 +340,9 @@ class ResidualGenerator(nn.Module):
         self.n_nodes = n_nodes
         self.residuals = residuals
         self.threshold = threshold
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # activate cuda later
+        self.device = 'cpu'
 
         self.conv1 = nn.Conv2d(in_channels=1,
                             out_channels=64,
@@ -447,7 +450,9 @@ class Discriminator(nn.Module):
 
         self.n_nodes = n_nodes
         self.training = False
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # activate cuda later
+        self.device = 'cpu'
         
         self.conv1 = nn.Conv2d(in_channels=1,
                             out_channels=64,
