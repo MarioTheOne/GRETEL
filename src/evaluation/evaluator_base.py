@@ -11,9 +11,11 @@ from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.explainer.explainer_base import Explainer
 from src.oracle.oracle_base import Oracle
 from src.utils.cfgnnexplainer.utils import safe_open
+from src.utils.logger import GLogger
 
 
 class Evaluator(ABC):
+    _logger = GLogger.getLogger()
 
     def __init__(self, id, data: Dataset, oracle: Oracle, explainer: Explainer, evaluation_metrics, results_store_path, run_number=0) -> None:
         super().__init__()
@@ -27,6 +29,7 @@ class Evaluator(ABC):
         self._evaluation_metrics = evaluation_metrics
         self._run_number = run_number
         self._explanations = []
+        
 
         # Building the config file to write into disk
         evaluator_config = {'dataset': data._config_dict, 'oracle': oracle._config_dict, 'explainer': explainer._config_dict, 'metrics': []}
@@ -123,7 +126,7 @@ class Evaluator(ABC):
                 self._results['runtime'].append(end_time - start_time)
 
                 self._real_evaluate(inst, counterfactual)
-                print('evaluated instance with id ', str(inst.id))
+                self._logger.info('evaluated instance with id %s', str(inst.id))
         else:
             test_indices = self.dataset.splits[fold_id]['test']
             test_set = [i for i in self.dataset.instances if i.id in test_indices]
@@ -141,7 +144,7 @@ class Evaluator(ABC):
                 self._results['runtime'].append(end_time - start_time)
 
                 self._real_evaluate(inst, counterfactual)
-                print('evaluated instance with id ', str(inst.id))
+                self._logger.info('evaluated instance with id %s', str(inst.id))
 
         self.write_results()
 

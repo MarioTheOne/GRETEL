@@ -4,7 +4,7 @@ from src.data_analysis.data_analyzer import DataAnalyzer
 # dtan = DataAnalyzer('./output', './stats')
 
 data_store_path = './data/datasets'
-dtan = DataAnalyzer('./output/optimus/TC-28', './stats/optimus/TC-28')
+dtan = DataAnalyzer('./output/optimus/ASD', './stats/optimus/ASD')
 # dtan = DataAnalyzer('C:\\Work\\GNN\\Mine\\GRETEL2\\GRETEL\\output_legacy\\synthetic', 'C:\\Work\\GNN\\Mine\\GRETEL2\\GRETEL\\stats_legacy')
 
 dtan.aggregate_data()

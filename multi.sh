@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/optimus/gcountergan-asd
+search_dir=./config/optimus/gcountergan-bbbp
 
 for i in {1..1}
 do

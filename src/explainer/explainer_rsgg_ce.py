@@ -156,7 +156,8 @@ class GraphCounteRGANExplainer(Explainer):
     return features, edge_index, edge_attr, label
   
   def __fit(self, countergan, oracle : Oracle, dataset : Dataset, desired_label=0):
-    print(f'Training for desired label = {desired_label}')
+    self._logger.info(f'Training for desired label = {desired_label}')
+    # print(f'Training for desired label = {desired_label}')
     generator_loader, discriminator_loader = self.transform_data(dataset, oracle, class_to_explain=desired_label)
     generator_loader = self._infinite_data_stream(generator_loader)
     discriminator_loader = self._infinite_data_stream(discriminator_loader)
@@ -237,7 +238,9 @@ class GraphCounteRGANExplainer(Explainer):
       G_losses.append(loss.item())
       countergan_optimizer.step()
           
-      print(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
+      # print(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
+
+      self._logger.info(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
           
       """wandb.log({
         f'iteration_cls={desired_label}': iteration,

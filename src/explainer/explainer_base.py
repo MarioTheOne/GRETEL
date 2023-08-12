@@ -2,6 +2,7 @@ from src.dataset.dataset_base import Dataset
 from src.oracle.oracle_base import Oracle
 
 from abc import ABC
+from src.utils.logger import GLogger
 
 
 class Explainer(ABC):
@@ -12,6 +13,7 @@ class Explainer(ABC):
         self._name = 'abstract_explainer'
         self.fold_id = -1
         self._config_dict = config_dict
+        self._logger = GLogger.getLogger()
 
     @property
     def id(self):

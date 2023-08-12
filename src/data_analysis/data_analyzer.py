@@ -10,6 +10,8 @@ import networkx as nx
 
 import networkx as nx
 import matplotlib.pyplot as plt
+import statistics
+import sys
 
 
 class DataAnalyzer():
@@ -41,15 +43,28 @@ class DataAnalyzer():
                     self.data_dict[dataset_name][oracle_name][explainer_name] = []
 
                 # getting the data for each metric
+                h_mean_list = []
+                eps = 0.00000000001
                 metrics = {}
                 for k, v in stat_dict.items():
-                    if k != 'config' and k != 'Correctness' and k != 'Fidelity':
-                        v_filtered = [item for item, flag in zip(v, stat_dict['Correctness']) if flag == 1]
-                        v_mean = np.mean(v_filtered)
-                        metrics[k] = v_mean
-                    elif k == 'Correctness' or k == 'Fidelity':
+                    if k != 'config':
                         v_mean = np.mean(v)
                         metrics[k] = v_mean
+
+                        if (k == 'Correctness' or k == 'Fidelity'):
+                            h_mean_list.append((1-v_mean) + sys.float_info.epsilon)
+                        if (k == 'Graph_Edit_Distance' or k == 'Sparsity'):
+                            h_mean_list.append(v_mean)
+                            
+                metrics['h_mean'] = statistics.harmonic_mean(h_mean_list)
+
+                    # if k != 'config' and k != 'Correctness' and k != 'Fidelity':
+                    #     v_filtered = [item for item, flag in zip(v, stat_dict['Correctness']) if flag == 1]
+                    #     v_mean = np.mean(v_filtered)
+                    #     metrics[k] = v_mean
+                    # elif k == 'Correctness' or k == 'Fidelity':
+                    #     v_mean = np.mean(v)
+                    #     metrics[k] = v_mean
 
                 self.data_dict[dataset_name][oracle_name][explainer_name].append(metrics)
 
