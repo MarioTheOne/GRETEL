@@ -7,10 +7,12 @@ from rdkit import Chem
 from rdkit.Chem.Draw import rdDepictor
 from rdkit.Chem.Draw import IPythonConsole
 import os
+from src.utils.logger import GLogger
 
 from src.oracle.oracle_base import Oracle
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.dataset_base import Dataset
+
 
 
 class TfGCNOracle(Oracle):
@@ -126,6 +128,7 @@ class TfGCNOracle(Oracle):
             result = self._clf.fit(
                 train_data.batch(128),
                 validation_data=val_data.batch(128),
+                callbacks=[MyCallback()],
                 epochs=30,
                 verbose=0
                 # class_weight=class_weight
@@ -200,3 +203,14 @@ class GRLayer(tf.keras.layers.Layer):
         nodes, adj = inputs
         reduction = tf.reduce_mean(nodes, axis=1)
         return reduction
+
+
+class MyCallback(tf.keras.callbacks.Callback):
+
+    def __init__(self, patience=0):
+        super(MyCallback, self).__init__()
+        self._logger = GLogger.getLogger()
+        self._logger.info("Created %s",str(self.__class__))
+
+    def on_epoch_begin(self, epoch, logs=None):
+        self._logger.info(f'Oracle training epoch {epoch}')

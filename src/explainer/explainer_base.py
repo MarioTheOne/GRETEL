@@ -14,6 +14,7 @@ class Explainer(ABC):
         self.fold_id = -1
         self._config_dict = config_dict
         self._logger = GLogger.getLogger()
+        self._logger.info("Created %s",str(self.__class__))
 
     @property
     def id(self):

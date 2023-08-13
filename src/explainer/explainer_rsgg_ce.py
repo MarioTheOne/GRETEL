@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import wandb
+#import wandb
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import GAE, GCNConv
@@ -70,9 +70,14 @@ class GraphCounteRGANExplainer(Explainer):
     ]
 
   def explain(self, instance, oracle: Oracle, dataset: Dataset):
+    
     if(not self._fitted):
+      self._logger.info("Before Convert.")
       dataset = self.converter.convert(dataset)
+      self._logger.info("After Convert.")
       self.fit(oracle, dataset, self.fold_id)
+    
+
 
     # Getting the scores/class of the instance
     pred_label = oracle.predict(instance)
@@ -125,13 +130,13 @@ class GraphCounteRGANExplainer(Explainer):
       self.load_explainers()
 
     else:
-      # Create the folder to store the oracle if it does not exist
-      os.mkdir(explainer_uri)        
       self.name = explainer_name
       
       for i in range(self.n_labels):
         self.__fit(self.explainers[i], oracle, dataset, desired_label=i)
 
+      # Create the folder to store the oracle if it does not exist
+      os.mkdir(explainer_uri) 
       self.save_explainers()        
 
     # setting the flag to signal the explainer was already trained
@@ -141,10 +146,10 @@ class GraphCounteRGANExplainer(Explainer):
       return torch.all(torch.isnan(generated_features)) or torch.all(torch.isnan(generated_edge_probs))
   
   def _infinite_data_stream(self, loader: DataLoader):
-        # Define a generator function that yields batches of data
-        while True:
-            for batch in loader:
-                yield batch
+    # Define a generator function that yields batches of data
+    while True:
+      for batch in loader:
+        yield batch
     
   def __format_batch(self, batch):
     # Format batch
@@ -161,15 +166,19 @@ class GraphCounteRGANExplainer(Explainer):
     generator_loader, discriminator_loader = self.transform_data(dataset, oracle, class_to_explain=desired_label)
     generator_loader = self._infinite_data_stream(generator_loader)
     discriminator_loader = self._infinite_data_stream(discriminator_loader)
+    self._logger.info(f'Loaded and Transformed the training data')
     
     discriminator_optimizer = torch.optim.SGD(countergan.discriminator.parameters(), lr=self.lr_discriminator)
-        
+    self._logger.info(f'Discriminator created.')    
+
     countergan_optimizer = torch.optim.SGD(countergan.generator.parameters(), lr=self.lr_generator)
+    self._logger.info(f'Optimizer created.')   
     
     loss_discriminator = nn.BCELoss()
     loss_countergan = nn.BCELoss()
 
     for iteration in range(self.training_iterations):
+      self._logger.info(f'Start iteration %d.',iteration)
       G_losses, D_losses = [], []
 
       if iteration > 0:
@@ -251,7 +260,7 @@ class GraphCounteRGANExplainer(Explainer):
       
   def transform_data(self, dataset: Dataset, oracle: Oracle, class_to_explain=0):
     y = torch.from_numpy(np.array([oracle.predict(i) for i in dataset.instances]))
-        
+    self._logger.info("Prediction mean %f",torch.mean(y,dtype=torch.long))    
     indices = dataset.get_split_indices()[self.fold_id]['train'] 
     y = y[indices]
     
