@@ -24,6 +24,7 @@ from src.explainer.meg.explainer_meg import MEGExplainer
 from src.explainer.meg.utils.encoders import (
     IDActionEncoder, MorganBitFingerprintActionEncoder)
 from src.utils.samplers.partial_order_samplers import PositiveAndNegativeEdgeSampler
+from src.utils.samplers.blended_sampler import BlendedSampler
 
 
 class ExplainerFactory:
@@ -146,7 +147,7 @@ class ExplainerFactory:
             lr_discriminator = explainer_parameters.get('lr_discriminator', 0.01)
             lr_generator = explainer_parameters.get('lr_generator', 0.01)
             
-            sampling_strategy = PositiveAndNegativeEdgeSampler(sampling_iterations)
+            sampling_strategy = BlendedSampler(sampling_iterations)
             
             converter_name = explainer_parameters.get('converter', 'tree_cycles')
             

@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-#import wandb
+import wandb
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import GAE, GCNConv
@@ -31,6 +31,7 @@ class GraphCounteRGANExplainer(Explainer):
                batch_size_ratio=0.1,
                training_iterations=20000,
                n_features=4,
+               hidden_dim=4,
                fold_id=0,
                sampling_iterations=10,
                lr_generator=0.001,
@@ -53,6 +54,7 @@ class GraphCounteRGANExplainer(Explainer):
     self.fold_id = fold_id
     self.converter = converter
     self.n_features = n_features
+    self.hidden_dim = hidden_dim
     self.sampling_iterations = sampling_iterations
     
     self.lr_discriminator = lr_discriminator
@@ -66,21 +68,13 @@ class GraphCounteRGANExplainer(Explainer):
     self.explainers = [
         GraphCounteRGAN(n_nodes,
                         n_features=n_features,
+                        hidden_dim=hidden_dim,
                         residuals=True).to(self.device) for _ in range(n_labels)
     ]
 
   def explain(self, instance, oracle: Oracle, dataset: Dataset):
-    
     if(not self._fitted):
-      self._logger.info("Before Convert.")
-      dataset = self.converter.convert(dataset)
-      self._logger.info("After Convert.")
       self.fit(oracle, dataset, self.fold_id)
-    
-
-
-    # Getting the scores/class of the instance
-    pred_label = oracle.predict(instance)
 
     with torch.no_grad():
       #######################################################
@@ -94,9 +88,12 @@ class GraphCounteRGANExplainer(Explainer):
       instance = new_dataset.get_instance(instance.id)
       #######################################################
       batch = TorchGeometricDataset.to_geometric(instance)
-      explainer = self.explainers[pred_label]
-      #explainer.set_training_generator(False)
-      embedded_features, _, edge_probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr)
+      embedded_features, edge_probs = dict(), dict()
+      for i, explainer in enumerate(self.explainers):
+        features, _, probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr)
+        embedded_features[i] = features
+        edge_probs[i] = probs
+        
       cf_instance = self.sampler.sample(instance, oracle, **{'embedded_features': embedded_features,
                                                              'edge_probabilities': edge_probs,
                                                              'edge_index': batch.edge_index})
@@ -130,13 +127,13 @@ class GraphCounteRGANExplainer(Explainer):
       self.load_explainers()
 
     else:
+      # Create the folder to store the oracle if it does not exist
+      os.mkdir(explainer_uri)        
       self.name = explainer_name
-      
+      dataset = self.converter.convert(dataset)
       for i in range(self.n_labels):
         self.__fit(self.explainers[i], oracle, dataset, desired_label=i)
 
-      # Create the folder to store the oracle if it does not exist
-      os.mkdir(explainer_uri) 
       self.save_explainers()        
 
     # setting the flag to signal the explainer was already trained
@@ -146,10 +143,10 @@ class GraphCounteRGANExplainer(Explainer):
       return torch.all(torch.isnan(generated_features)) or torch.all(torch.isnan(generated_edge_probs))
   
   def _infinite_data_stream(self, loader: DataLoader):
-    # Define a generator function that yields batches of data
-    while True:
-      for batch in loader:
-        yield batch
+        # Define a generator function that yields batches of data
+        while True:
+            for batch in loader:
+                yield batch
     
   def __format_batch(self, batch):
     # Format batch
@@ -161,24 +158,19 @@ class GraphCounteRGANExplainer(Explainer):
     return features, edge_index, edge_attr, label
   
   def __fit(self, countergan, oracle : Oracle, dataset : Dataset, desired_label=0):
-    self._logger.info(f'Training for desired label = {desired_label}')
-    # print(f'Training for desired label = {desired_label}')
+    print(f'Training for desired label = {desired_label}')
     generator_loader, discriminator_loader = self.transform_data(dataset, oracle, class_to_explain=desired_label)
     generator_loader = self._infinite_data_stream(generator_loader)
     discriminator_loader = self._infinite_data_stream(discriminator_loader)
-    self._logger.info(f'Loaded and Transformed the training data')
     
     discriminator_optimizer = torch.optim.SGD(countergan.discriminator.parameters(), lr=self.lr_discriminator)
-    self._logger.info(f'Discriminator created.')    
-
+        
     countergan_optimizer = torch.optim.SGD(countergan.generator.parameters(), lr=self.lr_generator)
-    self._logger.info(f'Optimizer created.')   
     
     loss_discriminator = nn.BCELoss()
     loss_countergan = nn.BCELoss()
 
     for iteration in range(self.training_iterations):
-      self._logger.info(f'Start iteration %d.',iteration)
       G_losses, D_losses = [], []
 
       if iteration > 0:
@@ -247,9 +239,7 @@ class GraphCounteRGANExplainer(Explainer):
       G_losses.append(loss.item())
       countergan_optimizer.step()
           
-      # print(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
-
-      self._logger.info(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
+      print(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
           
       """wandb.log({
         f'iteration_cls={desired_label}': iteration,
@@ -260,7 +250,7 @@ class GraphCounteRGANExplainer(Explainer):
       
   def transform_data(self, dataset: Dataset, oracle: Oracle, class_to_explain=0):
     y = torch.from_numpy(np.array([oracle.predict(i) for i in dataset.instances]))
-    self._logger.info("Prediction mean %f",torch.mean(y,dtype=torch.long))    
+        
     indices = dataset.get_split_indices()[self.fold_id]['train'] 
     y = y[indices]
     
@@ -287,14 +277,14 @@ class GraphCounteRGAN(nn.Module):
   
   def __init__(self, n_nodes=28,
                residuals=True,
-               n_features=1):
+               n_features=1,
+               hidden_dim=4,):
     super(GraphCounteRGAN, self).__init__()
         
     self.n_nodes = n_nodes
     self.residuals = residuals
     
-    self.generator = ResidualGenerator(n_features=n_features,
-                                       residuals=residuals)
+    self.generator = ResidualGenerator(n_features=n_features, hidden_dim=hidden_dim, residuals=residuals)
     self.generator.double()
     
     self.discriminator = Discriminator(n_nodes=n_nodes,
@@ -353,11 +343,12 @@ class Discriminator(nn.Module):
 
 class ResidualGenerator(nn.Module):
 
-  def __init__(self, n_features, residuals=True):
+  def __init__(self, n_features, hidden_dim, residuals=True):
     super(ResidualGenerator, self).__init__()
 
     self.n_features = n_features
-    self.gcn_encoder = GCNGeneratorEncoder(self.n_features, 4)
+    self.hidden_dim = hidden_dim
+    self.gcn_encoder = GCNGeneratorEncoder(self.n_features, self.hidden_dim)
     self.gcn_encoder.double()
     self.model = GAE(encoder=self.gcn_encoder)
     self.residuals = residuals
