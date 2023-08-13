@@ -11,9 +11,6 @@
             "force_fixed_nodes": true
         } }
     ],
-	"not-datasets": [
-        {"name": "autism", "parameters": {} }
-    ],
     "oracles": [
         {"name": "gcn-tf", "parameters": {} }
     ],

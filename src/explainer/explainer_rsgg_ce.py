@@ -19,6 +19,7 @@ from src.utils.samplers.partial_order_samplers import \
     PositiveAndNegativeEdgeSampler
     
 from torch import Tensor
+from src.utils.logger import GLogger
 
 class GraphCounteRGANExplainer(Explainer):
   
@@ -63,6 +64,8 @@ class GraphCounteRGANExplainer(Explainer):
     self.sampler = sampler
     
     self._fitted = False
+    self._logger = GLogger.getLogger()
+
 
     # multi-class support
     self.explainers = [
@@ -127,13 +130,13 @@ class GraphCounteRGANExplainer(Explainer):
       self.load_explainers()
 
     else:
-      # Create the folder to store the oracle if it does not exist
-      os.mkdir(explainer_uri)        
       self.name = explainer_name
       dataset = self.converter.convert(dataset)
       for i in range(self.n_labels):
         self.__fit(self.explainers[i], oracle, dataset, desired_label=i)
 
+      # Create the folder to store the oracle if it does not exist
+      os.mkdir(explainer_uri)
       self.save_explainers()        
 
     # setting the flag to signal the explainer was already trained
@@ -158,11 +161,12 @@ class GraphCounteRGANExplainer(Explainer):
     return features, edge_index, edge_attr, label
   
   def __fit(self, countergan, oracle : Oracle, dataset : Dataset, desired_label=0):
-    print(f'Training for desired label = {desired_label}')
+    self._logger.info(f'Training for desired label = {desired_label}')
+    self._logger.info("In the FIT Function.")
     generator_loader, discriminator_loader = self.transform_data(dataset, oracle, class_to_explain=desired_label)
     generator_loader = self._infinite_data_stream(generator_loader)
     discriminator_loader = self._infinite_data_stream(discriminator_loader)
-    
+    self._logger.info("Laded Data.")
     discriminator_optimizer = torch.optim.SGD(countergan.discriminator.parameters(), lr=self.lr_discriminator)
         
     countergan_optimizer = torch.optim.SGD(countergan.generator.parameters(), lr=self.lr_generator)
@@ -186,6 +190,7 @@ class GraphCounteRGANExplainer(Explainer):
       #######################################################################
       # discriminator data (real batch)
       features, edge_index, edge_attr, _ = self.__format_batch(next(discriminator_loader))
+      self._logger.info("Passed Neverending loop.")
       #######################################################################
       # generator data (fake batch)
       fake_features, fake_edge_index, fake_edge_attr, _ = self.__format_batch(next(generator_loader))
@@ -239,7 +244,7 @@ class GraphCounteRGANExplainer(Explainer):
       G_losses.append(loss.item())
       countergan_optimizer.step()
           
-      print(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
+      self._logger.info(f'Iteration {iteration}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
           
       """wandb.log({
         f'iteration_cls={desired_label}': iteration,

@@ -146,7 +146,10 @@ class TfGCNOracle(Oracle):
         return int(np.array(bin_labels).flatten())
 
     def _real_predict_proba(self, data_instance):
-        return self._real_predict(data_instance)
+        pred = self._real_predict(data_instance)
+        if pred :
+            return [0,1]
+        return [1,0]
     
     def embedd(self, instance):
         return instance
