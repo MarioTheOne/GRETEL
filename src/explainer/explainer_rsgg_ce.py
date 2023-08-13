@@ -249,7 +249,7 @@ class GraphCounteRGANExplainer(Explainer):
       
       
   def transform_data(self, dataset: Dataset, oracle: Oracle, class_to_explain=0):
-    y = torch.from_numpy(np.array([oracle.predict(i) for i in dataset.instances]))
+    y = torch.from_numpy(np.array([i.graph_label for i in dataset.instances]))
         
     indices = dataset.get_split_indices()[self.fold_id]['train'] 
     y = y[indices]
