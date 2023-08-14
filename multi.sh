@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/optimus/rsgg-bbbp
+search_dir=./config/ablation
 
 for i in {1..1}
 do
