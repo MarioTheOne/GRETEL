@@ -24,11 +24,7 @@ class BlendedSampler(Sampler):
         embedded_features = kwargs.embedded_features
         edge_list = kwargs.edge_index
         
-        # Summing all tensors in the dictionary
-        sum_tensor = torch.zeros_like(next(iter(edge_probs.values())))  # Initialize the sum tensor with zeros
-        for tensor in edge_probs.values():
-            sum_tensor += tensor
-        sum_tensor /= len(edge_probs.values())
+        sum_tensor = list(edge_probs.values())[0]
         # average the features
         average_features = torch.zeros_like(next(iter(embedded_features.values())))
         for tensor in embedded_features.values():
@@ -36,25 +32,20 @@ class BlendedSampler(Sampler):
         average_features /= len(embedded_features.values())
 
         edge_num = instance.graph.number_of_edges()
-        """for _ in range(self.sampling_iterations):
-            cf_instance = self.__sample(instance, average_features, sum_tensor, edge_list, num_samples=edge_num) 
-            if oracle.predict(cf_instance) != oracle.predict(instance):
-                return cf_instance
-        return None """
-    
-        cf_instance = self.__sample(instance, average_features, sum_tensor[edge_list], edge_list, num_samples=edge_num) 
+        rows, cols = edge_list[0], edge_list[1]
+        result = sum_tensor[rows, cols]
+        
+        cf_instance = self.__sample(instance, average_features, result, edge_list, num_samples=edge_num) 
         if oracle.predict(cf_instance) != oracle.predict(instance):
             return cf_instance
         else:
             # get the "negative" edges
             missing_edges = self.__negative_edges(edge_list, instance.graph.number_of_nodes())
-            edge_probs = torch.from_numpy(np.array([1 / len(missing_edges) for _ in range(len(missing_edges))]))
-
-            #edge_probs = sum_tensor[missing_edges]
+            edge_probs = sum_tensor[missing_edges[0], missing_edges[1]]
             # check sampling for sampling_iterations
             # and see if we find a valid counterfactual
             for _ in range(self.sampling_iterations):
-                cf_instance = self.__sample(cf_instance, average_features, edge_probs, missing_edges, num_samples=2)
+                cf_instance = self.__sample(cf_instance, average_features, edge_probs, missing_edges, graph=cf_instance)
                 if oracle.predict(cf_instance) != oracle.predict(instance):
                     return cf_instance
         return None 
@@ -63,58 +54,27 @@ class BlendedSampler(Sampler):
         i, j = np.triu_indices(num_vertices, k=1)
         all_edges = set(list(zip(i, j)))
         edges = set([tuple(x) for x in edges])
-        return torch.from_numpy(np.array(list(all_edges.difference(edges))))
+        return torch.from_numpy(np.array(list(all_edges.difference(edges)))).T
     
-    def __sample(self, instance: DataInstance, features, probabilities, edge_list, num_samples=1):
-        """n_nodes = instance.graph.number_of_nodes()
-        adj = torch.zeros((n_nodes, n_nodes)).double()
-        weights = torch.zeros((n_nodes, n_nodes)).double()
-        
-        print(edge_list)
-        print(probabilities.shape)
-        
-        upper_triangle_indices = torch.triu_indices(probabilities.size(0), probabilities.size(1), offset=1)
-        # Index the tensor using the upper triangle indices
-        upper_triangle_values = probabilities[upper_triangle_indices[0], upper_triangle_indices[1]]
-        # Flatten the upper triangle values
-        flattened_upper_triangle = upper_triangle_values.flatten()
-        ##################################################
-        cf_instance = DataInstanceWFeaturesAndWeights(id=instance.id)
-        try:
-            selected_indices = torch.multinomial(flattened_upper_triangle, num_samples=num_samples, replacement=True).numpy()
-            print(selected_indices)
-            for index in selected_indices:
-                adj[index // n_nodes, index % n_nodes] = 1
-            adj = adj + adj.T - torch.diag(torch.diag(adj))
-
-            "weights[selected_indices] = probabilities[selected_indices]
-            weights = weights + weights.T - torch.diag(torch.diag(weights))
-            
-            cf_instance.from_numpy_array(adj.numpy())
-            #cf_instance.weights = weights.numpy()
-            cf_instance.features = features.numpy()
-        except RuntimeError: # the probabilities are all zero
-            cf_instance.from_numpy_array(adj.numpy())
-        
-        return cf_instance"""
-        
+    def __sample(self, instance: DataInstance, features, probabilities, edge_list, num_samples=1, graph=None):       
         n_nodes = instance.graph.number_of_nodes()
         adj = torch.zeros((n_nodes, n_nodes)).double()
         weights = torch.zeros((n_nodes, n_nodes)).double()
         ##################################################
         cf_instance = DataInstanceWFeaturesAndWeights(id=instance.id)
-        try:
-            selected_indices = torch.multinomial(probabilities, num_samples=num_samples, replacement=True).numpy()
-            adj[edge_list[selected_indices]] = 1
-            adj = adj + adj.T - torch.diag(torch.diag(adj))
-            
-            weights[edge_list[selected_indices]] = probabilities[selected_indices]
-            weights = weights + weights.T - torch.diag(torch.diag(weights))
-            
-            cf_instance.from_numpy_array(adj.numpy())
-            cf_instance.weights = weights.numpy()
-            cf_instance.features = features.numpy()
-        except RuntimeError: # the probabilities are all zero
-            cf_instance.from_numpy_array(adj.numpy())
+        selected_indices = torch.multinomial(probabilities, num_samples=num_samples, replacement=True).numpy()
+        adj[edge_list[0,selected_indices],edge_list[1,selected_indices]] = 1
+        adj = adj + adj.T - torch.diag(torch.diag(adj))
+        
+        weights[edge_list[0,selected_indices], edge_list[1,selected_indices]] = probabilities[selected_indices]
+        weights = weights + weights.T - torch.diag(torch.diag(weights))
+        
+        if graph:
+            adj = adj + graph.to_numpy_array()
+            weights = weights + graph.weights
+        
+        cf_instance.from_numpy_array(adj.numpy())
+        cf_instance.weights = weights.numpy()
+        cf_instance.features = features.numpy()
         
         return cf_instance
