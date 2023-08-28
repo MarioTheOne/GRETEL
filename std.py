@@ -2,7 +2,7 @@ import os
 import jsonpickle
 import numpy as np
 
-stats_folder = './output/ablation_done'
+stats_folder = './output/tc500-28-7'
 
 # create a list of file and sub directories 
 # names in the given directory 
@@ -32,6 +32,8 @@ for odf_entry in oracle_dataset_folders:
 
 
 result = {}
+result_correctness = {}
+
 for stat_file_uri in files_list:
     with open(stat_file_uri, 'r') as stat_file_reader:
         stat_dict = jsonpickle.decode(stat_file_reader.read())
@@ -39,10 +41,24 @@ for stat_file_uri in files_list:
         explainer_name = stat_dict['config']['explainer']['name']
 
         ged = stat_dict['Graph_Edit_Distance']
-        ged_std = np.std(ged)
+        ged_filtered = [item for item, flag in zip(ged, stat_dict['Correctness']) if flag == 1]
+        ged_std = np.std(ged_filtered)
+
+        # ged_std = np.std(ged)
+
+        corr = stat_dict['Correctness']
+        corr_std = np.std(corr)
 
         result[explainer_name] = ged_std
+        result_correctness[explainer_name] = corr_std
+
+print('Graph Edit Distance Std')
 
 for k,v in result.items():
+    print(f'{k}: {v}')
+
+print('Correctness')
+
+for k,v in result_correctness.items():
     print(f'{k}: {v}')
 

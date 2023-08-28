@@ -23,6 +23,6 @@ class EvaluationMetric(ABC):
         self._name = new_name
 
     @abstractmethod
-    def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None):
+    def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None, explainer : Explainer=None, dataset : Dataset = None):
         pass
     

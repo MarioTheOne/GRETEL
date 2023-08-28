@@ -166,7 +166,7 @@ class ExplainerFactory:
             return self.get_graph_countergan_explainer(converter, n_nodes,
                                                  training_iterations, n_labels, fold_id,
                                                  lr_generator, lr_discriminator,
-                                                 feature_dim, sampling_strategy, explainer_dict)
+                                                 feature_dim, sampling_strategy, sampling_iterations, explainer_dict)
                         
         elif explainer_name == 'clear':
             # Verifying the explainer parameters
@@ -234,7 +234,7 @@ class ExplainerFactory:
             
             converter = None
             if converter_name == 'tree_cycles':
-                converter = CF2TreeCycleConverter(feature_dim=feature_dim)
+                converter = TreeCyclesConverter(feature_dim=feature_dim)
             else:
                 converter = DefaultFeatureAndWeightConverter(feature_dim=feature_dim,
                                                               weight_dim=n_nodes)
@@ -447,6 +447,7 @@ class ExplainerFactory:
                                        lr_generator, lr_discriminator,
                                        feature_dim,
                                        sampling_strategy,
+                                       sampling_iterations,
                                        config_dict=None) -> Explainer:
         
         result = GraphCounteRGANExplainer(self._explainer_id_counter,
@@ -459,6 +460,7 @@ class ExplainerFactory:
                                           fold_id=fold_id,
                                           sampler=sampling_strategy,
                                           lr_generator=lr_generator,
+                                          sampling_iterations=sampling_iterations,
                                           lr_discriminator=lr_discriminator,
                                           config_dict=config_dict)
        

@@ -40,8 +40,6 @@ class GLogger(object):
 
         
 #### EXAMPLE OF USAGE ####
-#from glogger import GLogger
-
 #from src.utils.logger import GLogger
 #GLogger._path="log" #Set the directory only once
 

@@ -125,7 +125,7 @@ class Evaluator(ABC):
                 # The runtime metric is built-in inside the evaluator``
                 self._results['runtime'].append(end_time - start_time)
 
-                self._real_evaluate(inst, counterfactual)
+                self._real_evaluate(inst, counterfactual,self._oracle,self._explainer,self._data)
                 self._logger.info('evaluated instance with id %s', str(inst.id))
         else:
             test_indices = self.dataset.splits[fold_id]['test']
@@ -135,6 +135,7 @@ class Evaluator(ABC):
                 
                 start_time = time.time()
                 counterfactual = self._explainer.explain(inst, self._oracle, self._data)
+
                 end_time = time.time()
                 # giving the same id to the counterfactual and the original instance 
                 counterfactual.id = inst.id
@@ -143,20 +144,21 @@ class Evaluator(ABC):
                 # The runtime metric is built-in inside the evaluator``
                 self._results['runtime'].append(end_time - start_time)
 
-                self._real_evaluate(inst, counterfactual)
+                self._real_evaluate(inst, counterfactual,self._oracle,self._explainer,self._data)
                 self._logger.info('evaluated instance with id %s', str(inst.id))
 
+        print(self._results)
         self.write_results()
 
 
-    def _real_evaluate(self, instance, counterfactual, oracle = None):
+    def _real_evaluate(self, instance, counterfactual, oracle = None, explainer=None, dataset=None):
         is_alt = False
         if (oracle is None):
             is_alt = True
             oracle = self._oracle
 
         for metric in self._evaluation_metrics:
-            m_result = metric.evaluate(instance, counterfactual, oracle)
+            m_result = metric.evaluate(instance, counterfactual, oracle, explainer,dataset)
             self._results[metric.name].append(m_result)
 
 

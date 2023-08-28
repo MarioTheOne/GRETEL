@@ -48,23 +48,29 @@ class DataAnalyzer():
                 metrics = {}
                 for k, v in stat_dict.items():
                     if k != 'config':
-                        v_mean = np.mean(v)
-                        metrics[k] = v_mean
 
+                         # Ignoring instances with correctness 0
+                        if k != 'config' and k != 'Correctness' and k != 'Fidelity':
+                            v_filtered = [item for item, flag in zip(v, stat_dict['Correctness']) if flag == 1]
+                            v_mean = np.mean(v_filtered)
+                            metrics[k] = v_mean
+                        elif k == 'Correctness' or k == 'Fidelity':
+                            v_mean = np.mean(v)
+                            metrics[k] = v_mean
+
+                        # v_mean = np.mean(v)
+                        # metrics[k] = v_mean
+
+                        # Adding the harmonic mean
                         if (k == 'Correctness' or k == 'Fidelity'):
                             h_mean_list.append((1-v_mean) + sys.float_info.epsilon)
                         if (k == 'Graph_Edit_Distance' or k == 'Sparsity'):
                             h_mean_list.append(v_mean)
+
                             
                 metrics['h_mean'] = statistics.harmonic_mean(h_mean_list)
 
-                    # if k != 'config' and k != 'Correctness' and k != 'Fidelity':
-                    #     v_filtered = [item for item, flag in zip(v, stat_dict['Correctness']) if flag == 1]
-                    #     v_mean = np.mean(v_filtered)
-                    #     metrics[k] = v_mean
-                    # elif k == 'Correctness' or k == 'Fidelity':
-                    #     v_mean = np.mean(v)
-                    #     metrics[k] = v_mean
+                
 
                 self.data_dict[dataset_name][oracle_name][explainer_name].append(metrics)
 
@@ -123,7 +129,16 @@ class DataAnalyzer():
             ds = d_fact.get_dataset_by_name(d_dict)
             datasets.append(ds)
 
-        data = {'name': [], 'instance_number': [], 'nodes_mean': [], 'nodes_std':[], 'edges_mean':[], 'edges_std': [], 'inst_class_0':[], 'inst_class_1':[]}
+        data = {'name': [], 
+                'instance_number': [], 
+                'nodes_mean': [], 
+                'nodes_std':[], 
+                'edges_mean':[], 
+                'edges_std': [], 
+                'inst_class_0':[], 
+                'inst_class_1':[], 
+                'diameter_mean': [],
+                'mean_node_degree': []}
 
         for dts in datasets:
             nodes = np.array([len(i.graph.nodes) for i in dts.instances])
@@ -137,6 +152,21 @@ class DataAnalyzer():
                 else:
                     class_1_count +=1
 
+            # Calculating mean diamater
+            diameter_mean = None
+            try:
+                diameter_mean = np.mean([nx.diameter(i.graph) for i in dts.instances])
+            except:
+                diameter_mean = -1
+
+            # Calculating mean degree
+            instance_degrees = []
+            for i in dts.instances:
+                g_degree = np.mean([val for (node, val) in i.graph.degree()])
+                instance_degrees.append(g_degree)
+            mean_node_degree = np.mean(instance_degrees)
+
+
             data['name'].append(dts.name)
             data['instance_number'].append(len(dts.instances))
             data['nodes_mean'].append(np.mean(nodes))
@@ -145,6 +175,9 @@ class DataAnalyzer():
             data['edges_std'].append(np.std(edges))
             data['inst_class_0'].append(class_0_count)
             data['inst_class_1'].append(class_1_count)
+            data['diameter_mean'].append(diameter_mean)
+            data['mean_node_degree'].append(mean_node_degree)
+            
 
             table = pd.DataFrame(data)
             table_path_csv = os.path.join(self.output_folder, 'dataset_stats.csv')

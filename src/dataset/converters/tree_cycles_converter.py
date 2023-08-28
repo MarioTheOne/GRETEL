@@ -14,7 +14,7 @@ from src.dataset.data_instance_features import DataInstanceWFeatures, DataInstan
 class TreeCyclesConverter(DefaultFeatureAndWeightConverter):
     
     def __init__(self, feature_dim=10):
-        super(TreeCyclesConverter, self).__init__()
+        super().__init__()
         self.name = 'tree_cycles_converter'
         self.feature_dim = feature_dim
         
@@ -27,7 +27,8 @@ class TreeCyclesConverter(DefaultFeatureAndWeightConverter):
         return converted_instance
         
     def __preprocess(self, instance: DataInstanceWFeaturesAndWeights) -> np.ndarray:
-        graph = self.__sort_nodes_by_degree(instance.graph)
+        # graph = self.__sort_nodes_by_degree(instance.graph)
+        graph = instance.graph
         instance.from_numpy_matrix(nx.adjacency_matrix(graph))
         instance = self.__generate_node_features(instance)
         # set the node features

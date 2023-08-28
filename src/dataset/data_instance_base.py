@@ -111,7 +111,8 @@ class DataInstance(ABC):
         return nx.to_numpy_matrix(self.graph)
 
     def from_numpy_matrix(self, np_adj_matrix):
-        self.graph = nx.from_numpy_matrix(np_adj_matrix)
+        # self.graph = nx.from_numpy_matrix(np_adj_matrix)
+        self.graph = nx.from_numpy_array(np_adj_matrix)
 
     def to_numpy_array(self, store=True):
 

@@ -85,19 +85,19 @@ class GraphCounteRGANExplainer(Explainer):
       # we only convert a single instance instead 
       # of the entire dataset for each instance at inference
       new_dataset = Dataset(id='dummy')
-      instance.id = 0
+      # instance.id = 0
       new_dataset.instances.append(instance)
       new_dataset = self.converter.convert(new_dataset)
-      instance = new_dataset.get_instance(instance.id)
+      new_instance = new_dataset.instances[-1]
       #######################################################
-      batch = TorchGeometricDataset.to_geometric(instance)
+      batch = TorchGeometricDataset.to_geometric(new_instance)
       embedded_features, edge_probs = dict(), dict()
       for i, explainer in enumerate(self.explainers):
         features, _, probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr)
         embedded_features[i] = features
         edge_probs[i] = probs
         
-      cf_instance = self.sampler.sample(instance, oracle, **{'embedded_features': embedded_features,
+      cf_instance = self.sampler.sample(new_instance, oracle, **{'embedded_features': embedded_features,
                                                              'edge_probabilities': edge_probs,
                                                              'edge_index': batch.edge_index})
       

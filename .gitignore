@@ -137,6 +137,9 @@ stats/
 legacy/
 wandb/
 data/oracles/
+config/test
+launchers/
+AAAI/
 
 # videos
 .mp4

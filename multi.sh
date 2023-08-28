@@ -1,6 +1,6 @@
 #!/bin/bash
 
-search_dir=./config/ablation
+search_dir=./config/ablation/CF2
 
 for i in {1..1}
 do

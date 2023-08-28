@@ -8,12 +8,14 @@ from src.evaluation.evaluation_metric_sparsity import SparsityMetric
 from src.evaluation.evaluation_metric_oracle_calls import OracleCallsMetric
 from src.evaluation.evaluation_metric_oracle_accuracy import OracleAccuracyMetric
 from src.evaluation.evaluation_metric_smiles_levenshtein import SmilesLevenshteinMetric
+from src.evaluation.evaluation_metric_dumper import InstancesDumper
 
 
 
 class EvaluationMetricFactory:
 
-    def __init__(self) -> None:
+    def __init__(self,config_dict) -> None:
+        self._config_dict = config_dict
         self._evaluation_metric_id_counter = 0
 
     def get_evaluation_metric_by_name(self, metric_dict) -> EvaluationMetric:
@@ -46,15 +48,21 @@ class EvaluationMetricFactory:
         
         elif metric_name == 'oracle_accuracy_node':
             return self.get_oracle_accuracy_node_metric(config_dict=metric_dict)
+        
+        elif metric_name == 'dumper':
+            return self.get_dumper_metric(config_dict=metric_dict)
 
         else:
             raise ValueError('''The provided evaluation metric name does not match any evaluation
              metric provided by the factory''')
 
+    def get_dumper_metric(self, config_dict=None) -> EvaluationMetric:
+        result = InstancesDumper(self._config_dict,config_dict)
+        return result
+
     def get_correctness_metric(self, config_dict=None) -> EvaluationMetric:
         result = CorrectnessMetric(config_dict)
         return result
-
 
     def get_oracle_calls_metric(self, config_dict=None) -> EvaluationMetric:
         result = OracleCallsMetric(config_dict)
