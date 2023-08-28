@@ -1,5 +1,9 @@
 
 # GRETEL: Graph Counterfactual Explanation Evaluation Framework
+## General Information:
+Machine Learning (ML) systems are a building part of the modern tools that impact our daily life in several application domains. Due to their black-box nature, those systems are hardly adopted in application domains (e.g. health, finance) where understanding the decision process is of paramount importance. Explanation methods were developed to explain how the ML model has taken a specific decision for a given case/instance. Graph Counterfactual Explanations (GCE) is one of the explanation techniques adopted in the Graph Learning domain. The existing works on Graph Counterfactual Explanations diverge mostly in the problem definition, application domain, test data, and evaluation metrics, and most existing works do not compare exhaustively against other counterfactual explanation techniques present in the literature. Here, we release GRETEL [1,2], a unified framework to develop and test GCE methods in several settings. GRETEL [1,2] is an open-source framework for Evaluating Graph Counterfactual Explanation Methods. It is implemented using the Object-Oriented paradigm and the Factory Method design pattern. Our main goal is to create a generic platform that allows the researchers to speed up the process of developing and testing new Graph Counterfactual Explanation Methods.
+GRETEL is a highly extensible evaluation framework that promotes Open Science and the reproducibility of the evaluation by providing a set of well-defined mechanisms to integrate and manage easily: both real and synthetic datasets, ML models, state-of-the-art explanation techniques, and evaluation measures. 
+
 
 ## Table of Contents
 
@@ -7,7 +11,7 @@
 * [General Information](#general-information)
 * [Citation Request](#citation-request)
 * [Requirements](#requirements)
-* [Install](#installation)
+* [Installation](#installation)
 * [Resources Provided with the Framework](#resources-provided-with-the-framework)
 * [How to Use](#how-to-use)
 * [References](#references)
@@ -15,19 +19,15 @@
 ## Team Information:
 * Prof. Giovanni Stilo [Project Leader]
 * Mario Alfonso Prado Romero [Principal Investigator]
-* Bardh Prenkaj [Investigator]
+* Dr. Bardh Prenkaj [Investigator]
+* Alessandro Celi [Administrative Staff]
+### Past Contributors:
 * Ernesto Estevanell-Valladares [Contributor]
 * Daniel Alejandro Valdés-Pérez [Contributor]
-* Alessandro Celi [Administrative Staff]
-
-## General Information:
-
-GRETEL [1] is an open source framework for Evaluating Graph Counterfactual Explanation Methods. It is implemented using the Object Oriented paradigm and the Factory Method design pattern. Our main goal is to create a generic platform that allows the researchers to speed up the process of developing and testing new Graph Counterfactual Explanation Methods.
-
 
 ## Citation Request:
 
-Please cite our paper if you use GRETEL in your experiments:
+Please cite our papers if you use GRETEL in your experiments:
 
 Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactual Explanation Evaluation Framework. In Proceedings of the 31st ACM International Conference on Information and Knowledge Management (CIKM '22). Association for Computing Machinery, New York, NY, USA. https://doi.org/10.1145/3511808.3557608
 
@@ -46,6 +46,26 @@ Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactua
 }
 ```
 
+Mario Alfonso Prado-Romero, Bardh Prenkaj, and Giovanni Stilo. 2023. Developing and Evaluating Graph Counterfactual Explanation with GRETEL. In Proceedings of the Sixteenth ACM International Conference on Web Search and Data Mining (WSDM '23). Association for Computing Machinery, New York, NY, USA, 1180–1183. https://doi.org/10.1145/3539597.3573026
+
+```latex:
+@inproceedings{10.1145/3539597.3573026,
+author = {Prado-Romero, Mario Alfonso and Prenkaj, Bardh and Stilo, Giovanni},
+title = {Developing and Evaluating Graph Counterfactual Explanation with GRETEL},
+year = {2023},
+isbn = {9781450394079},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3539597.3573026},
+doi = {10.1145/3539597.3573026},
+booktitle = {Proceedings of the Sixteenth ACM International Conference on Web Search and Data Mining},
+pages = {1180–1183},
+numpages = {4},
+keywords = {machine learning, graph neural networks, counterfactual, explainable AI, evaluation framework},
+location = {Singapore, Singapore},
+series = {WSDM '23}
+}
+```
 ## Requirements:
 
 * scikit-learn
