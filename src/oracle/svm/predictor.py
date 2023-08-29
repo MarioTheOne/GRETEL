@@ -1,6 +1,3 @@
-import os
-
-import joblib
 from sklearn.svm import LinearSVC
 
 from src.oracle.oracle_base import Oracle
@@ -32,17 +29,11 @@ class SVMOracle(Oracle):
         self.model.fit(x, y)
 
     def _real_predict(self, data_instance):
-        return self.model.predict([data_instance])[0]
+        print(data_instance.shape)
+        return self.model.predict(data_instance)
     
     def _real_predict_proba(self, data_instance):
-        return self.model.predict_proba([data_instance])
+        return self.model._predict_proba_lr(data_instance)
 
     def embedd(self, instance):
         return self.embedder.get_embedding(instance)
-
-    """def write(self):
-        oracle_path = self.context.get_path(self)       
-        joblib.dump(self.model, open(oracle_path, 'wb'))
-
-    def read(self):
-        self.model = joblib.load(open(self.context.get_path(self), 'rb'))"""
