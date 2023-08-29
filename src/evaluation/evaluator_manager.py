@@ -1,122 +1,27 @@
+import os
+
+import jsonpickle
+
 from src.dataset.dataset_factory import DatasetFactory
-from src.oracle.embedder_factory import EmbedderFactory
-from src.oracle.oracle_factory import OracleFactory
-from src.explainer.explainer_factory import ExplainerFactory
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.evaluation.evaluator_base import Evaluator
+from src.explainer.explainer_factory import ExplainerFactory
+from src.oracle.embedder_factory import EmbedderFactory
+from src.oracle.oracle_factory import OracleFactory
+from src.utils.context import Context
 
-import os
-import jsonpickle
 
 class EvaluatorManager:
 
-    def __init__(self, config_file_path, run_number=0, 
-                    dataset_factory: DatasetFactory=None, 
-                    embedder_factory: EmbedderFactory=None, 
-                    oracle_factory: OracleFactory=None, 
-                    explainer_factory: ExplainerFactory=None, 
-                    evaluation_metric_factory: EvaluationMetricFactory=None) -> None:
+    def __init__(self, context: Context) -> None:
+        self.context = context
         
-        # Check that the path to the config file exists
-        if not os.path.exists(config_file_path):
-            raise ValueError(f'''The provided config file does not exist. PATH: {config_file_path}''')
-
-        # Read the config dictionary inside the config path
-        with open(config_file_path, 'r') as config_reader:
-            self._config_dict = jsonpickle.decode(config_reader.read())
-
-        self._dataset_factory = None
-        self._embedder_factory = None
-        self._oracle_factory = None
-        self._explainer_factory = None
-        self._output_store_path = None
-        self._evaluation_metric_factory = None
-        self._run_number = run_number
-
-        # iterate over the store paths and initialize the factories
-        for store_path in self._config_dict['store_paths']:
-
-            if(store_path['name'] == 'dataset_store_path'):
-                dataset_store_path = store_path['address']
-
-                # If the store folder does not exist then create it
-                if not os.path.exists(dataset_store_path):
-                    os.mkdir(dataset_store_path)
-
-                # If a factory was given use it, in other case create it
-                if dataset_factory is not None:
-                    self._dataset_factory = dataset_factory
-                    self._dataset_factory._data_store_path = dataset_store_path
-                else:
-                    # Create the factory with the corresponding store path
-                    self._dataset_factory = DatasetFactory(dataset_store_path)
-
-            if(store_path['name'] == 'embedder_store_path'):
-                embedder_store_path = store_path['address']
-                
-                # If the store folder does not exist then create it
-                if not os.path.exists(embedder_store_path):
-                    os.mkdir(embedder_store_path)
-
-                # If an embedder factory was given use it, in other case create it
-                if embedder_factory is not None:
-                    self._embedder_factory = embedder_factory
-                    self._embedder_factory._embedder_store_path = embedder_store_path
-                else:
-                    # Create the factory with the corresponding store path
-                    self._embedder_factory = EmbedderFactory(embedder_store_path)
-
-            if(store_path['name'] == 'oracle_store_path'):
-                oracle_store_path = store_path['address']
-                
-                # If the store folder does not exist then create it
-                if not os.path.exists(oracle_store_path):
-                    os.mkdir(oracle_store_path)
-
-                # If an oracle factory was given use it, in other case create it
-                if oracle_factory is not None:
-                    self._oracle_factory = oracle_factory
-                    self._oracle_factory._oracle_store_path = oracle_store_path
-                else:
-                    # Create the factory with the corresponding store path
-                    self._oracle_factory = OracleFactory(oracle_store_path)
-
-            if(store_path['name'] == 'explainer_store_path'):
-                explainer_store_path = store_path['address']
-                
-                # If the store folder does not exist then create it
-                if not os.path.exists(explainer_store_path):
-                    os.mkdir(explainer_store_path)
-
-                # If an explainer factory was given use it, in other case create it
-                if explainer_factory is not None:
-                    self._explainer_factory = explainer_factory
-                    self._explainer_factory._explainer_store_path = explainer_store_path
-                else:
-                    # Create the factory with the corresponding store path
-                    self._explainer_factory = ExplainerFactory(explainer_store_path)
-
-            if(store_path['name'] == 'output_store_path'):
-                output_store_path = store_path['address']
-                
-                # If the store folder does not exist then create it
-                if not os.path.exists(output_store_path):
-                    os.mkdir(output_store_path)
-
-                # store the output path
-                self._output_store_path = output_store_path
-
-        # Check that all the required store paths were provided
-        if ((self._dataset_factory is None) or (self._embedder_factory) is None or 
-            (self._oracle_factory is None) or (self._explainer_factory is None) or
-            (self._output_store_path is None)):
-            raise ValueError('''Not all required store paths were provided''')
-
-        # Create the evaluation metrics factory
-        if evaluation_metric_factory is not None:
-            self._evaluation_metric_factory = evaluation_metric_factory
-        else:
-            self._evaluation_metric_factory = EvaluationMetricFactory(self._config_dict)
+        self._dataset_factory = DatasetFactory(context.dataset_store_path)
+        self._embedder_factory = EmbedderFactory(context.embedder_store_path)
+        self._oracle_factory = OracleFactory(context)
+        self._explainer_factory = ExplainerFactory(context.explainer_store_path)
+        self._output_store_path = context.output_store_path
+        self._evaluation_metric_factory = EvaluationMetricFactory(context.conf)
 
         self.datasets = []
         self.oracles = []
