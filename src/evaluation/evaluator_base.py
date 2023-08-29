@@ -126,7 +126,7 @@ class Evaluator(ABC):
                 self._results['runtime'].append(end_time - start_time)
 
                 self._real_evaluate(inst, counterfactual,self._oracle,self._explainer,self._data)
-                self._logger.info('evaluated instance with id %s', str(inst.id))
+                self._logger.info('  Evaluated instance with id %s', str(inst.id))
         else:
             test_indices = self.dataset.splits[fold_id]['test']
             test_set = [i for i in self.dataset.instances if i.id in test_indices]
