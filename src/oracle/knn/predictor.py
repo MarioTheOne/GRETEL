@@ -79,7 +79,7 @@ class KNNOracle(Oracle):
     def embedd(self, instance):
         return self.embedder.get_embedding(instance)
 
-   ''' def write_oracle(self):
+''' def write_oracle(self):
         oracle_path = os.path.join(self._oracle_store_path, self._name)
         os.mkdir(oracle_path)
         
