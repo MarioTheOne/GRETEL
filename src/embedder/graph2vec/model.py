@@ -9,7 +9,6 @@ class Graph2VecEmbedder(Trainable):
     def real_fit(self):
         # Copies of the graphs are provided because the _check_graphs function modifies the edges of the passed graph
         graphs = [i.graph.copy(as_view=False) for i in self.dataset.get_data()]
-        print(self.model)
         self.model.fit(graphs)
 
     def get_embeddings(self):

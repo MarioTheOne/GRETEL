@@ -33,12 +33,12 @@
             "name": "graph_countergan", 
             "parameters": {
                 "fold_id": 0,
-                "n_nodes": 128,
+                "n_nodes": 28,
                 "device": "cpu",
                 "converter": "tree_cycles",
                 "n_labels": 2,
-                "training_iterations": 500,
-                "sampling_iterations": 500,
+                "training_iterations": 1,
+                "sampling_iterations": 1,
                 "feature_dim": 8,
                 "lr_generator": 0.001,
                 "lr_discriminator": 0.001

@@ -317,12 +317,10 @@ class Discriminator(nn.Module):
 
     self.training = False
     self.n_nodes = n_nodes
-
     self.conv1 = GCNConv(n_features, 2)
     self.fc = nn.Linear(self.n_nodes * 2, 1)
     
     self.device = "cuda" if torch.cuda.is_available() else "cpu"
-
 
   def set_training(self, training):
     self.training = training
