@@ -32,7 +32,7 @@ class SVMOracle(Oracle):
         return self.model.predict(data_instance)
     
     def _real_predict_proba(self, data_instance):
-        return self.model._predict_proba_lr(data_instance)
+        return self.model._predict_proba_lr(data_instance).squeeze()
 
     def embedd(self, instance):
         return self.embedder.get_embedding(instance).reshape(1,-1)

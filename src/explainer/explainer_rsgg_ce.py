@@ -266,8 +266,6 @@ class GraphCounteRGANExplainer(Explainer):
       if inst.id in indices:
         data_list.append(inst)
 
-    print(data_list)
-    print(len(data_list))
     class_to_explain_indices = (y == class_to_explain).nonzero(as_tuple=True)[0].numpy()
     class_to_not_explain_indices = (y != class_to_explain).nonzero(as_tuple=True)[0].numpy()
     data_list = np.array(data_list, dtype=object)
