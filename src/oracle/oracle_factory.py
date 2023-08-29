@@ -1,29 +1,24 @@
 from abc import ABC
-from src.oracle.oracle_cf2 import CF2Oracle
-from src.dataset.converters.abstract_converter import ConverterAB
-from src.dataset.converters.tree_cycles_converter import TreeCyclesConverter
-from src.dataset.converters.weights_converter import DefaultFeatureAndWeightConverter
-from src.oracle.oracle_node_syn_pt import SynNodeOracle
-from src.dataset.dataset_base import Dataset
-from src.oracle.embedder_base import Embedder
-from src.oracle.embedder_factory import EmbedderFactory
-from src.oracle.oracle_asd_custom import ASDCustomOracle
-from src.oracle.oracle_base import Oracle
-from src.oracle.oracle_gcn_tf import TfGCNOracle
-from src.oracle.oracle_knn import KnnOracle
-from src.oracle.oracle_svm import SvmOracle
-from src.oracle.oracle_triangles_squares_custom import TrianglesSquaresCustomOracle
-from src.oracle.oracle_tree_cycles_custom import TreeCyclesCustomOracle
 
+from src.oracle.oracle_base import Oracle
+from src.utils.utils import get_class
+from typing import List
 
 class OracleFactory(ABC):
 
-    def __init__(self, oracle_store_path) -> None:
+    def __init__(self, context, local_conf) -> None:
         super().__init__()
-        self._oracle_store_path = oracle_store_path
-        self._oracle_id_counter = 0
-
-    def get_oracle_by_name(self, oracle_dict, dataset: Dataset, emb_factory: EmbedderFactory) -> Oracle:
+        self.context = context
+        self.local_conf = local_conf
+        
+    def get_oracle(self, context, oracle_snippet) -> Oracle:
+        oracle = get_class(oracle_snippet['class'])(context, oracle_snippet)
+        return oracle
+            
+    def get_oracles(self, context, config_list) -> List[Oracle]:
+        return [self.get_oracle(context, obj) for obj in config_list]
+    
+    """def get_oracle_by_name(self, oracle_dict, dataset: Dataset, emb_factory: EmbedderFactory) -> Oracle:
 
         oracle_name = oracle_dict['name']
         oracle_parameters = oracle_dict['parameters']
@@ -155,4 +150,4 @@ class OracleFactory(ABC):
     def get_tree_cycles_custom_oracle(self, config_dict=None) -> Oracle:
         clf = TreeCyclesCustomOracle(id=self._oracle_id_counter, oracle_store_path=self._oracle_store_path, config_dict=config_dict)
         self._oracle_id_counter +=1
-        return clf
+        return clf"""

@@ -49,6 +49,16 @@ def unfold_confs(based_dir,out_dir,prefix,num_folds=10):
                                     json.dump(current_conf, o_file)
                                 print(out_file)
 
+def get_class( kls ):
+    parts = kls.split('.')
+    module = ".".join(parts[:-1])
+    m = __import__( module )
+    for comp in parts[1:]:
+        m = getattr(m, comp)            
+    return m
+
+def get_instance(kls, param):
+    return get_class(kls)(param)
 
 # from src.utils.utils import update_saved_pyg 
 
@@ -59,4 +69,4 @@ def unfold_confs(based_dir,out_dir,prefix,num_folds=10):
 
 #based_dir='/NFSHOME/mprado/CODE/gretel-steel-2/GRETEL/data/explainers/'
 #sanitize_dir_pyg(based_dir,"clear")
-unfold_confs("config/aaai","AAAI/config","ablation")
+#unfold_confs("config/aaai","AAAI/config","ablation")

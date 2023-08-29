@@ -1,30 +1,31 @@
 import os
-os.environ["OMP_NUM_THREADS"] = "4" # export OMP_NUM_THREADS=1
+"""os.environ["OMP_NUM_THREADS"] = "4" # export OMP_NUM_THREADS=1
 os.environ["OPENBLAS_NUM_THREADS"] = "4" # export OPENBLAS_NUM_THREADS=1 
 os.environ["MKL_NUM_THREADS"] = "4" # export MKL_NUM_THREADS=1
 os.environ["VECLIB_MAXIMUM_THREADS"] = "4" # export VECLIB_MAXIMUM_THREADS=1
-os.environ["NUMEXPR_NUM_THREADS"] = "4" # export NUMEXPR_NUM_THREADS=1
+os.environ["NUMEXPR_NUM_THREADS"] = "4" # export NUMEXPR_NUM_THREADS=1"""
 
 from src.evaluation.evaluator_manager import EvaluatorManager
 from src.utils.context import Context
 import sys
 
-context = Context.get_context(sys.argv[1])
-context.run_number = int(sys.argv[2])
+if __name__ == '__main__':
+    context = Context.get_context(sys.argv[1])
+    context.run_number = int(sys.argv[2])
 
-context.logger.info(f'Executing: {context.config_file} Run: {context.run_number}')
-context.logger.info('Creating the evaluation manager.......................................................')
+    context.logger.info(f'Executing: {context.config_file} Run: {context.run_number}')
+    context.logger.info('Creating the evaluation manager.......................................................')
 
-eval_manager = EvaluatorManager(context)
+    eval_manager = EvaluatorManager(context)
 
-# logger.info('Generating Synthetic Datasets...........................................................')
-# eval_manager.generate_synthetic_datasets()
+    # logger.info('Generating Synthetic Datasets...........................................................')
+    # eval_manager.generate_synthetic_datasets()
 
-# logger.info('Training the oracles......................................................................')
-# eval_manager.train_oracles()
+    # logger.info('Training the oracles......................................................................')
+    # eval_manager.train_oracles()
 
-context.logger.info('Creating the evaluators...................................................................')
-eval_manager.create_evaluators()
+    context.logger.info('Creating the evaluators...................................................................')
+    eval_manager.create_evaluators()
 
-context.logger.info('Evaluating the explainers..................................................................')
-eval_manager.evaluate()
+    context.logger.info('Evaluating the explainers..................................................................')
+    eval_manager.evaluate()

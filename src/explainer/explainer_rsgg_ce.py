@@ -4,22 +4,21 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import wandb
-from torch_geometric.data import Data
+from torch import Tensor
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import GAE, GCNConv
 
+import wandb
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
 from src.explainer.explainer_base import Explainer
 from src.oracle.oracle_base import Oracle
+from src.utils.logger import GLogger
 from src.utils.samplers.abstract_sampler import Sampler
 from src.utils.samplers.partial_order_samplers import \
     PositiveAndNegativeEdgeSampler
-    
-from torch import Tensor
-from src.utils.logger import GLogger
+
 
 class GraphCounteRGANExplainer(Explainer):
   
@@ -166,7 +165,7 @@ class GraphCounteRGANExplainer(Explainer):
     generator_loader, discriminator_loader = self.transform_data(dataset, oracle, class_to_explain=desired_label)
     generator_loader = self._infinite_data_stream(generator_loader)
     discriminator_loader = self._infinite_data_stream(discriminator_loader)
-    self._logger.info("Laded Data.")
+    self._logger.info("Loaded Data.")
     discriminator_optimizer = torch.optim.SGD(countergan.discriminator.parameters(), lr=self.lr_discriminator)
         
     countergan_optimizer = torch.optim.SGD(countergan.generator.parameters(), lr=self.lr_generator)
@@ -254,7 +253,7 @@ class GraphCounteRGANExplainer(Explainer):
       
       
   def transform_data(self, dataset: Dataset, oracle: Oracle, class_to_explain=0):
-    y = torch.from_numpy(np.array([i.graph_label for i in dataset.instances]))
+    y = torch.from_numpy(np.array([oracle.predict(i) for i in dataset.instances]))
       
     # Get the training split indices
     indices = dataset.get_split_indices()[self.fold_id]['train']
@@ -267,6 +266,8 @@ class GraphCounteRGANExplainer(Explainer):
       if inst.id in indices:
         data_list.append(inst)
 
+    print(data_list)
+    print(len(data_list))
     class_to_explain_indices = (y == class_to_explain).nonzero(as_tuple=True)[0].numpy()
     class_to_not_explain_indices = (y != class_to_explain).nonzero(as_tuple=True)[0].numpy()
     data_list = np.array(data_list, dtype=object)

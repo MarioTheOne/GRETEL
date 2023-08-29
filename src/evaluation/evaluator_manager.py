@@ -16,12 +16,12 @@ class EvaluatorManager:
     def __init__(self, context: Context) -> None:
         self.context = context
         
-        self._dataset_factory = DatasetFactory(context.dataset_store_path)
-        self._embedder_factory = EmbedderFactory(context.embedder_store_path)
-        self._oracle_factory = OracleFactory(context)
-        self._explainer_factory = ExplainerFactory(context.explainer_store_path)
+        self.context.factories['datasets'] = DatasetFactory(context.dataset_store_path)
+        self.context.factories['embedders'] = EmbedderFactory(context.embedder_store_path)
+        self.context.factories['oracles'] = OracleFactory(context, context.conf['oracles'])
+        self.context.factories['explainers'] = ExplainerFactory(context.explainer_store_path)
+        self.context.factories['metrics'] = EvaluationMetricFactory(context.conf)
         self._output_store_path = context.output_store_path
-        self._evaluation_metric_factory = EvaluationMetricFactory(context.conf)
 
         self.datasets = []
         self.oracles = []
@@ -51,8 +51,8 @@ class EvaluatorManager:
         OUTPUT: None
         """
         # Given the datasets are generated on the fly, this method only calls the get_dataset_by_name method
-        for dataset_dict in self._config_dict['datasets']:
-            self._dataset_factory.get_dataset_by_name(dataset_dict)
+        for dataset_dict in self.context.conf['datasets']:
+            self.context.factories['datasets'].get_dataset_by_name(dataset_dict)
 
 
     def train_oracles(self):
@@ -65,19 +65,19 @@ class EvaluatorManager:
         -------------
         OUTPUT: None
         """
-        dataset_dicts = self._config_dict['datasets']
-        oracle_dicts = self._config_dict['oracles']
+        dataset_dicts = self.context.conf['datasets']
+        oracle_dicts = self.context.conf['oracles']
 
         # Create the datasets needed for fitting the oracles
         for dataset_dict in dataset_dicts:
-            self.datasets.append(self._dataset_factory.get_dataset_by_name(dataset_dict))
+            self.datasets.append(self.context.factories['datasets'].get_dataset_by_name(dataset_dict))
 
         # For each dataset create and fit all oracles
         for dataset in self.datasets:
             for oracle_dict in oracle_dicts:
-
+                oracle_dict['dataset'] = dataset
                 # The get_oracle_by_name method returns a fitted oracle
-                oracle = self._oracle_factory.get_oracle_by_name(oracle_dict, dataset, self._embedder_factory)
+                oracle = self.context.factories['oracles'].get_oracle(self.context, oracle_dict)
                 self.oracles.append(oracle)
 
         # The goal of this method is to train the oracles and store them on disk to use them later
@@ -95,35 +95,35 @@ class EvaluatorManager:
         -------------
         OUTPUT: None
         """
-        dataset_dicts = self._config_dict['datasets']
-        oracle_dicts = self._config_dict['oracles']
-        metric_dicts = self._config_dict['evaluation_metrics']
-        explainer_dicts = self._config_dict['explainers']
+        dataset_dicts = self.context.conf['datasets']
+        oracle_dicts = self.context.conf['oracles']
+        metric_dicts = self.context.conf['evaluation_metrics']
+        explainer_dicts = self.context.conf['explainers']
 
         # Create the datasets
         for dataset_dict in dataset_dicts:
-            self.datasets.append(self._dataset_factory.get_dataset_by_name(dataset_dict))
+            self.datasets.append(self.context.factories['datasets'].get_dataset_by_name(dataset_dict))
 
         # Create the evaluation metrics
         for metric_dict in metric_dicts:
-            eval_metric = self._evaluation_metric_factory.get_evaluation_metric_by_name(metric_dict)
+            eval_metric = self.context.factories['metrics'].get_evaluation_metric_by_name(metric_dict)
             self.evaluation_metrics.append(eval_metric)
 
         for explainer_dict in explainer_dicts:
-            explainer = self._explainer_factory.get_explainer_by_name(explainer_dict, self._evaluation_metric_factory)
+            explainer = self.context.factories['explainers'].get_explainer_by_name(explainer_dict, self.context.factories['metrics'])
             self.explainers.append(explainer)
 
         evaluator_id = 0
         for dataset in self.datasets:
             for explainer in self.explainers:
                 for oracle_dict in oracle_dicts:
-
+                    oracle_dict['dataset'] = dataset
                     # The get_oracle_by_name method returns a fitted oracle
-                    oracle = self._oracle_factory.get_oracle_by_name(oracle_dict, dataset, self._embedder_factory)
+                    oracle = self.context.factories['oracles'].get_oracle(self.context, oracle_dict)
 
                     # Creating the evaluator
                     evaluator = Evaluator(evaluator_id, dataset, oracle, explainer, self.evaluation_metrics,
-                                             self._output_store_path, self._run_number)
+                                             self._output_store_path, self.context.run_number)
 
                     # Adding the evaluator to the evaluator's list
                     self.evaluators.append(evaluator)

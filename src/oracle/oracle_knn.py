@@ -1,5 +1,5 @@
 from src.dataset.dataset_base import Dataset
-from src.oracle.embedder_base import Embedder
+from src.core.embedder_base import Embedder
 from src.oracle.oracle_base import Oracle
 
 from sklearn.neighbors import KNeighborsClassifier

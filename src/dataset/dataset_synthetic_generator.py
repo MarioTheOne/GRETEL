@@ -9,6 +9,9 @@ class Synthetic_Data(Dataset):
     def __init__(self, id, config_dict=None) -> None:
         super().__init__(id, config_dict)
         self.instances = []
+        
+    def __str__(self):
+        return self.__class__.__name__
 
     def create_tree(self, tree_size, role_label=0, create_using=None):
         """Builds a random tree graph

@@ -2,7 +2,7 @@ import inspect
 import os
 
 import jsonpickle
-from logger import GLogger
+from src.utils.logger import GLogger
 
 
 class Context(object):
@@ -10,6 +10,15 @@ class Context(object):
     __global = None
 
     def __init__(self, create_key, config_file):
+        ###################################################
+        self.factories = {
+            "datasets": None,
+            "embedders": None,
+            "oracles": None,
+            "explainers": None,
+            "metrics": None
+        }
+        ###################################################
         assert(create_key == Context.__create_key), \
             "Context objects must be created using Context.get_context"
               
@@ -44,7 +53,24 @@ class Context(object):
             if(obj[key] == value):
                 return obj[son]
     
+    def get_path(self, obj):
+        fullname = self.get_fullname(obj).split('.')
+        qualifier = fullname[1] + '_store_path'
+        #dataset_path = self.get_name(obj.dataset.__class__.__name__, obj.dataset.local_config)
+        # change this path when the dataset factories are finished
+        directory = os.path.join(self._get_store_path(qualifier), obj.dataset.__class__.__name__)
+        if not os.path.exists(directory):
+            os.mkdir(directory)
+        print(obj.name)
+        return os.path.join(directory, obj.name)
     
+    def get_fullname(self, o):
+        klass = o.__class__
+        module = klass.__module__
+        if module == 'builtins':
+            return klass.__qualname__ # avoid outputs like 'builtins.str'
+        return module + '.' + klass.__qualname__
+        
     def get_name(self, cls, dictionary):
         
         def flatten_dict(d, parent_key='', sep='_'):
@@ -57,7 +83,7 @@ class Context(object):
                     items.append((new_key, v))
             return dict(items)
         
-        return cls + '_'.join([f'{key}={value}' for key, value in flatten_dict(dictionary).items()])
+        return f'{cls}_' + '_'.join([f'{key}={value}' for key, value in flatten_dict(dictionary).items()])
         
     def _get_store_path(self,value):
         return Context.get_by_pkvs(self.conf, "store_paths", "name",value,"address")

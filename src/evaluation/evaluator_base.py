@@ -32,7 +32,7 @@ class Evaluator(ABC):
         
 
         # Building the config file to write into disk
-        evaluator_config = {'dataset': data._config_dict, 'oracle': oracle._config_dict, 'explainer': explainer._config_dict, 'metrics': []}
+        evaluator_config = {'dataset': data._config_dict, 'oracle': oracle.local_config, 'explainer': explainer._config_dict, 'metrics': []}
         for metric in evaluation_metrics:
             evaluator_config['metrics'].append(metric._config_dict)
         # creatig the results dictionary with the basic info
@@ -114,7 +114,7 @@ class Evaluator(ABC):
         fold_id = self._explainer.fold_id
         if fold_id == -1:
             for inst in self._data.instances:
-                
+                self._logger.info("Evaluating instance with id %s", str(inst.id))
                 start_time = time.time()
                 counterfactual = self._explainer.explain(inst, self._oracle, self._data)
                 end_time = time.time()
@@ -132,7 +132,8 @@ class Evaluator(ABC):
             test_set = [i for i in self.dataset.instances if i.id in test_indices]
 
             for inst in test_set:
-                
+                self._logger.info("Evaluating instance with id %s", str(inst.id))
+
                 start_time = time.time()
                 counterfactual = self._explainer.explain(inst, self._oracle, self._data)
 

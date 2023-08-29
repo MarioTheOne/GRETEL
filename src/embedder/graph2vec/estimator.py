@@ -1,6 +1,3 @@
-from src.oracle.embedder_base import Embedder
-from src.dataset.dataset_base import Dataset
-
 import numpy as np
 import networkx as nx
 from typing import List
@@ -9,27 +6,7 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from karateclub.utils.treefeatures import WeisfeilerLehmanHashing
 
 
-class Graph2vec(Embedder):
-
-    def __init__(self, id) -> None:
-        super().__init__(id)
-        self.emb = custom_g2v()
-        self._name = 'graph2vec'
-
-    def fit(self, dataset : Dataset):
-        # Copies of the graphs are provided because the _check_graphs function modifies the edges of the passed graph
-        graphs = [i.graph.copy(as_view=False) for i in dataset.get_data()]
-        self.emb.fit(graphs)
-
-    def get_embeddings(self):
-        return self.emb.get_embedding()
-
-    def get_embedding(self, instance):
-        # A Copy of the graph is provided because the _check_graphs function modifies the edges of the passed graph
-        return self.emb.infer(instance.graph.copy(as_view=False))
-
-
-class custom_g2v(Estimator):
+class Graph2Vec(Estimator):
     """An implementation of `"Graph2Vec" <https://arxiv.org/abs/1707.05005>`_
     from the MLGWorkshop '17 paper "Graph2Vec: Learning Distributed Representations of Graphs".
     The procedure creates Weisfeiler-Lehman tree features for nodes in graphs. Using

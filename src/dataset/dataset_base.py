@@ -264,6 +264,7 @@ class Dataset(ABC):
             A list containing the dictionaries of all data instances
         """
         return self.instances
+    
 
     def get_instance(self, i):
         """Returns the data instance at the i-th position'

@@ -1,42 +1,23 @@
 from src.dataset.dataset_base import Dataset
+from src.core.trainable_base import Trainable
 
-from abc import ABC, abstractmethod
-from src.utils.logger import GLogger
+class Oracle(Trainable):
 
-
-class Oracle(ABC):
-
-    def __init__(self, id, oracle_store_path, config_dict=None) -> None:
-        super().__init__()
+    def __init__(self, context, local_config) -> None:
+        super().__init__(context, local_config)
         self._call_counter = 0
-        self._id = id
-        self._name = 'abstract_oracle'
-        self._oracle_store_path = oracle_store_path
-        self._config_dict = config_dict
-        self._logger = GLogger.getLogger()
-        self._logger.info("Created %s",str(self.__class__))
-      
 
-    @property
-    def id(self):
-        return self._id
+    def retrain(self):
+        self.fit()
+        
+    def init_model(self):
+        raise NotImplementedError()
 
-    @id.setter
-    def id(self, new_id):
-        self._id = new_id
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, new_name):
-        self._name = new_name
-
-    @abstractmethod
-    def fit(self, dataset: Dataset, split_i=0):
-        pass
-
+    def real_fit(self):
+        raise NotImplementedError()
+    
+    def evaluate(self, dataset: Dataset, fold_id=0):
+        raise NotImplementedError()
     
     def predict(self, data_instance):
         """predicts the label of a given data instance
@@ -65,37 +46,25 @@ class Oracle(ABC):
 
         return self._real_predict_proba(self.embedd(data_instance))
     
-    def predict_list(self, dataset: Dataset, split_i=0):
+    def predict_list(self, dataset: Dataset, fold_id=0):
 
-        sptest = dataset.get_split_indices()[split_i]['test']
+        sptest = dataset.get_split_indices()[fold_id]['test']
 
         result = [self.predict(dataset.get_instance(i)) for i in sptest]
 
         return result
 
-    @abstractmethod
     def _real_predict(self, data_instance):
-        pass
+        raise NotImplementedError()
     
-    @abstractmethod
     def _real_predict_proba(self, data_instance):
-        pass
+        raise NotImplementedError()
     
-    @abstractmethod
     def embedd(self, instance):
-        pass
+        raise NotImplementedError()
 
     def get_calls_count(self):
         return self._call_counter
 
     def reset_call_count(self):
         self._call_counter = 0
-
-    @abstractmethod
-    def read_oracle(self, oracle_name):
-        pass
-
-    @abstractmethod
-    def write_oracle(self):
-        pass
-
