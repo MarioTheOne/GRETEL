@@ -29,11 +29,10 @@ class SVMOracle(Oracle):
         self.model.fit(x, y)
 
     def _real_predict(self, data_instance):
-        print(data_instance.shape)
         return self.model.predict(data_instance)
     
     def _real_predict_proba(self, data_instance):
         return self.model._predict_proba_lr(data_instance)
 
     def embedd(self, instance):
-        return self.embedder.get_embedding(instance)
+        return self.embedder.get_embedding(instance).reshape(1,-1)
