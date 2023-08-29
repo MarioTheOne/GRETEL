@@ -61,7 +61,6 @@ class Context(object):
         directory = os.path.join(self._get_store_path(qualifier), obj.dataset.__class__.__name__)
         if not os.path.exists(directory):
             os.mkdir(directory)
-        print(obj.name)
         return os.path.join(directory, obj.name)
     
     def get_fullname(self, o):
@@ -126,10 +125,10 @@ class Context(object):
         return self._get_store_path(inspect.stack()[0][3])
     
 #context = Context.get_context()
-context = Context.get_context("config/test/temp.json")
-print(context)
-print(context._scope)
-print(context.dataset_store_path)
+#context = Context.get_context("config/test/temp.json")
+#print(context)
+#print(context._scope)
+#print(context.dataset_store_path)
 
 
             

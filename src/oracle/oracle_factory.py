@@ -13,6 +13,7 @@ class OracleFactory(ABC):
         
     def get_oracle(self, context, oracle_snippet) -> Oracle:
         oracle = get_class(oracle_snippet['class'])(context, oracle_snippet)
+        self.context.logger.info("Created: "+str(oracle))
         return oracle
             
     def get_oracles(self, context, config_list) -> List[Oracle]:

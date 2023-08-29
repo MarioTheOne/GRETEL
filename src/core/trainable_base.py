@@ -1,6 +1,8 @@
 import os
 from abc import ABC, abstractmethod
 import pickle
+import hashlib
+
 
 class Trainable(ABC):
     
@@ -8,22 +10,31 @@ class Trainable(ABC):
         super().__init__()
         self.context = context
         self.local_config = local_config
-        # init default embedder
-        self.init()
+        
         ##############################################################################
         # fit the model on a specific dataset
         # or read if already existing
         self.dataset = self.local_config['dataset']
+
+        if('embedder' in self.local_config['parameters']):
+            self.local_config['parameters']['embedder']['dataset'] = self.dataset
+
+        # real init details
+        self.init()
+
         # retrain if explicitely specified or if the weights of the model don't exists
         if self.local_config['parameters'].get('retrain', False) or not os.path.exists(self.context.get_path(self)):
+            self.context.logger.info(str(self)+" need to be trained.")
             self.fit()
         else:
             self.read()
+            self.context.logger.info(str(self)+" loaded.")
         ##############################################################################
         
     def fit(self):
         self.real_fit()
         self.write()
+        self.context.logger.info(str(self)+" saved.")
         
     @property
     def name(self):
@@ -59,7 +70,12 @@ class Trainable(ABC):
     
     @property
     def name(self):
-        return self.context.get_name(self.__class__.__name__, self.local_config['parameters'])
+        #return self.context.get_name(self.__class__.__name__, self.local_config['parameters'])
+        data = self.context.get_name(self.__class__.__name__, self.local_config)
+        md5_hash = hashlib.md5()
+        md5_hash.update(data.encode('utf-8'))
+        return  self.__class__.__name__+'-'+md5_hash.hexdigest()
+
     
     def __str__(self):
         return self.name

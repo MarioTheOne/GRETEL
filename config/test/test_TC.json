@@ -8,7 +8,9 @@
         {"name": "log_store_path", "address": "./output/logs/"}
     ],
     "datasets": [
-        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 3, "number_of_cycles": 4} }
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 3, "number_of_cycles": 4} },
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 4, "number_of_cycles": 3} },
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 4, "number_of_cycles": 3} }
     ],
     "oracles": [
         {
@@ -19,7 +21,7 @@
                     "parameters": {
                         "model": {
                             "parameters": {
-                                "wl_iterations": 10
+                                "wl_iterations": 15
                             }
                         }
                     } 

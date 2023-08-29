@@ -5,7 +5,7 @@ class Graph2VecEmbedder(Embedder):
         
     def init(self):
         self.model = Graph2Vec(**self.local_config['parameters']['model']['parameters'])
-    
+            
     def real_fit(self):
         # Copies of the graphs are provided because the _check_graphs function modifies the edges of the passed graph
         graphs = [i.graph.copy(as_view=False) for i in self.dataset.get_data()]

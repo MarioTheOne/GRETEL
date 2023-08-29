@@ -11,7 +11,7 @@ class Synthetic_Data(Dataset):
         self.instances = []
         
     def __str__(self):
-        return self.__class__.__name__
+        return self._name#self.__class__.__name__
 
     def create_tree(self, tree_size, role_label=0, create_using=None):
         """Builds a random tree graph

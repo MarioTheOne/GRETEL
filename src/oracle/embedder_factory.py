@@ -3,13 +3,19 @@ from src.utils.utils import get_class
 
 class EmbedderFactory:
 
-    def __init__(self, embedder_store_path) -> None:
+    '''def __init__(self, embedder_store_path) -> None:
         self._embedder_id_count = 0
-        self._embedder_store_path = embedder_store_path
+        self._embedder_store_path = embedder_store_path'''
         
     def get_embedder(self, context, embedder_snippet) -> Embedder:
         embedder = get_class(embedder_snippet['class'])(context, embedder_snippet)
+        self.context.logger.info("Created: "+ str(embedder))
         return embedder
+
+    def __init__(self, context, local_conf=None) -> None:
+        super().__init__()
+        self.context = context
+        self.local_conf = local_conf
 
     """def get_embedder_by_name(self, embedder_dict, dataset: Dataset) -> Embedder:
         

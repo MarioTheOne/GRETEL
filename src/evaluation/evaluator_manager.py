@@ -17,7 +17,7 @@ class EvaluatorManager:
         self.context = context
         
         self.context.factories['datasets'] = DatasetFactory(context.dataset_store_path)
-        self.context.factories['embedders'] = EmbedderFactory(context.embedder_store_path)
+        self.context.factories['embedders'] = EmbedderFactory(context)
         self.context.factories['oracles'] = OracleFactory(context, context.conf['oracles'])
         self.context.factories['explainers'] = ExplainerFactory(context.explainer_store_path)
         self.context.factories['metrics'] = EvaluationMetricFactory(context.conf)

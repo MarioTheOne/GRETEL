@@ -20,13 +20,13 @@ class KNNOracle(Oracle):
             self.model = KNeighborsClassifier(**self.local_config['parameters']['model']['parameters'])
         else:
             self.model = KNeighborsClassifier(n_neighbors=3)
+            
+        embedding_snippet = self.local_config['parameters']['embedder']             
+        self.embedder = self.context.factories['embedders'].get_embedder(self.context, embedding_snippet)
 
     def real_fit(self):
         fold_id = self.local_config['parameters'].get('fold_id', 0)
-        embedding_snippet = self.local_config['parameters']['embedder']
-        embedding_snippet['dataset'] = self.dataset
-        
-        self.embedder = self.context.factories['embedders'].get_embedder(self.context, embedding_snippet)
+       
         inst_vectors = self.embedder.get_embeddings()
 
         if fold_id == -1:
