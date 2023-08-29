@@ -10,6 +10,7 @@ from src.utils.context import Context
 import sys
 
 if __name__ == '__main__':
+    print(f'Generating context for: {sys.argv[1]} Run: {sys.argv[2]}')
     context = Context.get_context(sys.argv[1])
     context.run_number = int(sys.argv[2])
 

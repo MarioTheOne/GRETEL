@@ -26,6 +26,22 @@
                 },
                 "model": { "parameters": {} }
             } 
+        },
+        {
+            "class": "src.oracle.knn.predictor.KNNOracle",
+            "parameters": {
+                "embedder": {
+                    "class": "src.embedder.graph2vec.model.Graph2VecEmbedder", 
+                    "parameters": {
+                        "model": {
+                            "parameters": {
+                                "wl_iterations": 10
+                            }
+                        }
+                    } 
+                },
+                "model": { "parameters": {} }
+            } 
         }
     ],
     "explainers": [
