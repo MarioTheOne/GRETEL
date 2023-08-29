@@ -1,7 +1,7 @@
 from src.embedder.graph2vec.estimator import Graph2Vec
-from src.core.trainable_base import Trainable
+from src.core.embedder_base import Embedder
 
-class Graph2VecEmbedder(Trainable):
+class Graph2VecEmbedder(Embedder):
         
     def init(self):
         self.model = Graph2Vec(**self.local_config['parameters']['model']['parameters'])

@@ -29,6 +29,9 @@ class BBBPDataset(MolecularDataSet):
         self.max_n_atoms = 118
         self.exclude_dot_smiles = exclude_dot_smiles
 
+    def __str__(self):
+        return self.__class__.__name__
+    
     def read_molecules_file(self, dataset_path):
         """
         Reads the dataset from the txt file

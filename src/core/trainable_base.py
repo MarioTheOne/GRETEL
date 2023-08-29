@@ -61,3 +61,6 @@ class Trainable(ABC):
     def name(self):
         return self.context.get_name(self.__class__.__name__, self.local_config['parameters'])
     
+    def __str__(self):
+        return self.name
+    

@@ -137,7 +137,7 @@ stats/
 legacy/
 wandb/
 data/oracles/
-config/test
+#config/test
 launchers/
 AAAI/
 

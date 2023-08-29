@@ -7,21 +7,22 @@ from rdkit.Chem import RDKFingerprint
 
 class RDKFingerprintEmbedder(Embedder):
 
-    def __init__(self, id) -> None:
-        super().__init__(id)
-        self._name = 'RDKFingerprint'
-        self._embbedings = []
+    def init(self):
+        self.model = []
 
-    def fit(self, dataset : Dataset):
-        for inst in dataset.instances:
+    def real_fit(self):
+        for inst in self.dataset.instances:
             fingerprint = RDKFingerprint(inst.molecule)
             fingerprint_np = np.array(fingerprint)
-            self._embbedings.append(fingerprint_np)
+            self.model.append(fingerprint_np)
 
     def get_embeddings(self):
-        return self._embbedings
+        return self.model
 
     def get_embedding(self, instance):
         fingerprint_rdk = RDKFingerprint(instance.molecule)
         fingerprint_rdk_np = np.array(fingerprint_rdk)
         return fingerprint_rdk_np
+    
+    
+    
