@@ -5,7 +5,7 @@ from src.oracle.oracle_base import Oracle
 from sklearn.neighbors import KNeighborsClassifier
 import os
 import joblib
-from src.oracle.tabular_oracles.predictor import TabularOracle
+from src.oracle.tabulars.predictor import TabularOracle
 from src.utils.utils import get_only_default_params
 
 class KNNOracle(TabularOracle):
