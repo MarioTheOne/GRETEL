@@ -122,11 +122,8 @@ class CF2Oracle(Oracle):
         indices = dataset.get_split_indices()[self.fold_id]['train'] 
               
         dgl_dataset = CustomDGLDataset(adj, features, weights, y)
-        
-        train_sampler = SubsetRandomSampler(indices)
-        
-        dataloader = GraphDataLoader(dgl_dataset, sampler=train_sampler,
-                                     batch_size=self.batch_size, drop_last=False)
+                
+        dataloader = GraphDataLoader(dgl_dataset, batch_size=self.batch_size, drop_last=False)
 
         return dataloader
         

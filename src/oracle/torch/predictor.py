@@ -13,11 +13,8 @@ from src.oracle.oracle_base import Oracle
 class OracleTorch(Oracle):
     
     def __init__(self, context, local_config) -> None:
-        super().__init__(context)
+        super().__init__(context, local_config)
         
-        self.name = self.__class__.__name__
-        
-        self.logger = context.logger
         self.epochs = epochs
         self.optimizer = optimizer
         self.loss_fn = loss_fn
@@ -33,51 +30,42 @@ class OracleTorch(Oracle):
             if torch.backends.mps.is_available()
             else "cpu"
         )
-        
+    
+    def init(self):
+        self.epochs = self.local_config['parameters'].get('epochs', 100)
+        self.optimizer = self.local_config['parameters'].get('optimizer', 'torch.optim.Adam')
     
     def embedd(self, instance):
         return instance                                 
             
     def real_fit(self, dataset: Dataset, fold_id=0):
-        # If there is an available oracle trained on that dataset load it
-        if os.path.exists(os.path.join(self._oracle_store_path, self._name)):
-            self.read_oracle()
-        else:
-            dataset = self.converter.convert(dataset)
-            loader = self.transform_data(dataset, fold_id=fold_id, usage='train')
+        dataset = self.converter.convert(dataset)
+        loader = self.transform_data(dataset, fold_id=fold_id, usage='train')
+        
+        for epoch in range(self.epochs):
             
-            for epoch in range(self.epochs):
+            losses = []
+            for batch in loader:
+                node_features = batch.x.to(self.device)
+                edge_index = batch.edge_index.to(self.device)
+                edge_weights = batch.edge_attr.to(self.device)
+                labels = batch.y.to(self.device)
                 
-                losses = []
-                for batch in loader:
-                    node_features = batch.x.to(self.device)
-                    edge_index = batch.edge_index.to(self.device)
-                    edge_weights = batch.edge_attr.to(self.device)
-                    labels = batch.y.to(self.device)
-                    
-                    self.optimizer.zero_grad()
-                    
-                    pred = self.network(node_features, edge_index, edge_weights)
-                    
-                    loss = self.loss_fn(pred, labels)
-                    losses.append(loss.to('cpu').detach().numpy())
-                    loss.backward()
-                    
-                    self.optimizer.step()
+                self.optimizer.zero_grad()
                 
-                self.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4d}')
-            # Writing to disk the trained oracle
-            self.write_oracle()
-            #self.evaluate(dataset, fold_id=fold_id)
+                pred = self.model(node_features, edge_index, edge_weights)
+                
+                loss = self.loss_fn(pred, labels)
+                losses.append(loss.to('cpu').detach().numpy())
+                loss.backward()
+                
+                self.optimizer.step()
+            
+            self.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4d}')
+        #self.evaluate(dataset, fold_id=fold_id)
             
     @torch.no_grad()        
-    def evaluate(self, dataset: Dataset, fold_id=0):
-        # If there is an available oracle trained on that dataset load it
-        if os.path.exists(os.path.join(self._oracle_store_path, self._name)):
-            self.read_oracle()
-        else:
-            raise FileExistsError(f'The Oracle {self._name} must be trained first.')
-            
+    def evaluate(self, dataset: Dataset, fold_id=0):            
         dataset = self.converter.convert(dataset)
         loader = self.transform_data(dataset, fold_id=fold_id, usage='test')
         
@@ -88,11 +76,9 @@ class OracleTorch(Oracle):
             edge_index = batch.edge_index.to(self.device)
             edge_weights = batch.edge_attr.to(self.device)
             labels = batch.y.to(self.device)
-            # n x 1
-            
-            self.optimizer.zero_grad()
-            
-            pred = self.network(node_features, edge_index, edge_weights)
+            # n x 1   
+            self.optimizer.zero_grad()  
+            pred = self.model(node_features, edge_index, edge_weights)
             # n x k
             loss = self.loss_fn(pred, labels)
             losses.append(loss.to('cpu').detach().numpy())
@@ -123,7 +109,7 @@ class OracleTorch(Oracle):
             os.mkdir(directory)
             
         dump = {
-            "model" : self.network.state_dict(),
+            "model" : self.model.state_dict(),
             "config": self.local_config
         }
         
@@ -136,5 +122,5 @@ class OracleTorch(Oracle):
         if os.path.exists(dump_file):
             with open(dump_file, 'r') as f:
                 dump = jsonpickle.decode(f.read())
-                self.network.load_state_dict(dump['model'])
+                self.model.load_state_dict(dump['model'])
                 self.local_config = dump['config']

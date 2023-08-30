@@ -10,17 +10,17 @@ class Trainable(ABC):
         super().__init__()
         self.context = context
         self.local_config = local_config
-        
         ##############################################################################
         # fit the model on a specific dataset
         # or read if already existing
         self.dataset = self.local_config['dataset']
         self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
         #TODO: Add getDefault Method that return the default conf snippet of parameters conf node.
-
-        if('embedder' in self.local_config['parameters']):
+        self.local_config = self.check_configuration(self.local_config)
+        
+        """if('embedder' in self.local_config['parameters']):
             self.local_config['parameters']['embedder']['dataset'] = self.dataset
-            self.local_config['parameters']['embedder']['fold_id'] = self.local_config['parameters']['fold_id']
+            self.local_config['parameters']['embedder']['fold_id'] = self.local_config['parameters']['fold_id']"""
 
         # real init details
         self.init()
@@ -45,6 +45,10 @@ class Trainable(ABC):
     
     @abstractmethod
     def init(self):
+        pass
+    
+    @abstractmethod
+    def check_configuration(self, local_config):
         pass
 
     @abstractmethod

@@ -15,12 +15,7 @@ class KNNOracle(Oracle):
         self.inst_vectors = None'''
 
     def init(self):
-        params = self.local_config['parameters']['model']['parameters']
-        if "n_neighbors" in params:
-            self.model = KNeighborsClassifier(**self.local_config['parameters']['model']['parameters'])
-        else:
-            self.model = KNeighborsClassifier(n_neighbors=3)
-            
+        self.model = KNeighborsClassifier(**self.local_config['parameters']['model']['parameters'])         
         embedding_snippet = self.local_config['parameters']['embedder']             
         self.embedder = self.context.factories['embedders'].get_embedder(self.context, embedding_snippet)
 
@@ -41,35 +36,6 @@ class KNNOracle(Oracle):
 
         self.model.fit(x, y)
 
-    '''def fit(self, dataset: Dataset, split_i=-1):
-        # self.emb.fit(dataset)
-        self._name = self._name + '_fit_on-' + dataset.name
-
-        # If there is an available oracle trained on that dataset load it
-        if os.path.exists(os.path.join(self._oracle_store_path, self.name, 'oracle.sav')):
-            self.read_oracle(self._name)
-
-        else: # If not then train
-            self.inst_vectors = self.emb.get_embeddings()
-
-            if split_i == -1:
-                # Training with the entire dataset
-                x = self.inst_vectors
-                y = [ i.graph_label for i in dataset.instances]
-
-                self.model.fit(x, y)
-            else:
-                # Training with an specific split
-                spt = dataset.get_split_indices()[split_i]['train']
-
-                x = [self.inst_vectors[i] for i in spt]
-                y = [dataset.get_instance(i).graph_label for i in spt]
-
-                self.model.fit(x, y)
-            
-            # Writing to disk the trained oracle
-            self.write_oracle()'''
-
     def _real_predict(self, data_instance):
         return self.model.predict([data_instance])[0]
 
@@ -79,13 +45,8 @@ class KNNOracle(Oracle):
     def embedd(self, instance):
         return self.embedder.get_embedding(instance)
 
-''' def write_oracle(self):
-        oracle_path = os.path.join(self._oracle_store_path, self._name)
-        os.mkdir(oracle_path)
-        
-        oracle_uri = os.path.join(oracle_path, 'oracle.sav')
-        joblib.dump(self.clf, open(oracle_uri, 'wb'))
-
-    def read_oracle(self, oracle_name):
-        oracle_uri = os.path.join(self._oracle_store_path, oracle_name, 'oracle.sav')
-        self.clf = joblib.load(open(oracle_uri, 'rb'))'''
+    def check_configuration(self, local_config):
+        params = local_config['parameters']['model']['parameters']
+        if "n_neighbors" not in params:
+            params['n_neighbors'] = 3
+        return params
