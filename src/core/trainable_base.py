@@ -15,9 +15,11 @@ class Trainable(ABC):
         # fit the model on a specific dataset
         # or read if already existing
         self.dataset = self.local_config['dataset']
+        self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
 
         if('embedder' in self.local_config['parameters']):
             self.local_config['parameters']['embedder']['dataset'] = self.dataset
+            self.local_config['parameters']['embedder']['fold_id'] = self.local_config['parameters']['fold_id']
 
         # real init details
         self.init()
