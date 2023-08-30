@@ -1,21 +1,15 @@
-import inspect
-
-from sklearn.svm import LinearSVC
-
+    
 from src.oracle.oracle_base import Oracle
 from src.utils.utils import get_only_default_params
 
-
-class SVMOracle(Oracle):
-
+class TabularOracle(Oracle):
+    
     def init(self):
-        self.model = LinearSVC(**self.local_config['parameters']['model']['parameters'])
         embedding_snippet = self.local_config['parameters']['embedder']
         self.embedder = self.context.factories['embedders'].get_embedder(self.context, embedding_snippet)
         
     def real_fit(self):
         fold_id = self.local_config['parameters']['fold_id']
-
         inst_vectors = self.embedder.get_embeddings()
 
         if fold_id == -1:
@@ -53,10 +47,10 @@ class SVMOracle(Oracle):
                     }
                 }
             }
-        node_config = get_only_default_params(kls, local_config['parameters']['embedder']['parameters']['model']['parameters'])
-        local_config['parameters']['embedder']['parameters']['model']['parameters'] = node_config
+            node_config = get_only_default_params(kls, local_config['parameters']['embedder']['parameters']['model']['parameters'])
+            local_config['parameters']['embedder']['parameters']['model']['parameters'] = node_config
         # populate the local config accordingly
-        local_config['parameters']['embedder']['parameters']['dataset'] = self.dataset
+        local_config['parameters']['embedder']['dataset'] = self.dataset
         local_config['parameters']['embedder']['parameters']['fold_id'] = local_config['parameters']['fold_id']
         return local_config
     

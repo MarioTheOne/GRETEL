@@ -1,5 +1,5 @@
 {
-    "class": "src.oracle.svm.predictor.SVMOracle",
+    "class": "src.oracle.tabulars.svm.SVMOracle",
     "parameters": {
         "embedder": {
             "class": "src.embedder.graph2vec.model.Graph2VecEmbedder", 
