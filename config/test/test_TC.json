@@ -19,11 +19,7 @@
                 "embedder": {
                     "class": "src.embedder.graph2vec.model.Graph2VecEmbedder", 
                     "parameters": {
-                        "model": {
-                            "parameters": {
-                                "wl_iterations": 15
-                            }
-                        }
+                        "model": {"parameters": { "wl_iterations": 15 } }
                     } 
                 },
                 "model": { "parameters": {} }
@@ -31,18 +27,16 @@
         },
         {
             "class": "src.oracle.knn.predictor.KNNOracle",
+            "fold_id": 0,
             "parameters": {
                 "embedder": {
                     "class": "src.embedder.graph2vec.model.Graph2VecEmbedder", 
                     "parameters": {
-                        "model": {
-                            "parameters": {
-                                "wl_iterations": 10
-                            }
-                        }
-                    } 
+                        "model": {"parameters": { "wl_iterations": 15 } }
+                    }
                 },
                 "model": { "parameters": {} }
+                
             } 
         }
     ],

@@ -12,13 +12,13 @@ class SVMOracle(Oracle):
         
         
     def real_fit(self):
-        fold_id = self.local_config['parameters'].get('fold_id', 0)
+        fold_id = self.local_config['parameters'].get('fold_id', -1)
 
         inst_vectors = self.embedder.get_embeddings()
 
         if fold_id == -1:
             # Training with the entire dataset
-            x = self.inst_vectors
+            x = inst_vectors
             y = [ i.graph_label for i in self.dataset.instances]
         else:
             # Training with an specific split
