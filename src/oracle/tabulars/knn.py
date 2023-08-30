@@ -18,5 +18,4 @@ class KNNOracle(TabularOracle):
         params = local_config['parameters']['model']['parameters']
         if "n_neighbors" not in params:
             params['n_neighbors'] = 3
-        local_config['parameters']['model']['parameters'] = params
         return super().check_configuration(local_config)
