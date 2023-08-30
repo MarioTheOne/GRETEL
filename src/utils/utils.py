@@ -1,7 +1,11 @@
-import torch 
-from collections import OrderedDict
-import os, json, copy
+import copy
 import inspect
+import json
+import os
+from collections import OrderedDict
+
+import torch
+
 
 def update_saved_pyg(input_file,output_file):
     old_model =  torch.load(input_file, map_location=torch.device('cpu'))
