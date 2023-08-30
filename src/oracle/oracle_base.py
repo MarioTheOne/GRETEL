@@ -54,6 +54,9 @@ class Oracle(Trainable):
 
         return result
 
+    def check_configuration(self, local_config):
+        return NotImplementedError()
+    
     def _real_predict(self, data_instance):
         raise NotImplementedError()
     

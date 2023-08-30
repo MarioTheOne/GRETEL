@@ -13,3 +13,6 @@ class Embedder(Trainable):
 
     def get_embedding(self, instance):
         raise NotImplementedError()
+    
+    def check_configuration(self, local_config):
+        raise NotImplementedError()

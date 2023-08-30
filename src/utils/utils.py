@@ -1,6 +1,7 @@
 import torch 
 from collections import OrderedDict
 import os, json, copy
+import inspect
 
 def update_saved_pyg(input_file,output_file):
     old_model =  torch.load(input_file, map_location=torch.device('cpu'))
@@ -59,6 +60,21 @@ def get_class( kls ):
 
 def get_instance(kls, param):
     return get_class(kls)(param)
+
+
+def get_only_default_params(kls, local_config):
+    default_embedder_cls = get_class(kls)
+    # get the parameters of the constructor of the desired class
+    # and skip the self class parameter that isn't useful
+    sg = inspect.signature(default_embedder_cls.__init__)
+    default_params = [(p.name, p.default) for p in sg.parameters.values() if p.default != p.empty]
+    embedder_cls_params = dict(default_params)
+    embedder_params = local_config['parameters']['embedder']['parameters']['model']['parameters']
+    # update the embedder params with only those
+    # values that haven't been specified and have a default value
+    embedder_params = {**embedder_params, **embedder_cls_params}
+    local_config['parameters']['embedder']['parameters']['model']['parameters'] = embedder_params
+    return local_config
 
 # from src.utils.utils import update_saved_pyg 
 
