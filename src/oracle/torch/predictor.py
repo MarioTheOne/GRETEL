@@ -8,20 +8,23 @@ from torch_geometric.data import DataLoader
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
 from src.oracle.oracle_base import Oracle
-
+from src.utils.utils import get_instance, get_only_default_params
 
 class OracleTorch(Oracle):
-    
-    def __init__(self, context, local_config) -> None:
-        super().__init__(context, local_config)
+       
+    def init(self):
+        self.epochs = self.local_config['parameters']['epochs']
         
-        self.epochs = epochs
-        self.optimizer = optimizer
-        self.loss_fn = loss_fn
-        self.converter = converter
-        self.batch_size = batch_size
+        self.optimizer = get_instance(self.local_config['parameters']['optimizer']['class'],
+                                      **self.local_config['parameters']['optimizer']['parameters'])
         
-        self.model = network
+        self.loss_fn = get_instance(self.local_config['parameters']['loss_fn']['class'],
+                                    **self.local_config['parameters']['loss_fn']['parameters'])
+        
+        self.converter = get_instance(self.local_config['parameters']['converter']['class'],
+                                      **self.local_config['parameters']['converter']['parameter'])
+        
+        self.batch_size = self.local_config['parameters']['batch_size']
         
         self.device = (
             "cuda"
@@ -30,11 +33,10 @@ class OracleTorch(Oracle):
             if torch.backends.mps.is_available()
             else "cpu"
         )
-    
-    def init(self):
-        self.epochs = self.local_config['parameters'].get('epochs', 100)
-        self.optimizer = self.local_config['parameters'].get('optimizer', 'torch.optim.Adam')
-    
+        
+        self.model = get_instance(self.local_config['parameters']['model']['class'],
+                                  **self.local_config['parameters']['model']['parameters'])
+                
     def embedd(self, instance):
         return instance                                 
             
@@ -61,7 +63,7 @@ class OracleTorch(Oracle):
                 
                 self.optimizer.step()
             
-            self.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4d}')
+            self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4d}')
         #self.evaluate(dataset, fold_id=fold_id)
             
     @torch.no_grad()        
@@ -124,3 +126,27 @@ class OracleTorch(Oracle):
                 dump = jsonpickle.decode(f.read())
                 self.model.load_state_dict(dump['model'])
                 self.local_config = dump['config']
+                
+                
+    def check_configuration(self, local_config):
+        local_config['parameters'] = local_config.get('parameters', {})
+        
+        local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
+        local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
+        
+        # populate the optimizer
+        self.__config_helper(local_config['parameters'], 'optimizer', 'torch.optim.Adam')
+        self.__config_helper(local_config['parameters'], 'loss_fn', 'torch.nn.BCELoss')
+        self.__config_helper(local_config['parameters'], 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')
+        
+        return local_config
+    
+    
+    def __config_helper(self, node, key, kls):
+        if key not in node['parameters']:
+            node['parameters'][key] = {
+                "class": kls, 
+                "parameters": { }
+            }
+        node_config = get_only_default_params(kls, node['parameters'][key]['parameters'])
+        node['parameters'][key]['parameters'] = node_config
