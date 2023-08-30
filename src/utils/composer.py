@@ -1,4 +1,5 @@
 import jsonpickle
+import json
 
 def compose(config):
     out_conf  = {}
@@ -18,7 +19,7 @@ def _process_array(conf):
         for arr_item in conf:
             out_arr.append(compose(arr_item))
         return out_arr
-    return conf
+    return compose(conf) if isinstance(conf, dict) else conf
 
 def _get_snippet(snippet_path):
     # Read the config dictionary inside the config path
@@ -30,11 +31,11 @@ def _get_snippet(snippet_path):
 
 
 
-'''snippet_path = 'config/test/test_compose.json'
+'''#snippet_path = 'config/test/test_compose.json'
+snippet_path = 'config/test/test_TC.json'
 #snippet_path = 'config/test/comp_stores.json'
 with open(snippet_path, 'r') as config_reader:
     in_conf = jsonpickle.decode(config_reader.read())        
 
 out_conf = compose(in_conf)
-
-print(out_conf)'''
+print(json.dumps(out_conf, indent=2))'''

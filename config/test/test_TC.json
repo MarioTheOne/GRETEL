@@ -1,44 +1,18 @@
 {  
-    "store_paths": [
-        {"name": "dataset_store_path", "address": "./data/datasets/"},
-        {"name": "embedder_store_path", "address": "./data/embedders/"},
-        {"name": "oracle_store_path", "address": "./data/oracles/"},
-        {"name": "explainer_store_path", "address": "./data/explainers/"},
-        {"name": "output_store_path", "address": "./output/"},
-        {"name": "log_store_path", "address": "./output/logs/"}
-    ],
+    "experiment" : {
+        "scope": "gcn_oracle",
+        "parameters" : {}
+    },
+    "compose_mes" : "config/test/configured/default_metrics.json",
+    "compose_store" : "config/test/configured/default_store_paths.json",
     "datasets": [
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 3, "number_of_cycles": 4} },
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 4, "number_of_cycles": 3} },
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 4, "number_of_cycles": 3} }
     ],
     "oracles": [
-        {
-            "class": "src.oracle.svm.predictor.SVMOracle",
-            "parameters": {
-                "embedder": {
-                    "class": "src.embedder.graph2vec.model.Graph2VecEmbedder", 
-                    "parameters": {
-                        "model": {"parameters": { "wl_iterations": 17 } }
-                    }
-                },
-                "model": { "parameters": {} }
-            }
-        },
-        {
-            "class": "src.oracle.knn.predictor.KNNOracle",            
-            "parameters": {
-                "fold_id": 0,
-                "embedder": {
-                    "class": "src.embedder.graph2vec.model.Graph2VecEmbedder", 
-                    "parameters": {
-                        "model": {"parameters": { } }
-                    }
-                },
-                "model": { "parameters": {} }
-                
-            } 
-        }
+        {"compose_svm" : "config/test/configured/SVMOracle.json"},
+        {"compose_knn" : "config/test/configured/KNNOracle.json"}
     ],
     "explainers": [
         {
@@ -56,17 +30,5 @@
                 "lr_discriminator": 0.001
             } 
         }
-    ],
-    "evaluation_metrics": [ 
-        {"name": "graph_edit_distance", "parameters": {}},
-        {"name": "oracle_calls", "parameters": {}},
-        {"name": "correctness", "parameters": {}},
-        {"name": "sparsity", "parameters": {}},
-        {"name": "fidelity", "parameters": {}},
-        {"name": "oracle_accuracy", "parameters": {}}
-    ],
-    "experiment" : {
-        "scope": "gcn_oracle",
-        "parameters" : {}
-    }
+    ]
 }

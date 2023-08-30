@@ -1,0 +1,9 @@
+{
+    "class": "src.oracle.knn.predictor.KNNOracle",            
+    "parameters": {
+        "fold_id": 0,
+        "compose_st" : "config/test/configured/Graph2VecEmbedder.json",
+        "model": { "parameters": {} }
+        
+    } 
+}
