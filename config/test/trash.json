@@ -1,67 +1,10 @@
-{'store_paths': [
-        {'name': 'dataset_store_path', 'address': './data/datasets/'
-        },
-        {'name': 'embedder_store_path', 'address': './data/embedders/'
-        },
-        {'name': 'oracle_store_path', 'address': './data/oracles/'
-        },
-        {'name': 'explainer_store_path', 'address': './data/explainers/'
-        },
-        {'name': 'output_store_path', 'address': './output/'
-        },
-        {'name': 'log_store_path', 'address': './output/logs/'
-        }
-    ], 'datasets': [
-        {'name': 'tree-cycles', 'parameters': {'n_inst': 500, 'n_per_inst': 28, 'n_in_cycles': 5, 'nodes_per_cycle': 3, 'number_of_cycles': 4
+{'parameters': {'epochs': 100, 'batch_size': 8, 'optimizer': {'class': 'torch.optim.Adam', 'parameters': {'lr': 0.001, 'betas': (0.9,
+                0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False, 'foreach': None, 'maximize': False, 'capturable': False, 'differentiable': False, 'fused': None
             }
-        },
-        {'name': 'tree-cycles', 'parameters': {'n_inst': 500, 'n_per_inst': 28, 'n_in_cycles': 5, 'nodes_per_cycle': 4, 'number_of_cycles': 3
+        }, 'loss_fn': {'class': 'torch.nn.BCELoss', 'parameters': {'weight': None, 'size_average': None, 'reduce': None, 'reduction': 'mean'
             }
-        },
-        {'name': 'tree-cycles', 'parameters': {'n_inst': 500, 'n_per_inst': 28, 'n_in_cycles': 5, 'nodes_per_cycle': 4, 'number_of_cycles': 3
+        }, 'converter': {'class': 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter', 'parameters': {'feature_dim': 10, 'weight_dim': 1
             }
         }
-    ], 'oracles': [
-        {'class': 'src.oracle.svm.predictor.SVMOracle', 
-        'parameters': {
-            'embedder': {
-                'class': 'src.embedder.graph2vec.model.Graph2VecEmbedder', 
-                'parameters': {
-                    'model': {
-                        'parameters': {
-                            'wl_iterations': 17
-                            }
-                        }
-                    }
-                }, 'model': {'parameters': {}
-                }
-            }
-        },
-        {'class': 'src.oracle.knn.predictor.KNNOracle', 'parameters': {'fold_id': 0, 'embedder': {'class': 'src.embedder.graph2vec.model.Graph2VecEmbedder', 'parameters': {'model': {'parameters': {'wl_iterations': 17
-                            }
-                        }
-                    }
-                }, 'model': {'parameters': {}
-                }
-            }
-        }
-    ], 'explainers': [
-        {'name': 'graph_countergan', 'parameters': {'fold_id': 0, 'n_nodes': 28, 'device': 'cpu', 'converter': 'tree_cycles', 'n_labels': 2, 'training_iterations': 1, 'sampling_iterations': 1, 'feature_dim': 8, 'lr_generator': 0.001, 'lr_discriminator': 0.001
-            }
-        }
-    ], 'evaluation_metrics': [
-        {'name': 'graph_edit_distance', 'parameters': {}
-        },
-        {'name': 'oracle_calls', 'parameters': {}
-        },
-        {'name': 'correctness', 'parameters': {}
-        },
-        {'name': 'sparsity', 'parameters': {}
-        },
-        {'name': 'fidelity', 'parameters': {}
-        },
-        {'name': 'oracle_accuracy', 'parameters': {}
-        }
-    ], 'experiment': {'scope': 'gcn_oracle', 'parameters': {}
     }
 }
