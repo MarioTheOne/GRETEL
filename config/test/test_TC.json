@@ -23,7 +23,7 @@
                     }
                 },
                 "model": { "parameters": {} }
-            } 
+            }
         },
         {
             "class": "src.oracle.knn.predictor.KNNOracle",            
@@ -32,7 +32,7 @@
                 "embedder": {
                     "class": "src.embedder.graph2vec.model.Graph2VecEmbedder", 
                     "parameters": {
-                        "model": {"parameters": { "wl_iterations": 15 } }
+                        "model": {"parameters": { } }
                     }
                 },
                 "model": { "parameters": {} }
