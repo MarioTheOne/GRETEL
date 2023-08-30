@@ -1,25 +1,37 @@
 import jsonpickle
-import json
+import json, sys
 
 def compose(config):
-    out_conf  = {}
-    for item in config:
-        if item.startswith('compose'):
-            snippet = _get_snippet(config[item])
-            for sub in snippet:
-                out_conf[sub]=_process_array(snippet[sub])#compose(snippet[sub])
-        else:
-            out_conf[item] = _process_array(config[item])
+    try:
+        out_conf  = {}
+        for item in config:
+            if item.startswith('compose'):
+                snippet = _get_snippet(config[item])
+                for sub in snippet:
+                    out_conf[sub]=_process_array(snippet[sub])#compose(snippet[sub])
+            else:
+                out_conf[item] = _process_array(config[item])
 
-    return out_conf
+        return out_conf
+    except BaseException:
+        print(config)
+        raise
+
 
 def _process_array(conf):
-    if (isinstance(conf, list)):
-        out_arr = []
-        for arr_item in conf:
-            out_arr.append(compose(arr_item))
-        return out_arr
-    return compose(conf) if isinstance(conf, dict) else conf
+    try:
+        if (isinstance(conf, list)):
+            out_arr = []
+            for arr_item in conf:
+                if(isinstance(arr_item, dict)):
+                    out_arr.append(compose(arr_item))
+                else:
+                    out_arr.append(arr_item)
+            return out_arr
+        return compose(conf) if isinstance(conf, dict) else conf
+    except BaseException:
+        print(conf)
+        raise 
 
 def _get_snippet(snippet_path):
     # Read the config dictionary inside the config path

@@ -1,5 +1,5 @@
 import torch.nn as nn
-from torch_geometric.nn.conv.gc_conv import GCNConv
+from torch_geometric.nn.conv import GCNConv
 from torch_geometric.nn.aggr import MeanAggregation
 
 class GCN(nn.Module):
@@ -7,7 +7,7 @@ class GCN(nn.Module):
     def __init__(self, node_features, n_classes=2, num_conv_layers=2, num_dense_layers=2, conv_booster=2, linear_decay=2, pooling=MeanAggregation()):
         super(GCN, self).__init__()
         
-        self.in_channels = node_features.shape[-1]
+        self.in_channels = node_features#.shape[-1]
         self.out_channels = int(self.in_channels * conv_booster)
         self.n_classes = n_classes
         self.num_dense_layers = num_dense_layers
@@ -26,12 +26,12 @@ class GCN(nn.Module):
         ############################################
         # initialize the convolutional layers interleaved with pooling layers
         graph_convs = []
-        for i in range(self.num_conv_layers):
+        for i in range(len(self.num_conv_layers)):#add len
             graph_convs.append(GCNConv(in_channels=self.num_conv_layers[i][0],
                                       out_channels=self.num_conv_layers[i][1]))
             graph_convs.append(self.pooling)
         # put the conv layers in sequential
-        return nn.Sequential(graph_convs)
+        return nn.Sequential(*graph_convs)
     
     def __init__downstream_layers(self):
         ############################################
@@ -46,4 +46,4 @@ class GCN(nn.Module):
         downstream_layers.append(nn.Linear(in_linear, self.n_classes))
         downstream_layers.append(nn.Softmax())
         # put the linear layers in sequential
-        return nn.Sequential(downstream_layers)
+        return nn.Sequential(*downstream_layers)

@@ -8,21 +8,24 @@ from torch_geometric.data import DataLoader
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
 from src.oracle.oracle_base import Oracle
-from src.utils.utils import get_instance, get_only_default_params
+from src.utils.utils import get_instance, get_instance_kvargs, get_only_default_params
 
 class OracleTorch(Oracle):
        
     def init(self):
         self.epochs = self.local_config['parameters']['epochs']
         
-        self.optimizer = get_instance(self.local_config['parameters']['optimizer']['class'],
-                                      **self.local_config['parameters']['optimizer']['parameters'])
+        self.model = get_instance_kvargs(self.local_config['parameters']['model']['class'],
+                                    self.local_config['parameters']['model']['parameters'])
+
+        self.optimizer = get_instance_kvargs(self.local_config['parameters']['optimizer']['class'],
+                                      {'params':self.model.parameters(), **self.local_config['parameters']['optimizer']['parameters']})
         
-        self.loss_fn = get_instance(self.local_config['parameters']['loss_fn']['class'],
-                                    **self.local_config['parameters']['loss_fn']['parameters'])
+        self.loss_fn = get_instance_kvargs(self.local_config['parameters']['loss_fn']['class'],
+                                        self.local_config['parameters']['loss_fn']['parameters'])
         
-        self.converter = get_instance(self.local_config['parameters']['converter']['class'],
-                                      **self.local_config['parameters']['converter']['parameter'])
+        self.converter = get_instance_kvargs(self.local_config['parameters']['converter']['class'],
+                                      self.local_config['parameters']['converter']['parameters'])
         
         self.batch_size = self.local_config['parameters']['batch_size']
         
@@ -34,14 +37,14 @@ class OracleTorch(Oracle):
             else "cpu"
         )
         
-        self.model = get_instance(self.local_config['parameters']['model']['class'],
-                                  **self.local_config['parameters']['model']['parameters'])
+        
                 
     def embedd(self, instance):
         return instance                                 
             
-    def real_fit(self, dataset: Dataset, fold_id=0):
-        dataset = self.converter.convert(dataset)
+    def real_fit(self):
+        fold_id = self.local_config['parameters']['fold_id']
+        dataset = self.converter.convert(self.dataset)
         loader = self.transform_data(dataset, fold_id=fold_id, usage='train')
         
         for epoch in range(self.epochs):
@@ -135,9 +138,10 @@ class OracleTorch(Oracle):
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
         
         # populate the optimizer
-        self.__config_helper(local_config['parameters'], 'optimizer', 'torch.optim.Adam')
-        self.__config_helper(local_config['parameters'], 'loss_fn', 'torch.nn.BCELoss')
-        self.__config_helper(local_config['parameters'], 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')
+        #TODO: local_config['parameters'] --> local_config in the following 
+        self.__config_helper(local_config, 'optimizer', 'torch.optim.Adam')
+        self.__config_helper(local_config, 'loss_fn', 'torch.nn.BCELoss')
+        self.__config_helper(local_config, 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')
         
         return local_config
     
@@ -148,5 +152,6 @@ class OracleTorch(Oracle):
                 "class": kls, 
                 "parameters": { }
             }
+        #TODO: revise get_only_default_params: Actually it reurn Null parameters and false (wit lowercase F). It might be a problem. 
         node_config = get_only_default_params(kls, node['parameters'][key]['parameters'])
         node['parameters'][key]['parameters'] = node_config

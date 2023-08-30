@@ -1,0 +1,40 @@
+{
+    "class": "src.oracle.nn.torch.OracleTorch",
+    "parameters": {
+        "epochs": 100,
+        "batch_size": 8,
+        "optimizer": {
+          "class": "torch.optim.Adam",
+          "parameters": {
+            "lr": 0.001,
+            "betas": [
+              0.09,
+              0.999
+            ],
+            "eps": 1e-08,
+            "weight_decay": 0,
+            "amsgrad": false,
+            "maximize": false,
+            "capturable": false,
+            "differentiable": false
+          }
+        },
+        "loss_fn": {
+          "class": "torch.nn.BCELoss",
+          "parameters": {     
+            "reduction": "mean"
+          }
+        },
+        "converter": {
+          "class": "src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter",
+          "parameters": {
+            "feature_dim": 8,
+            "weight_dim": 1
+          }
+        },
+        "model": { 
+          "class": "src.oracle.nn.gcn.GCN",
+          "parameters": { "node_features": 8 }
+      } 
+    }   
+}
