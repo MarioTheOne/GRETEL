@@ -53,11 +53,11 @@ class SVMOracle(Oracle):
                     }
                 }
             }
-        node_config = get_only_default_params(kls, local_config['parameters']['embedder']['model']['parameters'])
-        local_config['parameters']['embedder']['model']['parameters'] = node_config
+        node_config = get_only_default_params(kls, local_config['parameters']['embedder']['parameters']['model']['parameters'])
+        local_config['parameters']['embedder']['parameters']['model']['parameters'] = node_config
         # populate the local config accordingly
-        local_config['parameters']['embedder']['dataset'] = self.dataset
-        local_config['parameters']['embedder']['fold_id'] = local_config['parameters']['fold_id']
+        local_config['parameters']['embedder']['parameters']['dataset'] = self.dataset
+        local_config['parameters']['embedder']['parameters']['fold_id'] = local_config['parameters']['fold_id']
         return local_config
     
     
