@@ -2,6 +2,7 @@ import inspect
 import os
 
 import jsonpickle
+from src.utils.composer import compose
 from src.utils.logger import GLogger
 
 
@@ -27,9 +28,9 @@ class Context(object):
             raise ValueError(f'''The provided config file does not exist. PATH: {config_file}''')
 
         self.config_file = config_file
-        # Read the config dictionary inside the config path
+        # Read the config dictionary inside the config path with the composer
         with open(self.config_file, 'r') as config_reader:
-            self.conf = jsonpickle.decode(config_reader.read())
+            self.conf = compose(jsonpickle.decode(config_reader.read()))
 
         self._scope = self.conf['experiment']['scope']
 
