@@ -17,14 +17,8 @@ class Trainable(ABC):
         self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
         #TODO: Add getDefault Method that return the default conf snippet of parameters conf node.
         self.local_config = self.check_configuration(self.local_config)
-        
-        """if('embedder' in self.local_config['parameters']):
-            self.local_config['parameters']['embedder']['dataset'] = self.dataset
-            self.local_config['parameters']['embedder']['fold_id'] = self.local_config['parameters']['fold_id']"""
-
         # real init details
         self.init()
-
         # retrain if explicitely specified or if the weights of the model don't exists
         if self.local_config['parameters'].get('retrain', False) or not os.path.exists(self.context.get_path(self)):
             self.context.logger.info(str(self)+" need to be trained.")
