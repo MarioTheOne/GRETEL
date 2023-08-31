@@ -13,7 +13,7 @@ from src.dataset.data_instance_features import DataInstanceWFeatures, DataInstan
 """
 class TreeCyclesConverter(DefaultFeatureAndWeightConverter):
     
-    def __init__(self, feature_dim=10):
+    def __init__(self, feature_dim=10, weight_dim=1):
         super().__init__()
         self.name = 'tree_cycles_converter'
         self.feature_dim = feature_dim

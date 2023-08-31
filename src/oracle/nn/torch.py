@@ -64,7 +64,7 @@ class OracleTorch(Oracle):
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 
-                pred_label = torch.argmax(labels)
+                pred_label = torch.argmax(pred,dim=1)
                 accuracy += torch.eq(labels, pred_label).int().tolist()
                 
                 self.optimizer.step()
@@ -90,19 +90,18 @@ class OracleTorch(Oracle):
             loss = self.loss_fn(pred, labels)
             losses.append(loss.to('cpu').detach().numpy())
             
-            pred_label = torch.argmax(labels)
+            pred_label = torch.argmax(pred,dim=1)
             accuracy += torch.eq(labels, pred_label).int().tolist()
         
         self.context.logger.info(f'Test accuracy ---> Test accuracy = {np.mean(accuracy):.4f}')
 
     def _real_predict(self, data_instance):
-        ret =  self._real_predict_proba(data_instance)
-        self.context.logger.info(ret)
-        ret = torch.argmax(ret)       
-        return ret
+        return  torch.argmax(self._real_predict_proba(data_instance))
+
     
     @torch.no_grad()
-    def _real_predict_proba(self, data_instance):
+    def _real_predict_proba(self, data_instance):       
+        data_instance = self.converter.convert_instance(data_instance)
         data_inst = TorchGeometricDataset([data_instance])
 
         data = data_inst.instances[0]
@@ -110,7 +109,7 @@ class OracleTorch(Oracle):
         edge_index = data.edge_index.to(self.device)
         edge_weights = data.edge_attr.to(self.device)
 
-        return self.model(node_features,edge_index,edge_weights, None)
+        return self.model(node_features,edge_index,edge_weights, None).squeeze()
         
         
     def transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     
