@@ -3,12 +3,12 @@ import os
 import jsonpickle
 import numpy as np
 import torch
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
 from src.oracle.oracle_base import Oracle
-from src.utils.utils import get_instance, get_instance_kvargs, get_only_default_params
+from src.utils.utils import get_instance_kvargs, get_only_default_params
 
 class OracleTorch(Oracle):
        
