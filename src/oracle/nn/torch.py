@@ -100,7 +100,7 @@ class OracleTorch(Oracle):
         adj = adj[indices]
         features = features[indices]
         weights = weights[indices]
-        y = y[indices] 
+        y = y[indices]
               
         dgl_dataset = TorchGeometricDataset(adj, features, weights, y)
         dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True)
@@ -138,7 +138,6 @@ class OracleTorch(Oracle):
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
         
         # populate the optimizer
-        #TODO: local_config['parameters'] --> local_config in the following 
         self.__config_helper(local_config, 'optimizer', 'torch.optim.Adam')
         self.__config_helper(local_config, 'loss_fn', 'torch.nn.BCELoss')
         self.__config_helper(local_config, 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')

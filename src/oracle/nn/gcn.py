@@ -7,7 +7,7 @@ class GCN(nn.Module):
     def __init__(self, node_features, n_classes=2, num_conv_layers=2, num_dense_layers=2, conv_booster=2, linear_decay=2, pooling=MeanAggregation()):
         super(GCN, self).__init__()
         
-        self.in_channels = node_features#.shape[-1]
+        self.in_channels = node_features
         self.out_channels = int(self.in_channels * conv_booster)
         self.n_classes = n_classes
         self.num_dense_layers = num_dense_layers
