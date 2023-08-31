@@ -89,22 +89,11 @@ class OracleTorch(Oracle):
             losses.append(loss.to('cpu').detach().numpy())
         
         
-    def transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):             
-        adj  = np.array([i.to_numpy_array() for i in dataset.instances])
-        features = np.array([i.features for i in dataset.instances])
-        weights = np.array([i.weights for i in dataset.instances])
-        y = np.array([i.graph_label for i in dataset.instances])
-        
+    def transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     
         indices = dataset.get_split_indices()[fold_id][usage]
-        
-        adj = adj[indices]
-        features = features[indices]
-        weights = weights[indices]
-        y = y[indices]
-              
-        dgl_dataset = TorchGeometricDataset(adj, features, weights, y)
+        data_list = [inst for inst in dataset.instances if inst.id in indices]
+        dgl_dataset = TorchGeometricDataset(data_list)
         dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True)
-
         return dataloader
     
     
