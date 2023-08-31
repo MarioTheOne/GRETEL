@@ -1,7 +1,7 @@
 {
     "class": "src.oracle.nn.torch.OracleTorch",
     "parameters": {
-        "epochs": 50,
+        "epochs": 500,
         "batch_size": 8,
         "optimizer": {
           "class": "torch.optim.Adam",
@@ -26,10 +26,9 @@
           }
         },
         "converter": {
-          "class": "src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter",
+          "class": "src.dataset.converters.tree_cycles_converter.TreeCyclesConverter",
           "parameters": {
-            "feature_dim": 8,
-            "weight_dim": 1
+            "feature_dim": 8
           }
         },
         "model": { 
