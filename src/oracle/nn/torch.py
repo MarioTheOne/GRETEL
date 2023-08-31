@@ -58,15 +58,14 @@ class OracleTorch(Oracle):
                 
                 self.optimizer.zero_grad()
                 
-                pred = self.model(node_features, edge_index, edge_weights)
-                
+                pred = self.model(node_features, edge_index, edge_weights, batch.batch)
                 loss = self.loss_fn(pred, labels)
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 
                 self.optimizer.step()
             
-            self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4d}')
+            self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}')
         #self.evaluate(dataset, fold_id=fold_id)
             
     @torch.no_grad()        
@@ -128,7 +127,7 @@ class OracleTorch(Oracle):
         
         # populate the optimizer
         self.__config_helper(local_config, 'optimizer', 'torch.optim.Adam')
-        self.__config_helper(local_config, 'loss_fn', 'torch.nn.BCELoss')
+        self.__config_helper(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
         self.__config_helper(local_config, 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')
         
         return local_config

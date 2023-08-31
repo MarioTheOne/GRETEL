@@ -1,6 +1,6 @@
 import torch.nn as nn
-from torch_geometric.nn.conv import GCNConv
 from torch_geometric.nn.aggr import MeanAggregation
+from torch_geometric.nn.conv import GCNConv
 
 class GCN(nn.Module):
    
@@ -18,9 +18,15 @@ class GCN(nn.Module):
         self.graph_convs = self.__init__conv_layers()
         self.downstream_layers = self.__init__downstream_layers()
         
-    def forward(self, node_features, edge_index, edge_weight):
-        conv_out = self.graph_convs(node_features, edge_index, edge_weight)
-        return self.downstream_layers(conv_out)
+    def forward(self, node_features, edge_index, edge_weight, batch):
+        # convolution operations
+        for conv_layer in self.graph_convs[:-1]:
+            node_features = conv_layer(node_features, edge_index, edge_weight)
+        # global pooling
+        node_features = self.graph_convs[-1](node_features, batch)
+        print(node_features.shape)
+        # downstream task
+        return self.downstream_layers(node_features)
     
     def __init__conv_layers(self):
         ############################################
@@ -28,10 +34,9 @@ class GCN(nn.Module):
         graph_convs = []
         for i in range(len(self.num_conv_layers)):#add len
             graph_convs.append(GCNConv(in_channels=self.num_conv_layers[i][0],
-                                      out_channels=self.num_conv_layers[i][1]))
-            graph_convs.append(self.pooling)
-        # put the conv layers in sequential
-        return nn.Sequential(*graph_convs)
+                                      out_channels=self.num_conv_layers[i][1]).double())
+        graph_convs.append(self.pooling)
+        return graph_convs
     
     def __init__downstream_layers(self):
         ############################################
@@ -46,4 +51,4 @@ class GCN(nn.Module):
         downstream_layers.append(nn.Linear(in_linear, self.n_classes))
         downstream_layers.append(nn.Softmax())
         # put the linear layers in sequential
-        return nn.Sequential(*downstream_layers)
+        return nn.Sequential(*downstream_layers).double()

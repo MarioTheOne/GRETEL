@@ -20,7 +20,7 @@
           }
         },
         "loss_fn": {
-          "class": "torch.nn.BCELoss",
+          "class": "torch.nn.CrossEntropyLoss",
           "parameters": {     
             "reduction": "mean"
           }
