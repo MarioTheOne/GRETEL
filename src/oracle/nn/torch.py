@@ -1,6 +1,6 @@
 import os
 
-import jsonpickle
+import pickle
 import numpy as np
 import torch
 from torch_geometric.loader import DataLoader
@@ -121,28 +121,26 @@ class OracleTorch(Oracle):
     
     
     def write(self):
-        directory = os.path.join(self.context.oracle_store_path, self.name)
-        if not os.path.exists(directory):
-            os.mkdir(directory)
+        filepath = self.context.get_path(self)
             
         dump = {
             "model" : self.model.state_dict(),
             "config": self.local_config
         }
         
-        with open(os.path.join(directory, 'oracle'), 'w') as f:
-            f.write(jsonpickle.encode(dump))
+        with open(filepath, 'wb') as f:
+          pickle.dump(dump, f)
       
     def read(self):
-        dump_file = os.path.join(self.context.oracle_store_path, self.name, 'oracle')
+        dump_file = self.context.get_path(self)
         
         if os.path.exists(dump_file):
-            with open(dump_file, 'r') as f:
-                dump = jsonpickle.decode(f.read())
+            with open(dump_file, 'rb') as f:
+                dump = pickle.load(f)
                 self.model.load_state_dict(dump['model'])
                 self.local_config = dump['config']
-                
-                
+
+                     
     def check_configuration(self, local_config):
         local_config['parameters'] = local_config.get('parameters', {})
         
