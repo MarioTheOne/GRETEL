@@ -1,4 +1,4 @@
-from src.dataset.data_instance_base import DataInstance
+from src.dataset.instances.base import DataInstance
 
 import networkx as nx
 import numpy as np

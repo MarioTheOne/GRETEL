@@ -1,4 +1,4 @@
-from src.dataset.data_instance_base import DataInstance
+from src.dataset.instances.base import DataInstance
 from src.dataset.data_instance_features import DataInstanceWFeatures
 from src.dataset.dataset_base import Dataset
 from scipy.io import loadmat

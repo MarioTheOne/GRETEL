@@ -1,9 +1,8 @@
 
 import numpy as np
 from src.dataset.converters.abstract_converter import ConverterAB
-from src.dataset.data_instance_base import DataInstance
+from src.dataset.instances.base import DataInstance
 from src.dataset.data_instance_causality import CausalDataInstance
-from src.dataset.data_instance_features import DataInstanceWFeatures, DataInstanceWFeaturesAndWeights
 from src.dataset.dataset_base import Dataset
 
             
