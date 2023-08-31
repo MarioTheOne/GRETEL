@@ -6,26 +6,26 @@
     "compose_mes" : "config/test/configured/default_metrics.json",
     "compose_strs" : "config/test/configured/default_store_paths.json",
     "datasets": [
-        {"name": "tree-cycles", "parameters": {"n_inst": 2000, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 3, "number_of_cycles": 4} }
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 3, "number_of_cycles": 4} }
     ],
     "oracles": [
         {"compose_gcn" : "config/test/configured/GCNOracle.json"}
     ],
     "explainers": [
-        {
-            "name": "graph_countergan", 
-            "parameters": {
-                "fold_id": 0,
-                "n_nodes": 28,
-                "device": "cpu",
-                "converter": "tree_cycles",
-                "n_labels": 2,
-                "training_iterations": 1,
-                "sampling_iterations": 1,
-                "feature_dim": 8,
-                "lr_generator": 0.001,
-                "lr_discriminator": 0.001
-            } 
-        }
-    ]
+            {
+                "name": "graph_countergan", 
+                "parameters": {
+                    "fold_id": 0,
+                    "n_nodes": 28,
+                    "device": "cpu",
+                    "converter": "tree_cycles",
+                    "n_labels": 2,
+                    "training_iterations": 100,
+                    "sampling_iterations": 500,
+                    "feature_dim": 8,
+                    "lr_generator": 0.001,
+                    "lr_discriminator": 0.001
+                } 
+            }
+        ]    
 }
