@@ -50,6 +50,7 @@ class OracleTorch(Oracle):
         for epoch in range(self.epochs):
             
             losses = []
+            accuracy = []
             for batch in loader:
                 node_features = batch.x.to(self.device)
                 edge_index = batch.edge_index.to(self.device)
@@ -63,14 +64,16 @@ class OracleTorch(Oracle):
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 
+                pred_label = torch.argmax(labels)
+                accuracy += torch.eq(labels, pred_label).int().tolist()
+                
                 self.optimizer.step()
-            
-            self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}')
-        #self.evaluate(dataset, fold_id=fold_id)
+            self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t Train accuracy = {np.mean(accuracy):.4f}')
+        self.evaluate(dataset, fold_id=fold_id)
             
     @torch.no_grad()        
     def evaluate(self, dataset: Dataset, fold_id=0):            
-        dataset = self.converter.convert(dataset)
+        #dataset = self.converter.convert(dataset)
         loader = self.transform_data(dataset, fold_id=fold_id, usage='test')
         
         losses = []
@@ -80,12 +83,17 @@ class OracleTorch(Oracle):
             edge_index = batch.edge_index.to(self.device)
             edge_weights = batch.edge_attr.to(self.device)
             labels = batch.y.to(self.device)
-            # n x 1   
+            
             self.optimizer.zero_grad()  
-            pred = self.model(node_features, edge_index, edge_weights)
-            # n x k
+            pred = self.model(node_features, edge_index, edge_weights, batch.batch)
+            
             loss = self.loss_fn(pred, labels)
             losses.append(loss.to('cpu').detach().numpy())
+            
+            pred_label = torch.argmax(labels)
+            accuracy += torch.eq(labels, pred_label).int().tolist()
+        
+        self.context.logger.info(f'Test accuracy ---> Test accuracy = {np.mean(accuracy):.4f}')
 
     def _real_predict(self, data_instance):
         ret =  self._real_predict_proba(data_instance)

@@ -21,9 +21,9 @@ class GCN(nn.Module):
     def forward(self, node_features, edge_index, edge_weight, batch):
         # convolution operations
         for conv_layer in self.graph_convs[:-1]:
-            node_features = conv_layer(node_features, edge_index, edge_weight)
+            node_features = nn.functional.relu(conv_layer(node_features, edge_index, edge_weight))
         # global pooling
-        node_features = self.graph_convs[-1](node_features, batch)
+        node_features = nn.functional.relu(self.graph_convs[-1](node_features, batch))
         # downstream task
         return self.downstream_layers(node_features)
     
@@ -48,6 +48,6 @@ class GCN(nn.Module):
             in_linear = in_linear // self.linear_decay
         # add the output layer
         downstream_layers.append(nn.Linear(in_linear, self.n_classes))
-        downstream_layers.append(nn.Softmax())
+        #downstream_layers.append(nn.Softmax())
         # put the linear layers in sequential
         return nn.Sequential(*downstream_layers).double()

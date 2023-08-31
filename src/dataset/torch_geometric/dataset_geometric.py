@@ -22,7 +22,7 @@ class TorchGeometricDataset(Dataset):
     return self.instances[idx]
   
   def _process(self, instances):
-    self.instances = [self.to_geometric(inst) for inst in instances]
+    self.instances = [self.to_geometric(inst, label=inst.graph_label) for inst in instances]
       
   @classmethod
   def to_geometric(self, instance: DataInstance, label=0) -> Data:   
