@@ -1,4 +1,4 @@
-from src.dataset.data_instance_base import DataInstance
+from src.dataset.instances.base import DataInstance
 from src.dataset.dataset_molecular import MolecularDataSet
 from src.dataset.data_instance_molecular import MolecularDataInstance
 
