@@ -42,10 +42,10 @@ if __name__ == '__main__':
         ],
         "eps": 1e-08,
         "weight_decay": 0,
-        "amsgrad": false,
-        "maximize": false,
-        "capturable": false,
-        "differentiable": false
+        "amsgrad": False,
+        "maximize": False,
+        "capturable": False,
+        "differentiable": False
       }
     },
     "loss_fn": {

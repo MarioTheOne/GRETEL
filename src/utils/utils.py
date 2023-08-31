@@ -74,7 +74,7 @@ def get_only_default_params(kls, config_node):
     # get the parameters of the constructor of the desired class
     # and skip the self class parameter that isn't useful
     sg = inspect.signature(default_embedder_cls.__init__)
-    default_params = [(p.name, p.default) for p in sg.parameters.values() if p.default != p.empty]
+    default_params = [(p.name, p.default) for p in sg.parameters.values() if ((p.default != p.empty) and p.default != None)]
     embedder_cls_params = dict(default_params)
     embedder_params = config_node
     # update the embedder params with only those
