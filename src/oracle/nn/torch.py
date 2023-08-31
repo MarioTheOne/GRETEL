@@ -86,6 +86,23 @@ class OracleTorch(Oracle):
             # n x k
             loss = self.loss_fn(pred, labels)
             losses.append(loss.to('cpu').detach().numpy())
+
+    def _real_predict(self, data_instance):
+        ret =  self._real_predict_proba(data_instance)
+        self.context.logger.info(ret)
+        ret = torch.argmax(ret)       
+        return ret
+    
+    @torch.no_grad()
+    def _real_predict_proba(self, data_instance):
+        data_inst = TorchGeometricDataset([data_instance])
+
+        data = data_inst.instances[0]
+        node_features = data.x.to(self.device)
+        edge_index = data.edge_index.to(self.device)
+        edge_weights = data.edge_attr.to(self.device)
+
+        return self.model(node_features,edge_index,edge_weights, None)
         
         
     def transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     

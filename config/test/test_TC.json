@@ -11,8 +11,6 @@
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 4, "number_of_cycles": 3} }
     ],
     "oracles": [
-        {"compose_svm" : "config/test/configured/SVMOracle.json"},
-        {"compose_knn" : "config/test/configured/KNNOracle.json"},
         {"compose_gcn" : "config/test/configured/GCNOracle.json"}
     ],
     "explainers": [

@@ -24,7 +24,6 @@ class GCN(nn.Module):
             node_features = conv_layer(node_features, edge_index, edge_weight)
         # global pooling
         node_features = self.graph_convs[-1](node_features, batch)
-        print(node_features.shape)
         # downstream task
         return self.downstream_layers(node_features)
     
