@@ -1,7 +1,7 @@
 from typing_extensions import Self
 
 from sqlalchemy import false
-from src.dataset.instances.base import DataInstance
+from src.dataset.data_instance_base import DataInstance
 
 from abc import ABC, abstractmethod
 from typing import Dict, List

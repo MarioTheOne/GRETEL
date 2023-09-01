@@ -6,7 +6,7 @@ import torch
 
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.data_instance_features import DataInstanceWFeaturesAndWeights
-from src.core.oracle_base import Oracle
+from src.oracle.oracle_base import Oracle
 from src.utils.samplers.abstract_sampler import Sampler
 
 
