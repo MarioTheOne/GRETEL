@@ -42,21 +42,25 @@ def _get_snippet(snippet_path):
     return snippet
 
 def propagate(config):
-    if 'parameters' in config['experiment'] and 'propagate' in config['experiment']['parameters']:
-        prop_list = config['experiment']['parameters']['propagate']
-        for field in prop_list:        
-            for sec in field['sections']:
-                for item in config[sec]:
-                    for key in field['params']:
-                        item['parameters'][key]=field['params'][key]
-    return config
+    try:
+        if 'parameters' in config['experiment'] and 'propagate' in config['experiment']['parameters']:
+            prop_list = config['experiment']['parameters']['propagate']
+            for field in prop_list:        
+                for sec in field['in_sections']:
+                    for item in config[sec]:
+                        for key in field['params']:
+                            item['parameters'][key]=field['params'][key]
+        return config
+    except BaseException:
+        print("Incomplete/error configuration in:"+json.dumps(config['experiment'], indent=2))
+        raise 
 
 
-'''#snippet_path = 'config/test/test_compose.json'
+#snippet_path = 'config/test/test_compose.json'
 snippet_path = 'config/test/experimental/expansion.json'
 #snippet_path = 'config/test/comp_stores.json'
 with open(snippet_path, 'r') as config_reader:
     in_conf = jsonpickle.decode(config_reader.read())        
 
 out_conf = propagate(compose(in_conf))
-print(json.dumps(out_conf, indent=2))'''
+print(json.dumps(out_conf, indent=2))
