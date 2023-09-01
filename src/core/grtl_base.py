@@ -1,9 +1,10 @@
 from abc import ABCMeta
-from click import Context
+from src.utils.context import Context
+
 
 class Base(metaclass=ABCMeta):
     
-    def __init__(self, context: Context, local_config) -> None:
+    def __init__(self, context: Context, local_config=None) -> None:
         super().__init__()
         self.context:Context = context
         self.local_config = local_config

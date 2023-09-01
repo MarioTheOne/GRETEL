@@ -6,7 +6,7 @@ class TabularOracle(Oracle):
     
     def init(self):
         embedding_snippet = self.local_config['parameters']['embedder']
-        self.embedder = self.context.factories['embedders'].get_embedder(self.context, embedding_snippet)
+        self.embedder = self.context.factories['embedders'].get_embedder(embedding_snippet)
         
     def real_fit(self):
         fold_id = self.local_config['parameters']['fold_id']

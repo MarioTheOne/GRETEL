@@ -141,5 +141,7 @@ data/oracles/
 launchers/
 AAAI/
 
+#masked src
+src/n_dataset
 # videos
 .mp4

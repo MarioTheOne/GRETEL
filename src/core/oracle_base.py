@@ -1,10 +1,12 @@
 from abc import ABCMeta, abstractmethod
 from typing import final
+
 from src.dataset.dataset_base import Dataset
 from src.core.trainable_base import Trainable
+from src.utils.context import Context
 
 class Oracle(Trainable,metaclass=ABCMeta):
-    def __init__(self, context, local_config) -> None:
+    def __init__(self, context:Context, local_config) -> None:
         super().__init__(context, local_config)
         self._call_counter = 0
         

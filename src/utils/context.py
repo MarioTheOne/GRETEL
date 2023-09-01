@@ -86,10 +86,13 @@ class Context(object):
                 else:
                     items.append((new_key, v))
             return dict(items)
-        
-        payload = f'{cls}_' + '_'.join([f'{key}={value}' for key, value in flatten_dict(dictionary).items()])
-        md5_hash.update(payload.encode('utf-8'))
-        return cls+'-'+md5_hash.hexdigest()
+
+        if dictionary is not None:
+            payload = f'{cls}_' + '_'.join([f'{key}={value}' for key, value in flatten_dict(dictionary).items()])
+            md5_hash.update(payload.encode('utf-8'))           
+            return cls+'-'+md5_hash.hexdigest()
+        else:
+            return cls
         
     def _get_store_path(self,value):
         return Context.get_by_pkvs(self.conf, "store_paths", "name",value,"address")

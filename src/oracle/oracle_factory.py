@@ -1,23 +1,15 @@
-from abc import ABC
-
+from src.core.factory_base import Factory
 from src.core.oracle_base import Oracle
-from src.utils.utils import get_class
 from typing import List
 
-class OracleFactory(ABC):
-
-    def __init__(self, context, local_conf) -> None:
-        super().__init__()
-        self.context = context
-        self.local_conf = local_conf
-        
-    def get_oracle(self, context, oracle_snippet) -> Oracle:
-        oracle = get_class(oracle_snippet['class'])(context, oracle_snippet)
-        self.context.logger.info("Created: "+str(oracle))
+class OracleFactory(Factory):      
+    def get_oracle(self, oracle_snippet) -> Oracle:
+        oracle = super._get_object(oracle_snippet)
+        oracle.__class__ = Oracle
         return oracle
             
-    def get_oracles(self, context, config_list) -> List[Oracle]:
-        return [self.get_oracle(context, obj) for obj in config_list]
+    def get_oracles(self, config_list) -> List[Oracle]:
+        return [self.get_oracle(obj) for obj in config_list]
     
     """def get_oracle_by_name(self, oracle_dict, dataset: Dataset, emb_factory: EmbedderFactory) -> Oracle:
 

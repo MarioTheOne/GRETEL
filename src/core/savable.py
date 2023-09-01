@@ -1,5 +1,5 @@
 import os,pickle
-from src.core.base import Base
+from src.core.grtl_base import Base
 
 from abc import ABCMeta
 

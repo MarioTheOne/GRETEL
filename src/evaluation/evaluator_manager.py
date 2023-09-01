@@ -77,7 +77,7 @@ class EvaluatorManager:
             for oracle_dict in oracle_dicts:
                 oracle_dict['dataset'] = dataset
                 # The get_oracle_by_name method returns a fitted oracle
-                oracle = self.context.factories['oracles'].get_oracle(self.context, oracle_dict)
+                oracle = self.context.factories['oracles'].get_oracle(oracle_dict)
                 self.oracles.append(oracle)
 
         # The goal of this method is to train the oracles and store them on disk to use them later
@@ -119,7 +119,7 @@ class EvaluatorManager:
                 for oracle_dict in oracle_dicts:
                     oracle_dict['dataset'] = dataset
                     # The get_oracle_by_name method returns a fitted oracle
-                    oracle = self.context.factories['oracles'].get_oracle(self.context, oracle_dict)
+                    oracle = self.context.factories['oracles'].get_oracle(oracle_dict)
 
                     # Creating the evaluator
                     evaluator = Evaluator(evaluator_id, dataset, oracle, explainer, self.evaluation_metrics,
