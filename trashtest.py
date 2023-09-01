@@ -1,4 +1,4 @@
-from src.utils.utils import get_instance, get_only_default_params
+from src.utils.utils import get_instance, add_init_defaults_params
 import json
 
 def check_configuration(local_config):
@@ -21,7 +21,7 @@ def __config_helper(node, key, kls):
             "class": kls, 
             "parameters": { }
         }
-        node_config = get_only_default_params(kls, node['parameters'][key]['parameters'])
+        node_config = add_init_defaults_params(kls, node['parameters'][key]['parameters'])
         node['parameters'][key]['parameters'] = node_config
 
 

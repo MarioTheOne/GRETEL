@@ -1,7 +1,7 @@
 
 from sklearn.svm import LinearSVC
 
-from src.oracle.tabulars.predictor import TabularOracle
+from src.oracle.tabulars.tabular_base import TabularOracle
 
 
 class SVMOracle(TabularOracle):

@@ -2,6 +2,7 @@ import inspect
 import os
 
 import jsonpickle
+import hashlib
 from src.utils.composer import compose,propagate
 from src.utils.logger import GLogger
 
@@ -71,8 +72,11 @@ class Context(object):
             return klass.__qualname__ # avoid outputs like 'builtins.str'
         return module + '.' + klass.__qualname__
         
-    def get_name(self, cls, dictionary):
-        
+    def get_name(self, inst, dictionary=None):
+        cls = inst.__class__.__name__
+        dictionary= inst.local_config if dictionary is None else dictionary
+        md5_hash = hashlib.md5()       
+
         def flatten_dict(d, parent_key='', sep='_'):
             items = []
             for k, v in d.items():
@@ -83,7 +87,9 @@ class Context(object):
                     items.append((new_key, v))
             return dict(items)
         
-        return f'{cls}_' + '_'.join([f'{key}={value}' for key, value in flatten_dict(dictionary).items()])
+        payload = f'{cls}_' + '_'.join([f'{key}={value}' for key, value in flatten_dict(dictionary).items()])
+        md5_hash.update(payload.encode('utf-8'))
+        return cls+'-'+md5_hash.hexdigest()
         
     def _get_store_path(self,value):
         return Context.get_by_pkvs(self.conf, "store_paths", "name",value,"address")

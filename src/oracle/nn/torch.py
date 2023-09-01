@@ -8,7 +8,7 @@ from torch_geometric.loader import DataLoader
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
 from src.oracle.oracle_base import Oracle
-from src.utils.utils import get_instance_kvargs, get_only_default_params
+from src.utils.utils import get_instance_kvargs, add_init_defaults_params
 
 class OracleTorch(Oracle):
        
@@ -162,5 +162,5 @@ class OracleTorch(Oracle):
                 "parameters": { }
             }
         #TODO: revise get_only_default_params: Actually it reurn Null parameters and false (wit lowercase F). It might be a problem. 
-        node_config = get_only_default_params(kls, node['parameters'][key]['parameters'])
+        node_config = add_init_defaults_params(kls, node['parameters'][key]['parameters'])
         node['parameters'][key]['parameters'] = node_config

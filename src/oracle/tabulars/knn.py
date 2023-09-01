@@ -1,5 +1,5 @@
 from sklearn.neighbors import KNeighborsClassifier
-from src.oracle.tabulars.predictor import TabularOracle
+from src.oracle.tabulars.tabular_base import TabularOracle
 
 class KNNOracle(TabularOracle):
 

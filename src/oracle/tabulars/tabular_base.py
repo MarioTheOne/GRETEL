@@ -1,6 +1,6 @@
     
 from src.oracle.oracle_base import Oracle
-from src.utils.utils import get_only_default_params
+from src.utils.utils import add_init_defaults_params
 
 class TabularOracle(Oracle):
     
@@ -47,7 +47,7 @@ class TabularOracle(Oracle):
                     }
                 }
             }
-        node_config = get_only_default_params(kls, local_config['parameters']['embedder']['parameters']['model']['parameters'])
+        node_config = add_init_defaults_params(kls, local_config['parameters']['embedder']['parameters']['model']['parameters'])
         local_config['parameters']['embedder']['parameters']['model']['parameters'] = node_config
         # populate the local config accordingly
         local_config['parameters']['embedder']['dataset'] = self.dataset

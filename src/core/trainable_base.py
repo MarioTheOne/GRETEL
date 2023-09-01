@@ -1,14 +1,13 @@
 import os
 from abc import ABC, abstractmethod
 import pickle
-import hashlib
-
+from src.utils.context import Context
 
 class Trainable(ABC):
     
-    def __init__(self, context, local_config) -> None:
+    def __init__(self, context: Context, local_config) -> None:
         super().__init__()
-        self.context = context
+        self.context:Context = context
         self.local_config = local_config
         ##############################################################################
         # fit the model on a specific dataset
@@ -32,10 +31,6 @@ class Trainable(ABC):
         self.real_fit()
         self.write()
         self.context.logger.info(str(self)+" saved.")
-        
-    @property
-    def name(self):
-        return self.context.get_name(self.__class__.__name__, self.local_config['parameters'])
     
     @abstractmethod
     def init(self):
@@ -71,13 +66,7 @@ class Trainable(ABC):
     
     @property
     def name(self):
-        #return self.context.get_name(self.__class__.__name__, self.local_config['parameters'])
-        data = self.context.get_name(self.__class__.__name__, self.local_config)
-        md5_hash = hashlib.md5()
-        md5_hash.update(data.encode('utf-8'))
-        return  self.__class__.__name__+'-'+md5_hash.hexdigest()
-
+        return self.context.get_name(self)
     
     def __str__(self):
         return self.name
-    

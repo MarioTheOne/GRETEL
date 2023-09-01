@@ -69,7 +69,7 @@ def get_instance_kvargs(kls, param):
     return get_class(kls)(**param)
 
 
-def get_only_default_params(kls, config_node):
+def add_init_defaults_params(kls, config_node):
     default_embedder_cls = get_class(kls)
     # get the parameters of the constructor of the desired class
     # and skip the self class parameter that isn't useful
@@ -81,7 +81,8 @@ def get_only_default_params(kls, config_node):
     # values that haven't been specified and have a default value
     embedder_params = {**embedder_cls_params, **embedder_params}
     return embedder_params
-    
+
+
 
 # from src.utils.utils import update_saved_pyg 
 
