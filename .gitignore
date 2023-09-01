@@ -142,7 +142,8 @@ launchers/
 AAAI/
 
 #masked src
-src/n_dataset
-src/utils/n_samplers
+#src/n_dataset
+#src/utils/n_samplers
+
 # videos
 .mp4

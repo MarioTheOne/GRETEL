@@ -22,7 +22,7 @@ class Oracle(Trainable,metaclass=ABCMeta):
         """
         self._call_counter += 1
 
-        return self._real_predict(self.embedd(data_instance))
+        return self._real_predict(data_instance)
 
     @final
     def predict_proba(self, data_instance):
@@ -36,7 +36,7 @@ class Oracle(Trainable,metaclass=ABCMeta):
         """
         self._call_counter += 1
 
-        return self._real_predict_proba(self.embedd(data_instance))
+        return self._real_predict_proba(data_instance)
     
     @final
     def retrain(self):
@@ -55,7 +55,7 @@ class Oracle(Trainable,metaclass=ABCMeta):
         result = [self.predict(dataset.get_instance(i)) for i in sptest]
         return result
    
-    @abstractmethod
+    '''@abstractmethod'''#TODO: need to be reactivated.
     def evaluate(self, dataset: Dataset, fold_id=0):
         pass
     

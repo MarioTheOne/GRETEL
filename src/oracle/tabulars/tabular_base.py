@@ -1,11 +1,12 @@
     
+from src.core.embedder_base import Embedder
 from src.core.oracle_base import Oracle
 from src.utils.utils import add_init_defaults_params
 
 class TabularOracle(Oracle):
     
     def init(self):
-        embedding_snippet = self.local_config['parameters']['embedder']
+        embedding_snippet = self.local_config['parameters']['embedder'] 
         self.embedder = self.context.factories['embedders'].get_embedder(embedding_snippet)
         
     def real_fit(self):
@@ -21,13 +22,14 @@ class TabularOracle(Oracle):
             spt = self.dataset.get_split_indices()[fold_id]['train']
             x = [inst_vectors[i] for i in spt]
             y = [self.dataset.get_instance(i).graph_label for i in spt]
-
         self.model.fit(x, y)
 
     def _real_predict(self, data_instance):
+        data_instance = self.embedder.get_embedding(data_instance)
         return self.model.predict(data_instance)
     
     def _real_predict_proba(self, data_instance):
+        data_instance = self.embedder.get_embedding(data_instance)
         return self.model._predict_proba_lr(data_instance).squeeze()
     
     def check_configuration(self, local_config):

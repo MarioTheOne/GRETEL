@@ -14,7 +14,7 @@ def compose(config):
 
         return out_conf
     except BaseException:
-        print(config)
+        print("Incomplete/error configuration in:"+json.dumps(config, indent=2))
         raise
 
 
@@ -30,7 +30,7 @@ def _process_array(conf):
             return out_arr
         return compose(conf) if isinstance(conf, dict) else conf
     except BaseException:
-        print(conf)
+        print("Incomplete/error configuration in:"+json.dumps(conf, indent=2))
         raise 
 
 def _get_snippet(snippet_path):
@@ -56,11 +56,11 @@ def propagate(config):
         raise 
 
 
-#snippet_path = 'config/test/test_compose.json'
+'''#snippet_path = 'config/test/test_compose.json'
 snippet_path = 'config/test/experimental/expansion.json'
 #snippet_path = 'config/test/comp_stores.json'
 with open(snippet_path, 'r') as config_reader:
     in_conf = jsonpickle.decode(config_reader.read())        
 
 out_conf = propagate(compose(in_conf))
-print(json.dumps(out_conf, indent=2))
+print(json.dumps(out_conf, indent=2))'''

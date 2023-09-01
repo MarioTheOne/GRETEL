@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         
         {
             "name": "Python: Current File with profiler",
@@ -12,7 +13,7 @@
             "module": "cProfile",
             "console": "integratedTerminal",
             "args": [
-                "-o", "output/tmp.prof", "${file}","./config/optimus/gc-test/fold_0.json", "1"
+                "-o", "output/tmp.prof", "${file}","config/test/test_TC.json", "1"
             ]
         },
         {
@@ -22,7 +23,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["./config/optimus/gc-test/fold_0.json", "1"],
+            "args": ["config/test/test_TC.json", "1"],
         }
     ]
 }

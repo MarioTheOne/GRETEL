@@ -3,10 +3,8 @@ from src.core.oracle_base import Oracle
 from typing import List
 
 class OracleFactory(Factory):      
-    def get_oracle(self, oracle_snippet) -> Oracle:
-        oracle = super._get_object(oracle_snippet)
-        oracle.__class__ = Oracle
-        return oracle
+    def get_oracle(self, oracle_snippet):
+        return self._get_object(oracle_snippet)
             
     def get_oracles(self, config_list) -> List[Oracle]:
         return [self.get_oracle(obj) for obj in config_list]

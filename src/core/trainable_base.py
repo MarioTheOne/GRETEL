@@ -5,7 +5,7 @@ from src.utils.context import Context
 class Trainable(Savable,metaclass=ABCMeta):
     
     def __init__(self, context: Context, local_config) -> None:
-        super().__init__(self,context,local_config)        
+        super().__init__(context,local_config)        
         ##############################################################################
         # fit the model on a specific dataset
         # or read if already existing

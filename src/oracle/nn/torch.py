@@ -123,14 +123,14 @@ class OracleTorch(Oracle):
             "config": self.local_config
         }
         
-        with open(filepath, 'w') as f:
+        with open(filepath, 'wb') as f:
           pickle.dump(dump, f)
       
     def read(self):
         dump_file = self.context.get_path(self)
         
         if os.path.exists(dump_file):
-            with open(dump_file, 'r') as f:
+            with open(dump_file, 'rb') as f:
                 dump = pickle.load(f)
                 self.model.load_state_dict(dump['model'])
                 self.local_config = dump['config']

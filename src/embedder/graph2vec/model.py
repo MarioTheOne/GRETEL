@@ -17,7 +17,7 @@ class Graph2VecEmbedder(Embedder):
 
     def get_embedding(self, instance):
         # A Copy of the graph is provided because the _check_graphs function modifies the edges of the passed graph
-        return self.model.infer(instance.graph.copy(as_view=False))
+        return self.model.infer(instance.graph.copy(as_view=False)).reshape(1, -1)
     
     def check_configuration(self, local_config):
         return local_config
