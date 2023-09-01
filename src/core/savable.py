@@ -1,12 +1,9 @@
 import os,pickle
-from src.utils.context import Context
+from src.core.base import Base
+
 from abc import ABCMeta
 
-class Savable(metaclass=ABCMeta):
-    
-    def __init__(self, context: Context, local_config) -> None:
-        self.context:Context = context
-        self.local_config = local_config
+class Savable(Base,metaclass=ABCMeta):
 
     def write(self):
         filepath = self.context.get_path(self)
@@ -31,9 +28,4 @@ class Savable(metaclass=ABCMeta):
     def saved(self):
         return os.path.exists(self.context.get_path(self))
     
-    @property
-    def name(self):
-        return self.context.get_name(self)
-    
-    def __str__(self):
-        return self.name
+   
