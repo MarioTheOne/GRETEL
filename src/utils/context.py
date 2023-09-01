@@ -2,7 +2,7 @@ import inspect
 import os
 
 import jsonpickle
-from src.utils.composer import compose
+from src.utils.composer import compose,propagate
 from src.utils.logger import GLogger
 
 
@@ -30,7 +30,7 @@ class Context(object):
         self.config_file = config_file
         # Read the config dictionary inside the config path with the composer
         with open(self.config_file, 'r') as config_reader:
-            self.conf = compose(jsonpickle.decode(config_reader.read()))
+            self.conf = propagate(compose(jsonpickle.decode(config_reader.read())))
 
         self._scope = self.conf['experiment']['scope']
 

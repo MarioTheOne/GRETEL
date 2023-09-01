@@ -42,12 +42,13 @@ def _get_snippet(snippet_path):
     return snippet
 
 def propagate(config):
-    prop_list = config['experiment']['parameters']['propagate']
-    for field in prop_list:        
-        for sec in field['sections']:
-            for item in config[sec]:
-                for key in field['params']:
-                    item['parameters'][key]=field['params'][key]
+    if 'parameters' in config['experiment'] and 'propagate' in config['experiment']['parameters']:
+        prop_list = config['experiment']['parameters']['propagate']
+        for field in prop_list:        
+            for sec in field['sections']:
+                for item in config[sec]:
+                    for key in field['params']:
+                        item['parameters'][key]=field['params'][key]
     return config
 
 
