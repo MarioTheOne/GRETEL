@@ -1,4 +1,4 @@
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 import numpy as np
 

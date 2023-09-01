@@ -11,7 +11,7 @@ from dgl.data import DGLDataset
 from torch.utils.data.sampler import SubsetRandomSampler
 from dgl.dataloading import GraphDataLoader
 from src.dataset.dataset_base import Dataset
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 
 class CF2Oracle(Oracle):

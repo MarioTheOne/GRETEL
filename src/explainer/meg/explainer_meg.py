@@ -8,7 +8,7 @@ from src.explainer.meg.utils.queue import SortedQueue
 
 from src.dataset.dataset_base import Dataset
 from src.explainer.explainer_base import Explainer
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 
 class MEGExplainer(Explainer):

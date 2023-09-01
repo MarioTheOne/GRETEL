@@ -1,14 +1,11 @@
-import os
-from abc import ABC, abstractmethod
-import pickle
+from abc import ABCMeta, abstractmethod
+from src.core.savable import Savable
 from src.utils.context import Context
 
-class Trainable(ABC):
+class Trainable(Savable,metaclass=ABCMeta):
     
     def __init__(self, context: Context, local_config) -> None:
-        super().__init__()
-        self.context:Context = context
-        self.local_config = local_config
+        super().__init__(self,context,local_config)        
         ##############################################################################
         # fit the model on a specific dataset
         # or read if already existing
@@ -19,14 +16,17 @@ class Trainable(ABC):
         # real init details
         self.init()
         # retrain if explicitely specified or if the weights of the model don't exists
-        if self.local_config['parameters'].get('retrain', False) or not os.path.exists(self.context.get_path(self)):
+        if self._to_retrain() or not self.saved():
             self.context.logger.info(str(self)+" need to be trained.")
             self.fit()
         else:
             self.read()
             self.context.logger.info(str(self)+" loaded.")
         ##############################################################################
-        
+
+    def _to_retrain(self):
+        return self.local_config['parameters'].get('retrain', False)
+
     def fit(self):
         self.real_fit()
         self.write()
@@ -44,29 +44,3 @@ class Trainable(ABC):
     def real_fit(self):
         pass
     
-    def write(self):
-        filepath = self.context.get_path(self)
-       
-        dump = {
-            "model" : self.model,
-            "config": self.local_config
-        }
-        
-        with open(filepath, 'wb') as f:
-          pickle.dump(dump, f)
-      
-    def read(self):
-        dump_file = self.context.get_path(self)
-        
-        if os.path.exists(dump_file):
-            with open(dump_file, 'rb') as f:
-                dump = pickle.load(f)
-                self.model = dump['model']
-                self.local_config = dump['config']
-    
-    @property
-    def name(self):
-        return self.context.get_name(self)
-    
-    def __str__(self):
-        return self.name

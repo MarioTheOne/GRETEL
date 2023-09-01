@@ -1,7 +1,7 @@
 from typing import List
 from src.explainer.explainer_base import Explainer
 from src.dataset.dataset_base import Dataset
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 from abc import ABC
 

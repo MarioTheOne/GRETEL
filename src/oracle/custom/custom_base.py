@@ -1,4 +1,4 @@
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 # A CustomOracle assume that it is a kind of "static" function.
 # Thus only the functions:
@@ -12,9 +12,6 @@ class CustomOracle(Oracle):
 
     def real_fit(self):
         pass
-
-    def embedd(self, instance):
-        return instance
 
     def write(self):
         pass

@@ -13,7 +13,7 @@ from src.dataset.data_instance_base import DataInstance
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
 from src.explainer.explainer_base import Explainer
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 from src.utils.logger import GLogger
 from src.utils.samplers.abstract_sampler import Sampler
 from src.utils.samplers.partial_order_samplers import \

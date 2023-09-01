@@ -1,6 +1,6 @@
 from abc import ABC
 
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 from src.utils.utils import get_class
 from typing import List
 

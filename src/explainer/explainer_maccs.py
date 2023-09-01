@@ -2,7 +2,7 @@ from src.dataset.data_instance_molecular import MolecularDataInstance
 from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.explainer.explainer_base import Explainer
 from src.dataset.dataset_base import Dataset
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 import exmol
 import selfies as sf

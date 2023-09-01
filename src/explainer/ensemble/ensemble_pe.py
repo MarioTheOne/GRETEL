@@ -9,7 +9,7 @@ from typing import List
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.dataset_base import Dataset
 from src.explainer.ensemble.ensemble_bagging import EnsembleBaggingExplainer
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 
 class PEEnsembleExplainer(EnsembleBaggingExplainer):

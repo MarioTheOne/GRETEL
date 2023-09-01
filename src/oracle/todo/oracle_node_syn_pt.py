@@ -8,7 +8,7 @@ import torch.optim as optim
 from src.oracle.todo.oracle_node_pt import NodeOracle
 from src.dataset.data_instance_node import NodeDataInstance
 from src.dataset.dataset_node import NodeDataset
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 from src.utils import accuracy, normalize_adj
 from torch.nn.parameter import Parameter
 from torch.nn.utils import clip_grad_norm

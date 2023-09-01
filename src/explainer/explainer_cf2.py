@@ -12,7 +12,7 @@ from src.dataset.data_instance_base import DataInstance
 from src.dataset.data_instance_features import DataInstanceWFeaturesAndWeights
 from src.dataset.dataset_base import Dataset
 from src.explainer.explainer_base import Explainer
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 from src.oracle.todo.oracle_cf2 import CustomDGLDataset
 
 

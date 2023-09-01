@@ -1,5 +1,5 @@
     
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 from src.utils.utils import add_init_defaults_params
 
 class TabularOracle(Oracle):
@@ -29,10 +29,6 @@ class TabularOracle(Oracle):
     
     def _real_predict_proba(self, data_instance):
         return self.model._predict_proba_lr(data_instance).squeeze()
-
-    def embedd(self, instance):
-        return self.embedder.get_embedding(instance).reshape(1,-1)
-    
     
     def check_configuration(self, local_config):
         kls = "src.embedder.graph2vec.model.Graph2VecEmbedder"

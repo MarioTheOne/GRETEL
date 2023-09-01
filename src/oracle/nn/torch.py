@@ -7,7 +7,7 @@ from torch_geometric.loader import DataLoader
 
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 from src.utils.utils import get_instance_kvargs, add_init_defaults_params
 
 class OracleTorch(Oracle):
@@ -35,17 +35,12 @@ class OracleTorch(Oracle):
             else "mps"
             if torch.backends.mps.is_available()
             else "cpu"
-        )
-        
-        
-                
-    def embedd(self, instance):
-        return instance                                 
+        )                              
             
     def real_fit(self):
         fold_id = self.local_config['parameters']['fold_id']
         dataset = self.converter.convert(self.dataset)
-        loader = self.transform_data(dataset, fold_id=fold_id, usage='train')
+        loader = self._transform_data(dataset, fold_id=fold_id, usage='train')
         
         for epoch in range(self.epochs):
             
@@ -74,7 +69,7 @@ class OracleTorch(Oracle):
     @torch.no_grad()        
     def evaluate(self, dataset: Dataset, fold_id=0):            
         #dataset = self.converter.convert(dataset)
-        loader = self.transform_data(dataset, fold_id=fold_id, usage='test')
+        loader = self._transform_data(dataset, fold_id=fold_id, usage='test')
         
         losses = []
         accuracy = []
@@ -95,9 +90,9 @@ class OracleTorch(Oracle):
         
         self.context.logger.info(f'Test accuracy ---> Test accuracy = {np.mean(accuracy):.4f}')
 
+
     def _real_predict(self, data_instance):
         return  torch.argmax(self._real_predict_proba(data_instance))
-
     
     @torch.no_grad()
     def _real_predict_proba(self, data_instance):       
@@ -112,7 +107,7 @@ class OracleTorch(Oracle):
         return self.model(node_features,edge_index,edge_weights, None).squeeze()
         
         
-    def transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     
+    def _transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     
         indices = dataset.get_split_indices()[fold_id][usage]
         data_list = [inst for inst in dataset.instances if inst.id in indices]
         dgl_dataset = TorchGeometricDataset(data_list)

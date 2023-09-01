@@ -9,7 +9,7 @@ from rdkit.Chem.Draw import IPythonConsole
 import os
 from src.utils.logger import GLogger
 
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.dataset_base import Dataset
 

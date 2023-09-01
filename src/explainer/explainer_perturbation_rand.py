@@ -5,7 +5,7 @@ import numpy as np
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.dataset_base import Dataset
 from src.explainer.explainer_base import Explainer
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 
 class PerturbationRandExplainer(Explainer):

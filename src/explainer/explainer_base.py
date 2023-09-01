@@ -1,5 +1,5 @@
 from src.dataset.dataset_base import Dataset
-from src.oracle.oracle_base import Oracle
+from src.core.oracle_base import Oracle
 
 from abc import ABC
 from src.utils.logger import GLogger
