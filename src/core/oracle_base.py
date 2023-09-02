@@ -55,7 +55,7 @@ class Oracle(Trainable,metaclass=ABCMeta):
         result = [self.predict(dataset.get_instance(i)) for i in sptest]
         return result
    
-    '''@abstractmethod'''#TODO: need to be reactivated.
+    '''@abstractmethod'''#TODO: need to be reactivated and implemented.
     def evaluate(self, dataset: Dataset, fold_id=0):
         pass
     
@@ -66,17 +66,3 @@ class Oracle(Trainable,metaclass=ABCMeta):
     @abstractmethod
     def _real_predict_proba(self, data_instance):
         pass
-
-
-    #TODO: To be removed
-    '''@abstractmethod
-    def init(self):
-        pass
-    
-    @abstractmethod
-    def check_configuration(self, local_config):
-        pass
-
-    @abstractmethod
-    def real_fit(self):
-        pass'''

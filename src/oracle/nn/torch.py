@@ -139,6 +139,7 @@ class OracleTorch(Oracle):
     def check_configuration(self, local_config):
         local_config['parameters'] = local_config.get('parameters', {})
         
+        # set defaults
         local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
         
@@ -149,13 +150,13 @@ class OracleTorch(Oracle):
         
         return local_config
     
-    
+    #TODO: Generalize this function and made it available to all.
     def __config_helper(self, node, key, kls):
         if key not in node['parameters']:
             node['parameters'][key] = {
                 "class": kls, 
                 "parameters": { }
             }
-        #TODO: revise get_only_default_params: Actually it reurn Null parameters and false (wit lowercase F). It might be a problem. 
+
         node_config = add_init_defaults_params(kls, node['parameters'][key]['parameters'])
         node['parameters'][key]['parameters'] = node_config
