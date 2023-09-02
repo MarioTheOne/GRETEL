@@ -110,7 +110,7 @@ class OracleTorch(Oracle):
     def _transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     
         indices = dataset.get_split_indices()[fold_id][usage]
         data_list = [inst for inst in dataset.instances if inst.id in indices]
-        dgl_dataset = TorchGeometricDataset(data_list)
+        dgl_dataset = TorchGeometricDataset(data_list)        
         dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True)
         return dataloader
     

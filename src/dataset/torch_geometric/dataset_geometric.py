@@ -7,7 +7,14 @@ from src.dataset.data_instance_base import DataInstance
 class TorchGeometricDataset(Dataset):
   
   def __init__(self, instances, transform=True):
-    super(TorchGeometricDataset, self).__init__()    
+    super(TorchGeometricDataset, self).__init__()   
+    self.device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )    
     self.instances = []
 
     if transform:
@@ -25,12 +32,24 @@ class TorchGeometricDataset(Dataset):
     self.instances = [self.to_geometric(inst, label=inst.graph_label) for inst in instances]
       
   @classmethod
-  def to_geometric(self, instance: DataInstance, label=0) -> Data:   
+  def to_geometric(self, instance: DataInstance, label=0) -> Data: 
+    device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )  
     adj = torch.from_numpy(instance.to_numpy_array()).double()
     x = torch.from_numpy(instance.features).double()
 
     a = torch.nonzero(torch.triu(adj))
     w = adj[a[:,0], a[:,1]]
+
+    x = x.to(device)
+    a = a.to(device)
+    w = w.to(device)
+    #label = label.to(device)
     
     return Data(x=x, y=label, edge_index=a.T, edge_attr=w)
   
