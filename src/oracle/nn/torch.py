@@ -35,7 +35,8 @@ class OracleTorch(Oracle):
             else "mps"
             if torch.backends.mps.is_available()
             else "cpu"
-        )                              
+        )
+        self.model.to(self.device)                            
             
     def real_fit(self):
         fold_id = self.local_config['parameters']['fold_id']
@@ -47,6 +48,7 @@ class OracleTorch(Oracle):
             losses = []
             accuracy = []
             for batch in loader:
+                batch.batch = batch.batch.to(self.device)
                 node_features = batch.x.to(self.device)
                 edge_index = batch.edge_index.to(self.device)
                 edge_weights = batch.edge_attr.to(self.device)
@@ -111,7 +113,8 @@ class OracleTorch(Oracle):
         indices = dataset.get_split_indices()[fold_id][usage]
         data_list = [inst for inst in dataset.instances if inst.id in indices]
         dgl_dataset = TorchGeometricDataset(data_list)        
-        dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True)
+        dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True,generator=torch.Generator(device=self.device))
+        
         return dataloader
     
     

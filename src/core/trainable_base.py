@@ -25,7 +25,9 @@ class Trainable(Savable,metaclass=ABCMeta):
         ##############################################################################
 
     def _to_retrain(self):
-        return self.local_config['parameters'].get('retrain', False)
+        retrain = self.local_config['parameters'].get('retrain', False)
+        if(retrain): self.local_config['parameters']['parameters']=False
+        return retrain
 
     def fit(self):
         self.real_fit()

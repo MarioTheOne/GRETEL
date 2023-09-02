@@ -33,7 +33,7 @@
         },
         "model": { 
           "class": "src.oracle.nn.gcn.GCN",
-          "parameters": { "node_features": 8 }
+          "parameters": { "node_features": 8 , "num_conv_layers":3}
       } 
     }   
 }

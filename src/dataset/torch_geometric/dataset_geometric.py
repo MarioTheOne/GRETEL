@@ -102,12 +102,23 @@ class GraphPairDataset(Dataset):
     return self.instances[idx]
   
   def to_geometric(self, instance: DataInstance, label=0) -> Data:   
+    device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
     adj = torch.from_numpy(instance.to_numpy_array()).double()
     x = torch.from_numpy(instance.features).double()
 
     a = torch.nonzero(torch.triu(adj))
     w = adj[a[:,0], a[:,1]]
     
+    x = x.to(device)
+    a = a.to(device)
+    w = w.to(device)
+
     return Data(x=x, y=label, edge_index=a.T, edge_attr=w)
   
 class PairData(Data):
