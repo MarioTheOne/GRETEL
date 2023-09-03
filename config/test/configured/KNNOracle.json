@@ -1,7 +1,6 @@
 {
     "class": "src.oracle.tabulars.knn.KNNOracle",            
     "parameters": {
-        "fold_id": 0,
         "compose_st" : "config/test/configured/Graph2VecEmbedder.json",
         "model": { "parameters": {} }
         

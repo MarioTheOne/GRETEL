@@ -1,10 +1,7 @@
-    
-from src.core.embedder_base import Embedder
 from src.core.oracle_base import Oracle
 from src.utils.utils import add_init_defaults_params
 
-class TabularOracle(Oracle):
-    
+class TabularOracle(Oracle):   
     def init(self):
         embedding_snippet = self.local_config['parameters']['embedder'] 
         self.embedder = self.context.factories['embedders'].get_embedder(embedding_snippet)
@@ -27,10 +24,10 @@ class TabularOracle(Oracle):
     def _real_predict(self, data_instance):
         data_instance = self.embedder.get_embedding(data_instance)
         return self.model.predict(data_instance)
-    
+        
     def _real_predict_proba(self, data_instance):
         data_instance = self.embedder.get_embedding(data_instance)
-        return self.model._predict_proba_lr(data_instance).squeeze()
+        return self.model.predict_proba(data_instance).squeeze()
     
     def check_configuration(self, local_config):
         kls = "src.embedder.graph2vec.model.Graph2VecEmbedder"

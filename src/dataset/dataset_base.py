@@ -76,7 +76,8 @@ class Dataset(ABC):
         """
         # Creating a folder to contain the dataset
         dataset_path = os.path.join(datasets_folder_path, self._name)
-        os.mkdir(dataset_path)
+        if not os.path.exists(dataset_path):
+            os.mkdirs(dataset_path)
 
         # Creating a file to contain the name of the dataset
         with open(os.path.join(dataset_path, 'dataset_name.txt'), 'w') as ds_name_writer:

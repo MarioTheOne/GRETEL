@@ -1,21 +1,17 @@
-from abc import ABCMeta, abstractmethod
+from flufl.lock import Lock
+from datetime import timedelta
+import time
 
-class OriginalAbstractclass(metaclass=ABCMeta):
-  @abstractmethod
-  def sample_method(self):
-    pass
 
-class InheritedAbstractClass(OriginalAbstractclass, metaclass=ABCMeta):
-  @abstractmethod
-  def another_method(self):
-      pass
+lock = Lock('idunno.lck',lifetime=None)
 
-class ConcreteClass(InheritedAbstractClass):
-  def sample_method(self):
-    pass
+with lock:
+  print("I am IN!")
+  
+  for i in range(10):
+    print(lock.is_locked)
+    print("I am consuming "+str(i))
+    time.sleep(1)
 
-  def another_method(self):
-    pass
-    
 
-ConcreteClass()
+

@@ -1,6 +1,7 @@
 import inspect
 import os
-
+from flufl.lock import Lock
+from datetime import timedelta
 import jsonpickle
 import hashlib
 from src.utils.composer import compose,propagate
@@ -20,6 +21,7 @@ class Context(object):
             "explainers": None,
             "metrics": None
         }
+        self.lock_release_tout : None
         ###################################################
         assert(create_key == Context.__create_key), \
             "Context objects must be created using Context.get_context"
@@ -34,6 +36,9 @@ class Context(object):
             self.conf = propagate(compose(jsonpickle.decode(config_reader.read())))
 
         self._scope = self.conf['experiment']['scope']
+        self.conf['experiment']['parameters']=self.conf['experiment'].get('parameters',{})
+        self.conf['experiment']['parameters']['lock_release_tout']=self.conf['experiment']['parameters'].get('lock_release_tout',24*5) #Expressed in hours
+        self.lock_release_tout = self.conf['experiment']['parameters']['lock_release_tout']
 
         GLogger._path = os.path.join(self.log_store_path, self._scope)
         self.logger = GLogger.getLogger()
@@ -58,12 +63,14 @@ class Context(object):
     def get_path(self, obj):
         fullname = self.get_fullname(obj).split('.')
         qualifier = fullname[1] + '_store_path'
-        #dataset_path = self.get_name(obj.dataset.__class__.__name__, obj.dataset.local_config)
         # change this path when the dataset factories are finished
         directory = os.path.join(self._get_store_path(qualifier), obj.dataset.__class__.__name__)
-        if not os.path.exists(directory):
-            os.mkdir(directory)
-        return os.path.join(directory, obj.name)
+
+        lock = Lock(directory+'.lck',lifetime=timedelta(hours=self.lock_release_tout))
+        with lock:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            return os.path.join(directory, obj.name)
     
     def get_fullname(self, o):
         klass = o.__class__

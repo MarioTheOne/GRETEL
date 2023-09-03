@@ -2,9 +2,10 @@
     "experiment" : {
         "scope": "gcn_oracle",
         "parameters" : {
-            "propagate":[{"params" : {"fold_id": 0},  "in_sections" : ["explainers"]},
-            {"params" : {"fold_id": -1,"retrain":false}, "in_sections" : ["oracles"]}
-                
+            "lock_release_tout":120,
+            "propagate":[
+                {"params" : {"fold_id": 0},  "in_sections" : ["explainers"]},
+                {"params" : {"fold_id": -1,"retrain":false}, "in_sections" : ["oracles"]}
             ]
         }
     },
@@ -12,18 +13,18 @@
     "compose_strs" : "config/test/configured/default_store_paths.json",
     "datasets": [
         {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 3, "number_of_cycles": 4} },
-        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 4, "number_of_cycles": 4} },
-        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 5, "number_of_cycles": 4} }
-
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 4, "number_of_cycles": 3} },
+        {"name": "tree-cycles", "parameters": {"n_inst": 500, "n_per_inst": 28, "n_in_cycles": 5, "nodes_per_cycle": 5, "number_of_cycles": 2} }      
     ],
     "oracles": [
-        {"compose_gcn" : "config/test/configured/GCNOracle.json"}
+        {"compose_gcn" : "config/test/configured/GCNOracle.json"},
+        {"compose_gcn" : "config/test/configured/KNNOracle.json"},
+        {"compose_gcn" : "config/test/configured/SVMOracle.json"}
     ],
     "explainers": [
             {
                 "name": "graph_countergan", 
                 "parameters": {
-                    "fold_id": 0,
                     "n_nodes": 28,
                     "converter": "tree_cycles",
                     "n_labels": 2,

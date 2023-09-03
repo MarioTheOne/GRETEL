@@ -1,29 +1,34 @@
 import pickle
+from flufl.lock import Lock
+from datetime import timedelta
 from abc import ABCMeta, abstractmethod
 from src.core.savable import Savable
 from src.utils.context import Context
 
 class Trainable(Savable,metaclass=ABCMeta):
     
-    def __init__(self, context: Context, local_config) -> None:
+    def __init__(this, context: Context, local_config) -> None:
         super().__init__(context,local_config)        
         ##############################################################################
         # fit the model on a specific dataset
         # or read if already existing
-        self.dataset = self.local_config['dataset']
-        self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
+        this.dataset = this.local_config['dataset']
+        this.local_config['parameters']['fold_id'] =  this.local_config['parameters'].get('fold_id', -1)
         #TODO: Add getDefault Method that return the default conf snippet of parameters conf node.
-        self.local_config = self.check_configuration(self.local_config)
+        this.local_config = this.check_configuration(this.local_config)
         # real init details
-        self.init()
+        this.init()
         # retrain if explicitely specified or if the weights of the model don't exists
-        if self._to_retrain() or not self.saved():
-            self.context.logger.info("Need to be train: "+str(self))
-            self.fit()
-            self.context.logger.info("Trained: "+str(self))
-        else:
-            self.read()
-            self.context.logger.info("Loaded: "+str(self))
+
+        lock = Lock(this.context.get_path(this)+'.lck',lifetime=timedelta(hours=this.context.lock_release_tout))
+        with lock:
+            if this._to_retrain() or not this.saved():
+                this.context.logger.info("Need to be train: "+str(this))
+                this.fit()
+                this.context.logger.info("Trained: "+str(this))
+            else:
+                this.read()
+                this.context.logger.info("Loaded: "+str(this))
         ##############################################################################
 
     def _to_retrain(self):

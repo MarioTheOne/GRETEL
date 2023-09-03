@@ -1,7 +1,4 @@
-import os
-
-import jsonpickle
-
+import random
 from src.dataset.dataset_factory import DatasetFactory
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.evaluation.evaluator_base import Evaluator
@@ -109,9 +106,15 @@ class EvaluatorManager:
             eval_metric = self.context.factories['metrics'].get_evaluation_metric_by_name(metric_dict)
             self.evaluation_metrics.append(eval_metric)
 
+        #TODO: DANGEROUS wrong logic: explainer creation must be inseterd in the nested loop to avoid side effects. Copy the snippet before passing it.
         for explainer_dict in explainer_dicts:
             explainer = self.context.factories['explainers'].get_explainer_by_name(explainer_dict, self.context.factories['metrics'])
             self.explainers.append(explainer)
+
+        #TODO: Shuffling dataset and explainers creation. Must be better implemented after refactoring.
+        random.shuffle(self.datasets)
+        random.shuffle(self.explainers)
+        random.shuffle(oracle_dicts)
 
         evaluator_id = 0
         for dataset in self.datasets:
