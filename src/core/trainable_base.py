@@ -17,16 +17,17 @@ class Trainable(Savable,metaclass=ABCMeta):
         self.init()
         # retrain if explicitely specified or if the weights of the model don't exists
         if self._to_retrain() or not self.saved():
-            self.context.logger.info(str(self)+" need to be trained.")
+            self.context.logger.info("Need to be train: "+str(self))
             self.fit()
+            self.context.logger.info("Trained: "+str(self))
         else:
             self.read()
-            self.context.logger.info(str(self)+" loaded.")
+            self.context.logger.info("Loaded: "+str(self))
         ##############################################################################
 
     def _to_retrain(self):
         retrain = self.local_config['parameters'].get('retrain', False)
-        if(retrain): self.local_config['parameters']['parameters']=False
+        self.local_config['parameters']['retrain']= False
         return retrain
 
     def fit(self):

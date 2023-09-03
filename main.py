@@ -8,7 +8,6 @@ os.environ["NUMEXPR_NUM_THREADS"] = "4" # export NUMEXPR_NUM_THREADS=1"""
 from src.evaluation.evaluator_manager import EvaluatorManager
 from src.utils.context import Context
 import sys,torch
-torch.set_default_device('cuda')
 
 if __name__ == '__main__':
     print(f'Generating context for: {sys.argv[1]} Run: {sys.argv[2]}')
