@@ -29,6 +29,7 @@ class OracleTorch(Oracle):
         
         self.batch_size = self.local_config['parameters']['batch_size']
         
+        #TODO: Need to fix GPU support!!!!
         self.device = (
             "cuda"
             if torch.cuda.is_available()
@@ -117,35 +118,6 @@ class OracleTorch(Oracle):
         
         return dataloader
     
-    
-    '''def write(self):
-        filepath = self.context.get_path(self)
-            
-        dump = {
-            #"model" : self.model.state_dict(),
-            "model" : self.model,
-            "config": self.local_config
-        }
-
-        with open(filepath, 'wb') as f:
-          pickle.dump(dump, f)
-        
-        #torch.save(self.model.state_dict(), filepath)
-      
-    def read(self):
-        dump_file = self.context.get_path(self)
-       
-        
-        if os.path.exists(dump_file):
-            with open(dump_file, 'rb') as f:
-                dump = pickle.load(f)
-                self.model = dump['model']
-                #self.model.load_state_dict(dump['model'])
-                self.local_config = dump['config']
-
-        #self.model = torch.load(dump_file)
-        #self.model.eval()'''
-
                      
     def check_configuration(self, local_config):
         local_config['parameters'] = local_config.get('parameters', {})
