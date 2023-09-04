@@ -18,9 +18,12 @@
                 "generator": {
                     "class": "src.n_dataset.generators.asd.ASDGenerator", 
                     "parameters": { "data_dir": "data/datasets/autism/" }
-                }
+                },
+                "manipulators": [
+                    { "class": "src.n_dataset.manipulators.", "parameters": {} }
+                ]
             } 
-        }  
+        } 
     ],
     "oracles": [
         {"compose_gcn" : "config/test/configured/GCNOracle.json"},
