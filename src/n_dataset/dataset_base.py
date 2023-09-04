@@ -17,6 +17,7 @@ class Dataset(Savable):
         if 'loader' in self.local_config['parameters']:
             self.loader = get_instance(self.local_config['parameters']['loader']['class'],
                                        context, self.local_config['parameters']['loader'], self)
+        self.write()
         
     def get_data(self):
         return self.instances
