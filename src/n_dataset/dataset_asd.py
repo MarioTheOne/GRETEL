@@ -1,11 +1,11 @@
 from src.dataset.instances.base import DataInstance
-from src.dataset.dataset_base import Dataset
+from src.n_dataset.dataset_base import Dataset
 
 import networkx as nx
 import numpy as np
 import os
 
-class ASDDataset(Dataset):
+class ASDLoader(Loader):
 
     def __init__(self, id, config_dict=None) -> None:
         super().__init__(id, config_dict)

@@ -1,20 +1,17 @@
-from src.dataset.dataset_imbd import IMDBDataset
-from src.dataset.dataset_hiv import HIVDataset
-from src.dataset.dataset_bbbp import BBBPDataset
-from src.dataset.dataset_adhd import ADHDDataset
-from src.dataset.dataset_asd import ASDDataset
-from src.dataset.dataset_node import NodeDataset
-from src.dataset.dataset_base import Dataset
-from src.dataset.dataset_synthetic_generator import Synthetic_Data
-from src.dataset.dataset_trisqr import TrianglesSquaresDataset
+from src.core.factory_base import Factory
+from src.n_dataset.dataset_base import Dataset
+from typing import List
 
-import os
-import shutil
+class DatasetFactory(Factory):
+    
+    def get_dataset(self, dataset_snippet):
+        return self._get_object(dataset_snippet)
+            
+    def get_datasets(self, config_list) -> List[Dataset]:
+        return [self.get_dataset(obj) for obj in config_list]
+    
 
-
-class DatasetFactory():
-
-    def __init__(self, data_store_path) -> None:
+    """def __init__(self, data_store_path) -> None:
         self._data_store_path = data_store_path
         self._dataset_id_counter = 0
 
@@ -457,4 +454,4 @@ class DatasetFactory():
             result.read_data(ds_uri)
             return result
         
-        raise Exception("Dataset does not exist.")
+        raise Exception("Dataset does not exist.")"""

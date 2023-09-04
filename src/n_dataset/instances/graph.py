@@ -1,6 +1,6 @@
 import networkx as nx
 
-from src.dataset.instances.base import DataInstance
+from src.n_dataset.instances.base import DataInstance
 from copy import deepcopy
 
 class GraphInstance(DataInstance):
@@ -20,7 +20,7 @@ class GraphInstance(DataInstance):
         nx_repr = nx.from_numpy_array(self.data)
         nx_repr.add_nodes_from([node, {'features': self.features[node]}] for node in nx_repr.nodes())
         edges = list(nx_repr.edges)
-        nx_repr.add_edges_from([edge[0], edge[1], {'weights': self.weights[edge[0], edge[1]]} for edge in edges])
+        nx_repr.add_edges_from([(edge[0], edge[1], {'weights': self.weights[edge[0], edge[1]]}) for edge in edges])
         return nx_repr
             
     
