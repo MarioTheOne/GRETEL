@@ -13,12 +13,12 @@ class TabularOracle(Oracle):
         if fold_id == -1:
             # Training with the entire dataset
             x = inst_vectors
-            y = [ i.graph_label for i in self.dataset.instances]
+            y = [ i.label for i in self.dataset.instances]
         else:
             # Training with an specific split
             spt = self.dataset.get_split_indices()[fold_id]['train']
             x = [inst_vectors[i] for i in spt]
-            y = [self.dataset.get_instance(i).graph_label for i in spt]
+            y = [self.dataset.get_instance(i).label for i in spt]
         self.model.fit(x, y)
 
     def _real_predict(self, data_instance):

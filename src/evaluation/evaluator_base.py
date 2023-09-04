@@ -32,7 +32,7 @@ class Evaluator(ABC):
         
 
         # Building the config file to write into disk
-        evaluator_config = {'dataset': data._config_dict, 'oracle': oracle.local_config, 'explainer': explainer._config_dict, 'metrics': []}
+        evaluator_config = {'dataset': data.local_config, 'oracle': oracle.local_config, 'explainer': explainer._config_dict, 'metrics': []}
         for metric in evaluation_metrics:
             evaluator_config['metrics'].append(metric._config_dict)
         # creatig the results dictionary with the basic info
