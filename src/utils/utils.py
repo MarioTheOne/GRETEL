@@ -6,7 +6,6 @@ from collections import OrderedDict
 
 import torch
 
-
 def update_saved_pyg(input_file,output_file):
     old_model =  torch.load(input_file, map_location=torch.device('cpu'))
     fixed_model = OrderedDict([(k.replace("grpah", "graph"), v) if 'grpah' in k else (k, v) for k, v in old_model.items()])
@@ -81,8 +80,6 @@ def add_init_defaults_params(kls, config_node):
     # values that haven't been specified and have a default value
     embedder_params = {**embedder_cls_params, **embedder_params}
     return embedder_params
-
-
 
 # from src.utils.utils import update_saved_pyg 
 

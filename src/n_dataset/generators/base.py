@@ -5,11 +5,11 @@ from src.n_dataset.dataset_base import Dataset
 from src.utils.context import Context
 
 
-class Loader(Base, metaclass=ABCMeta):
+class Generator(Base, metaclass=ABCMeta):
     
     def __init__(self, context: Context, local_config, dataset=None) -> None:
         super().__init__(context, local_config)
-        self.dataset = dataset if dataset else Dataset(context, local_config)
+        self.dataset = dataset
         self.init()
         self.current = 0
         
@@ -22,7 +22,7 @@ class Loader(Base, metaclass=ABCMeta):
         pass
     
     @abstractmethod
-    def get_dataset(self):
+    def generate_dataset(self):
         pass
     
     def __iter__(self):

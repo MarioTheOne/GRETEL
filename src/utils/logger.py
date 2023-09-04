@@ -12,6 +12,9 @@ class GLogger(object):
     def __init__(self, create_key):
         assert(create_key == GLogger.__create_key), \
             "GLogger objects must be created using GLogger.getLogger"
+        self.real_init()
+        
+    def real_init(self):
         self.info = logging.getLogger()
         self.info.setLevel(logging.INFO)
 
@@ -36,7 +39,6 @@ class GLogger(object):
             GLogger.__logger = GLogger(GLogger.__create_key)
             
         return GLogger.__logger.info
-  
 
         
 #### EXAMPLE OF USAGE ####

@@ -4,7 +4,7 @@ from typing import List
 from src.core.savable import Savable
 from src.n_dataset.instances.base import DataInstance
 from src.utils.context import Context
-from src.utils.utils import get_instance
+from src.utils.utils import get_instance_kvargs
 
 
 class Dataset(Savable):
@@ -14,9 +14,13 @@ class Dataset(Savable):
         self._instance_id_counter = 0
         self.instances: List[DataInstance] = []
         
-        if 'loader' in self.local_config['parameters']:
-            self.loader = get_instance(self.local_config['parameters']['loader']['class'],
-                                       context, self.local_config['parameters']['loader'], self)
+        if 'generator' in self.local_config['parameters']:
+            self.generator = get_instance_kvargs(self.local_config['parameters']['generator']['class'],
+                                                 {
+                                                     "context": self.context, 
+                                                     "local_config": self.local_config['parameters']['generator'],
+                                                     "dataset": self
+                                                 })
         self.write()
         
     def get_data(self):
@@ -29,11 +33,11 @@ class Dataset(Savable):
         if self.saved():
             store_path = self.context.get_path(self)
             with open(store_path, 'rb') as f:
-                loaded_dataset = pickle.load(f)
-                self.instances = loaded_dataset.instances
+                self.instances = pickle.load(f)
+                # re-attach context
                 self._instance_id_counter = len(self.instances)
     
     def write(self):
         store_path = self.context.get_path(self)
         with open(store_path, 'wb') as f:
-            pickle.dump(self, f)
+            pickle.dump(self.instances, f)

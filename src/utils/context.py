@@ -40,11 +40,12 @@ class Context(object):
         self.conf['experiment']['parameters']['lock_release_tout']=self.conf['experiment']['parameters'].get('lock_release_tout',24*5) #Expressed in hours
         self.lock_release_tout = self.conf['experiment']['parameters']['lock_release_tout']
 
-        GLogger._path = os.path.join(self.log_store_path, self._scope)
-        self.logger = GLogger.getLogger()
-        self.logger.info("Successfully created the context of '%s'", self._scope)
-        
         self.__create_storages()
+        
+    @property
+    def logger(self):
+        GLogger._path = os.path.join(self.log_store_path, self._scope)
+        return GLogger.getLogger()
         
     @classmethod
     def get_context(cls,config_file=None):
@@ -64,8 +65,11 @@ class Context(object):
         fullname = self.get_fullname(obj).split('.')
         qualifier = fullname[1] + '_store_path'
         # change this path when the dataset factories are finished
-        directory = os.path.join(self._get_store_path(qualifier), obj.dataset.__class__.__name__)
-
+        if 'dataset' in obj.__dict__.keys():
+            directory = os.path.join(self._get_store_path(qualifier), obj.dataset.__class__.__name__)
+        else:
+            directory = self._get_store_path(qualifier)
+        print(directory)
         lock = Lock(directory+'.lck',lifetime=timedelta(hours=self.lock_release_tout))
         with lock:
             if not os.path.exists(directory):

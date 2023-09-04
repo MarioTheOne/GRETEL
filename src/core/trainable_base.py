@@ -7,28 +7,28 @@ from src.utils.context import Context
 
 class Trainable(Savable,metaclass=ABCMeta):
     
-    def __init__(this, context: Context, local_config) -> None:
+    def __init__(self, context: Context, local_config) -> None:
         super().__init__(context,local_config)        
         ##############################################################################
         # fit the model on a specific dataset
         # or read if already existing
-        this.dataset = this.local_config['dataset']
-        this.local_config['parameters']['fold_id'] =  this.local_config['parameters'].get('fold_id', -1)
+        self.dataset = self.local_config['dataset']
+        self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
         #TODO: Add getDefault Method that return the default conf snippet of parameters conf node.
-        this.local_config = this.check_configuration(this.local_config)
+        self.local_config = self.check_configuration(self.local_config)
         # real init details
-        this.init()
+        self.init()
         # retrain if explicitely specified or if the weights of the model don't exists
 
-        lock = Lock(this.context.get_path(this)+'.lck',lifetime=timedelta(hours=this.context.lock_release_tout))
+        lock = Lock(self.context.get_path(self)+'.lck',lifetime=timedelta(hours=self.context.lock_release_tout))
         with lock:
-            if this._to_retrain() or not this.saved():
-                this.context.logger.info("Need to be train: "+str(this))
-                this.fit()
-                this.context.logger.info("Trained: "+str(this))
+            if self._to_retrain() or not self.saved():
+                self.context.logger.info("Need to be train: "+str(self))
+                self.fit()
+                self.context.logger.info("Trained: "+str(self))
             else:
-                this.read()
-                this.context.logger.info("Loaded: "+str(this))
+                self.read()
+                self.context.logger.info("Loaded: "+str(self))
         ##############################################################################
 
     def _to_retrain(self):
@@ -43,7 +43,7 @@ class Trainable(Savable,metaclass=ABCMeta):
 
     def write(self):
         filepath = self.context.get_path(self)
-       
+        del self.local_config['dataset']
         dump = {
             "model" : self.model,
             "config": self.local_config
@@ -61,6 +61,7 @@ class Trainable(Savable,metaclass=ABCMeta):
                 dump = pickle.load(f)
                 self.model = dump['model']
                 self.local_config = dump['config']
+                self.local_config['dataset'] = self.dataset
     
     @abstractmethod
     def init(self):

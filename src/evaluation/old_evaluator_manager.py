@@ -1,5 +1,5 @@
 import random
-from src.n_dataset.dataset_factory import DatasetFactory
+from src.dataset.dataset_factory import DatasetFactory
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.evaluation.evaluator_base import Evaluator
 from src.explainer.explainer_factory import ExplainerFactory
@@ -13,7 +13,7 @@ class EvaluatorManager:
     def __init__(self, context: Context) -> None:
         self.context = context
         
-        self.context.factories['datasets'] = DatasetFactory(context, context.conf['datasets'])
+        self.context.factories['datasets'] = DatasetFactory(context.dataset_store_path)
         self.context.factories['embedders'] = EmbedderFactory(context)
         self.context.factories['oracles'] = OracleFactory(context, context.conf['oracles'])
         self.context.factories['explainers'] = ExplainerFactory(context.explainer_store_path)
@@ -36,6 +36,53 @@ class EvaluatorManager:
     def evaluators(self, new_evaluators_list):
         self._evaluators = new_evaluators_list
         
+
+    def generate_synthetic_datasets(self):
+        """Generates the synthetic datasets and stores them on disk, allowing them to be loaded later
+         by the other methods without the need for them to be generated on the fly
+
+        -------------
+        INPUT: None
+
+        -------------
+        OUTPUT: None
+        """
+        # Given the datasets are generated on the fly, this method only calls the get_dataset_by_name method
+        for dataset_dict in self.context.conf['datasets']:
+            self.context.factories['datasets'].get_dataset_by_name(dataset_dict)
+
+
+    def train_oracles(self):
+        """Trains the oracles and store them on disk, allowing to use them later without needing
+         to train again. Trains one oracle of each kind for each dataset.
+         
+        -------------
+        INPUT: None
+
+        -------------
+        OUTPUT: None
+        """
+        dataset_dicts = self.context.conf['datasets']
+        oracle_dicts = self.context.conf['oracles']
+
+        # Create the datasets needed for fitting the oracles
+        for dataset_dict in dataset_dicts:
+            self.datasets.append(self.context.factories['datasets'].get_dataset_by_name(dataset_dict))
+
+        # For each dataset create and fit all oracles
+        for dataset in self.datasets:
+            for oracle_dict in oracle_dicts:
+                oracle_dict['dataset'] = dataset
+                # The get_oracle_by_name method returns a fitted oracle
+                oracle = self.context.factories['oracles'].get_oracle(oracle_dict)
+                self.oracles.append(oracle)
+
+        # The goal of this method is to train the oracles and store them on disk to use them later
+        # For this reason we clean the datasets and oracles lists after using them
+        self.datasets = []
+        self.oracles = []
+
+        
     def create_evaluators(self):
         """Creates one evaluator for each combination of dataset-oracle-explainer using the chosen metrics
          
@@ -52,7 +99,7 @@ class EvaluatorManager:
 
         # Create the datasets
         for dataset_dict in dataset_dicts:
-            self.datasets.append(self.context.factories['datasets'].get_dataset(dataset_dict))
+            self.datasets.append(self.context.factories['datasets'].get_dataset_by_name(dataset_dict))
 
         # Create the evaluation metrics
         for metric_dict in metric_dicts:
