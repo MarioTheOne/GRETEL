@@ -1,8 +1,8 @@
-from src.core.oracle_base import Oracle
+from src.oracle.custom.custom_base import CustomOracle
 
 import numpy as np
 
-class TrianglesSquaresOracle(Oracle):
+class TrianglesSquaresOracle(CustomOracle):
 
     def _real_predict(self, data_instance):
         # Classify
@@ -17,6 +17,7 @@ class TrianglesSquaresOracle(Oracle):
             return np.array([[0,1]]) # triangle
         else:
             return np.array([[1,0]]) # other shape (squares)
+
 
 
     

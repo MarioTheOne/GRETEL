@@ -1,8 +1,8 @@
-from src.core.oracle_base import Oracle
+from src.oracle.custom.custom_base import CustomOracle
 
 import numpy as np
 
-class ASDOracle(Oracle):
+class ASDOracle(CustomOracle):
     
     #TODO: Revise _real_predict_* in order to produce a kind of probabilities  
     def _real_predict_proba(self, data_instance):

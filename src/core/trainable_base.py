@@ -19,8 +19,8 @@ class Trainable(Savable,metaclass=ABCMeta):
         # real init details
         self.init()
         # retrain if explicitely specified or if the weights of the model don't exists
-
-        lock = Lock(self.context.get_path(self)+'.lck',lifetime=timedelta(hours=self.context.lock_release_tout))
+        self.load_or_save(self._to_retrain() or not self.saved())
+        """lock = Lock(self.context.get_path(self)+'.lck',lifetime=timedelta(hours=self.context.lock_release_tout))
         with lock:
             if self._to_retrain() or not self.saved():
                 self.context.logger.info("Need to be train: "+str(self))
@@ -28,7 +28,7 @@ class Trainable(Savable,metaclass=ABCMeta):
                 self.context.logger.info("Trained: "+str(self))
             else:
                 self.read()
-                self.context.logger.info("Loaded: "+str(self))
+                self.context.logger.info("Loaded: "+str(self))"""
         ##############################################################################
 
     def _to_retrain(self):
@@ -40,10 +40,12 @@ class Trainable(Savable,metaclass=ABCMeta):
         self.real_fit()
         self.write()
         self.context.logger.info(str(self)+" saved.")
+        
+    def create(self):
+        self.fit()
 
     def write(self):
         filepath = self.context.get_path(self)
-        del self.local_config['dataset']
         dump = {
             "model" : self.model,
             "config": self.local_config
@@ -61,14 +63,9 @@ class Trainable(Savable,metaclass=ABCMeta):
                 dump = pickle.load(f)
                 self.model = dump['model']
                 self.local_config = dump['config']
-                self.local_config['dataset'] = self.dataset
     
     @abstractmethod
     def init(self):
-        pass
-    
-    @abstractmethod
-    def check_configuration(self, local_config):
         pass
 
     @abstractmethod

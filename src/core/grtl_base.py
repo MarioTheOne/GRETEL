@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from src.utils.context import Context
 import copy
 
@@ -17,3 +17,8 @@ class Base(metaclass=ABCMeta):
     
     def __str__(self):
         return self.name
+    
+    
+    @abstractmethod
+    def check_configuration(self, local_config):
+        pass

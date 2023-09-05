@@ -8,7 +8,7 @@ from torch_geometric.loader import DataLoader
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
 from src.core.oracle_base import Oracle
-from src.utils.utils import get_instance_kvargs, add_init_defaults_params
+from src.utils.utils import get_instance_kvargs, config_default
 
 class OracleTorch(Oracle):
        
@@ -41,8 +41,7 @@ class OracleTorch(Oracle):
             
     def real_fit(self):
         fold_id = self.local_config['parameters']['fold_id']
-        dataset = self.converter.convert(self.dataset)
-        loader = self._transform_data(dataset, fold_id=fold_id, usage='train')
+        loader = self._transform_data(self.dataset, fold_id=fold_id, usage='train')
         
         for epoch in range(self.epochs):
             
@@ -67,7 +66,7 @@ class OracleTorch(Oracle):
                 
                 self.optimizer.step()
             self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t Train accuracy = {np.mean(accuracy):.4f}')
-        self.evaluate(dataset, fold_id=fold_id)
+        self.evaluate(self.dataset, fold_id=fold_id)
             
     @torch.no_grad()        
     def evaluate(self, dataset: Dataset, fold_id=0):            
@@ -99,7 +98,6 @@ class OracleTorch(Oracle):
     
     @torch.no_grad()
     def _real_predict_proba(self, data_instance):       
-        data_instance = self.converter.convert_instance(data_instance)
         data_inst = TorchGeometricDataset([data_instance])
 
         data = data_inst.instances[0]
@@ -111,11 +109,10 @@ class OracleTorch(Oracle):
         
         
     def _transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     
-        indices = dataset.get_split_indices()[fold_id][usage]
+        indices = dataset.get_split_indices(fold_id)[usage]
         data_list = [inst for inst in dataset.instances if inst.id in indices]
         dgl_dataset = TorchGeometricDataset(data_list)        
-        dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True,generator=torch.Generator(device=self.device))
-        
+        dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True, generator=torch.Generator(device=self.device))
         return dataloader
     
                      
@@ -127,19 +124,8 @@ class OracleTorch(Oracle):
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
         
         # populate the optimizer
-        self.__config_helper(local_config, 'optimizer', 'torch.optim.Adam')
-        self.__config_helper(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
-        self.__config_helper(local_config, 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')
+        config_default(local_config, 'optimizer', 'torch.optim.Adam')
+        config_default(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
+        config_default(local_config, 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')
         
         return local_config
-    
-    #TODO: Generalize this function and made it available to all.
-    def __config_helper(self, node, key, kls):
-        if key not in node['parameters']:
-            node['parameters'][key] = {
-                "class": kls, 
-                "parameters": { }
-            }
-
-        node_config = add_init_defaults_params(kls, node['parameters'][key]['parameters'])
-        node['parameters'][key]['parameters'] = node_config

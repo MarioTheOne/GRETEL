@@ -11,6 +11,9 @@ class Embedder(Trainable,metaclass=ABCMeta):
     def get_embedding(self, instance):
         pass
     
+    def check_configuration(self, local_config):
+        return local_config
+    
 
 
    

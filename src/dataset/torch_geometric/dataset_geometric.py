@@ -29,7 +29,7 @@ class TorchGeometricDataset(Dataset):
     return self.instances[idx]
   
   def _process(self, instances):
-    self.instances = [self.to_geometric(inst, label=inst.graph_label) for inst in instances]
+    self.instances = [self.to_geometric(inst, label=inst.label) for inst in instances]
       
   @classmethod
   def to_geometric(self, instance: DataInstance, label=0) -> Data: 
@@ -40,7 +40,7 @@ class TorchGeometricDataset(Dataset):
             if torch.backends.mps.is_available()
             else "cpu"
         )  
-    adj = torch.from_numpy(instance.to_numpy_array()).double()
+    adj = torch.from_numpy(instance.data).double()
     x = torch.from_numpy(instance.features).double()
 
     a = torch.nonzero(torch.triu(adj))

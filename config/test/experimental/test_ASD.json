@@ -20,7 +20,7 @@
                     "parameters": { "data_dir": "data/datasets/autism/" }
                 },
                 "manipulators": [
-                    { "class": "src.n_dataset.manipulators.", "parameters": {} }
+                    { "class": "src.n_dataset.manipulators.centralities.NodeCentrality", "parameters": {} }
                 ]
             } 
         } 

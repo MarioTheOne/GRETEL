@@ -24,8 +24,5 @@ class RDKFingerprintEmbedder(Embedder):
         fingerprint_rdk_np = np.array(fingerprint_rdk)
         return fingerprint_rdk_np
     
-    def check_configuration(self, local_config):
-        return local_config
-    
     
     

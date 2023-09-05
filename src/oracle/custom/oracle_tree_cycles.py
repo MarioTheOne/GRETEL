@@ -1,9 +1,9 @@
-from src.core.oracle_base import Oracle
+from src.oracle.custom.custom_base import CustomOracle
 
 import numpy as np
 import networkx as nx
 
-class TreeCyclesOracle(Oracle):
+class TreeCyclesOracle(CustomOracle):
 
     def _real_predict(self, data_instance):
         try:

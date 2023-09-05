@@ -41,7 +41,7 @@ class BaseManipulator(Base):
             self.manipulated = True
         
     def __process_map(self, curr_map, dataset_map):
-        _max = max(dataset_map.values())
+        _max = max(dataset_map.values()) if dataset_map.values() else -1
         for key in curr_map:
             if key not in dataset_map:
                 _max += 1
@@ -49,13 +49,27 @@ class BaseManipulator(Base):
         return dataset_map
     
     def __process_features(self, features, curr_map, dataset_map):
-        old_feature_dim = features.shape[1]
-        features = np.pad(features,
-                          pad_width=((0, 0), (0, len(dataset_map) - old_feature_dim)),
-                          constant_values=0)
-        for key in curr_map:
-            index = dataset_map[key]
-            features[:, index] = curr_map[key]
-            
+        if curr_map:
+            if not isinstance(features, np.ndarray):
+                features = np.array([])
+            try:
+                old_feature_dim = features.shape[1]
+            except IndexError:
+                old_feature_dim = 0
+            # If the feature vector doesn't exist, then
+            # here we're creating it for the first time
+            if old_feature_dim:
+                features = np.pad(features,
+                                pad_width=((0, 0), (0, len(dataset_map) - old_feature_dim)),
+                                constant_values=0)
+            else:
+                features = np.zeros((len(list(curr_map.values())[0]), len(dataset_map)))
+                
+            for key in curr_map:
+                index = dataset_map[key]
+                features[:, index] = curr_map[key]
+                            
         return features
     
+    def check_configuration(self, local_config):
+        return local_config

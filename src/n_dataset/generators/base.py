@@ -36,3 +36,6 @@ class Generator(Base, metaclass=ABCMeta):
     
     def reset_iterator(self):
         self.current = 0
+        
+    def check_configuration(self, local_config):
+        return local_config

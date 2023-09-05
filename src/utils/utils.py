@@ -81,6 +81,19 @@ def add_init_defaults_params(kls, config_node):
     embedder_params = {**embedder_cls_params, **embedder_params}
     return embedder_params
 
+
+def config_default(node, key, kls):
+    if key not in node['parameters']:
+        node['parameters'][key] = {
+            "class": kls, 
+            "parameters": { }
+        }
+    node_config = add_init_defaults_params(kls, node['parameters'][key]['parameters'])
+    node['parameters'][key]['parameters'] = node_config
+    
+def build_default_config_obj(kls):
+    config = {"class": kls, "parameters": add_init_defaults_params(kls, {})}
+    return config
 # from src.utils.utils import update_saved_pyg 
 
 #input_file="/NFSHOME/mprado/CODE/gretel-steel-2/GRETEL/data/explainers/clear_fit_on_tree-cycles_instances-500_nodes_per_inst-28_nodes_in_cycles-7_fold_id=0_batch_size_ratio=0.15_alpha=0.4_lr=0.01_weight_decay=5e-05_epochs=600_dropout=0.1/old_explainer"
