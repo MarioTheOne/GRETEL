@@ -14,6 +14,10 @@ class Dataset(Savable):
         self._instance_id_counter = 0
         self.instances: List[DataInstance] = []
         
+        self.node_features_map = {}
+        self.edge_features_map = {}
+        self.graph_features_map = {}
+        
         if 'generator' in self.local_config['parameters']:
             self.generator = get_instance_kvargs(self.local_config['parameters']['generator']['class'],
                                                  {
@@ -34,7 +38,6 @@ class Dataset(Savable):
             store_path = self.context.get_path(self)
             with open(store_path, 'rb') as f:
                 self.instances = pickle.load(f)
-                # re-attach context
                 self._instance_id_counter = len(self.instances)
     
     def write(self):

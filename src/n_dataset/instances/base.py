@@ -15,5 +15,9 @@ class DataInstance:
     def dataset(self, new_dataset):
         self._dataset = new_dataset
         
+    @property
+    def num_nodes(self):
+        return len(self.data)
+        
     
     
