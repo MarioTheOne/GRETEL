@@ -1,7 +1,7 @@
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.explainer.ensemble.ensemble_base import EnsembleExplainer
 from src.explainer.ensemble.ensemble_pe import PEEnsembleExplainer
-from src.explainer.explainer_base import Explainer
+from src.core.explainer_base import Explainer
 
 class EnsembleFactory:
 

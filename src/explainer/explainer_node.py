@@ -8,7 +8,7 @@ import torch.optim as optim
 from src.oracle.todo.oracle_node_pt import NodeOracle
 from src.dataset.data_instance_node import NodeDataInstance
 from src.dataset.dataset_base import Dataset
-from src.explainer.explainer_base import Explainer
+from src.core.explainer_base import Explainer
 from src.utils.cfgnnexplainer.utils import normalize_adj
 from torch.nn.utils import clip_grad_norm
 from torch_geometric.utils import dense_to_sparse

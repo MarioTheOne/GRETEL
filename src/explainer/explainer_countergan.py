@@ -1,4 +1,4 @@
-from src.explainer.explainer_base import Explainer
+from src.core.explainer_base import Explainer
 from src.dataset.dataset_base import Dataset
 from src.core.oracle_base import Oracle
 from src.dataset.data_instance_base import DataInstance

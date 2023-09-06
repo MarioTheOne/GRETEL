@@ -7,8 +7,7 @@ from torch_geometric.loader import DataLoader
 
 from src.core.savable import Savable
 from src.n_dataset.instances.base import DataInstance
-from src.n_dataset.dataset_utils.utils import \
-    TorchGeometricDataset
+from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 from src.utils.context import Context
 from src.utils.utils import get_instance_kvargs, get_class
 
@@ -49,6 +48,7 @@ class Dataset(Savable):
                                     "local_config": manipulator,
                                     "dataset": self
                                 })
+            self.context.logger.info("Instantiated: "+manipulator['class'])
             
         self.generate_splits(n_splits=self.local_config['parameters']['n_splits'],
                              shuffle=self.local_config['parameters']['shuffle'])

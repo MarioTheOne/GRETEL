@@ -12,7 +12,7 @@ from src.dataset.converters.causality_converter import \
     DefaultCausalityConverter
 from src.dataset.data_instance_features import DataInstanceWFeatures
 from src.dataset.dataset_base import Dataset
-from src.explainer.explainer_base import Explainer
+from src.core.explainer_base import Explainer
 from src.core.oracle_base import Oracle
 
 

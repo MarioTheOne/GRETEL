@@ -3,7 +3,7 @@ from src.dataset.converters.weights_converter import \
     DefaultFeatureAndWeightConverter
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
 from src.explainer.ensemble.ensemble_factory import EnsembleFactory
-from src.explainer.explainer_base import Explainer
+from src.core.explainer_base import Explainer
 from src.explainer.explainer_bidirectional_search import (
     DataDrivenBidirectionalSearchExplainer,
     ObliviousBidirectionalSearchExplainer)
