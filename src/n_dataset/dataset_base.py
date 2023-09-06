@@ -11,14 +11,14 @@ from src.n_dataset.instances.base import DataInstance
 from src.n_dataset.dataset_utils.dataset_torch import \
     TorchGeometricDataset
 from src.utils.context import Context
-from src.utils.utils import get_instance_kvargs
+from src.utils.utils import get_instance_kvargs, get_class
 
 
 class Dataset(Savable):
     
     def __init__(self, context:Context, local_config) -> None:
         super().__init__(context, local_config)
-        self.generator = None
+        
         ################### PREAMBLE ###################
         self.instances: List[DataInstance] = []
         
@@ -144,5 +144,5 @@ class Dataset(Savable):
     
     @property
     def name(self):
-        alias = self.generator.__class__.__name__ if self.generator == None else None
+        alias = get_class( self.local_config['parameters']['generator']['class'] ).__class__.__name__
         return self.context.get_name(self,alias=alias)
