@@ -23,7 +23,7 @@
     ],
     "explainers": [
             {
-                "name": "graph_countergan", 
+                "class": "src.explainers.GraphCounteRGANExplainer", 
                 "parameters": {
                     "n_nodes": 28,
                     "converter": "tree_cycles",
