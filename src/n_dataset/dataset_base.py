@@ -6,7 +6,6 @@ from src.utils.context import Context
 from src.utils.utils import get_instance_kvargs, build_default_config_obj
 from sklearn.model_selection import StratifiedKFold
 
-
 class Dataset(Savable):
     
     def __init__(self, context:Context, local_config) -> None:
@@ -87,11 +86,11 @@ class Dataset(Savable):
         if 'generator' not in local_config['parameters']:
             raise ValueError(f'''The "generator" parameter needs to be specified in {self}''')
         
-        if 'manipulators' not in local_config['parameters'] or not len(local_config['parameters']['manipulators']):
+        if 'manipulators' not in local_config['parameters']: # or not len(local_config['parameters']['manipulators']):
             local_config['parameters']['manipulators'] = []
         
-        local_config['parameters']['manipulators'].append(build_default_config_obj("src.n_dataset.manipulators.centralities.NodeCentrality"))
-        local_config['parameters']['manipulators'].append(build_default_config_obj("src.n_dataset.manipulators.weights.EdgeWeights"))
+        #local_config['parameters']['manipulators'].append(build_default_config_obj("src.n_dataset.manipulators.centralities.NodeCentrality"))
+        #local_config['parameters']['manipulators'].append(build_default_config_obj("src.n_dataset.manipulators.weights.EdgeWeights"))
             
         local_config['parameters']['n_splits'] = local_config['parameters'].get('n_splits', 10)
         local_config['parameters']['shuffle'] = local_config['parameters'].get('shuffle', True)
