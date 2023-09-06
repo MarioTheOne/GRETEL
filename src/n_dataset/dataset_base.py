@@ -100,7 +100,7 @@ class Dataset(Savable):
         # get the train/test indices from the dataset
         indices = self.get_split_indices(fold_id)[usage]
         # get only the indices of a specific class
-        if kls != -1: 
+        if kls != -1:
             indices = list(set(indices).difference(set(self.class_indices()[kls])))
         return DataLoader(Subset(self._torch_repr, indices), batch_size=batch_size, shuffle=True)
     
