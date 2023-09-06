@@ -25,15 +25,9 @@
             "reduction": "mean"
           }
         },
-        "converter": {
-          "class": "src.dataset.converters.tree_cycles_converter.TreeCyclesConverter",
-          "parameters": {
-            "feature_dim": 8
-          }
-        },
         "model": { 
           "class": "src.oracle.nn.gcn.GCN",
-          "parameters": { "node_features": 8 , "num_conv_layers":3}
+          "parameters": {"num_conv_layers":3}
       } 
     }   
 }

@@ -3,7 +3,6 @@ import os
 import pickle
 import numpy as np
 import torch
-from torch_geometric.loader import DataLoader
 
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
@@ -24,9 +23,6 @@ class OracleTorch(Oracle):
         self.loss_fn = get_instance_kvargs(self.local_config['parameters']['loss_fn']['class'],
                                         self.local_config['parameters']['loss_fn']['parameters'])
         
-        self.converter = get_instance_kvargs(self.local_config['parameters']['converter']['class'],
-                                      self.local_config['parameters']['converter']['parameters'])
-        
         self.batch_size = self.local_config['parameters']['batch_size']
         
         #TODO: Need to fix GPU support!!!!
@@ -41,7 +37,7 @@ class OracleTorch(Oracle):
             
     def real_fit(self):
         fold_id = self.local_config['parameters']['fold_id']
-        loader = self._transform_data(self.dataset, fold_id=fold_id, usage='train')
+        loader = self.dataset.get_torch_loader(fold_id=fold_id, batch_size=self.batch_size, usage='train')
         
         for epoch in range(self.epochs):
             
@@ -70,8 +66,7 @@ class OracleTorch(Oracle):
             
     @torch.no_grad()        
     def evaluate(self, dataset: Dataset, fold_id=0):            
-        #dataset = self.converter.convert(dataset)
-        loader = self._transform_data(dataset, fold_id=fold_id, usage='test')
+        loader = dataset.get_torch_loader(fold_id=fold_id, batch_size=self.batch_size, usage='test')
         
         losses = []
         accuracy = []
@@ -94,7 +89,7 @@ class OracleTorch(Oracle):
 
 
     def _real_predict(self, data_instance):
-        return  torch.argmax(self._real_predict_proba(data_instance))
+        return torch.argmax(self._real_predict_proba(data_instance))
     
     @torch.no_grad()
     def _real_predict_proba(self, data_instance):       
@@ -106,26 +101,25 @@ class OracleTorch(Oracle):
         edge_weights = data.edge_attr.to(self.device)
 
         return self.model(node_features,edge_index,edge_weights, None).squeeze()
-        
-        
-    def _transform_data(self, dataset: Dataset, fold_id=-1, usage='train'):                     
-        indices = dataset.get_split_indices(fold_id)[usage]
-        data_list = [inst for inst in dataset.instances if inst.id in indices]
-        dgl_dataset = TorchGeometricDataset(data_list)        
-        dataloader = DataLoader(dgl_dataset, batch_size=self.batch_size, shuffle=True, generator=torch.Generator(device=self.device))
-        return dataloader
     
                      
     def check_configuration(self, local_config):
         local_config['parameters'] = local_config.get('parameters', {})
-        
+
+        if 'model' not in local_config['parameters']:
+            local_config['parameters']['model'] = {
+                'class': "src.oracle.nn.gcn.GCN",
+                "parameters" : {}
+            }
+
         # set defaults
         local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
+        local_config['parameters']['model']['parameters']['node_features'] = self.dataset.num_node_features()
+        local_config['parameters']['model']['parameters']['n_classes'] = self.dataset.num_classes
         
         # populate the optimizer
         config_default(local_config, 'optimizer', 'torch.optim.Adam')
         config_default(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
-        config_default(local_config, 'converter', 'src.dataset.converters.weights_converter.DefaultFeatureAndWeightConverter')
         
         return local_config

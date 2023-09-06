@@ -1,10 +1,18 @@
 import pickle
 from typing import List
+
+from sklearn.model_selection import StratifiedKFold
+from torch import Generator
+from torch.utils.data import Subset
+from torch_geometric.loader import DataLoader
+
 from src.core.savable import Savable
 from src.n_dataset.instances.base import DataInstance
+from src.n_dataset.torch_geometric.dataset_geometric import \
+    TorchGeometricDataset
 from src.utils.context import Context
-from src.utils.utils import get_instance_kvargs, build_default_config_obj
-from sklearn.model_selection import StratifiedKFold
+from src.utils.utils import get_instance_kvargs
+
 
 class Dataset(Savable):
     
@@ -17,6 +25,8 @@ class Dataset(Savable):
         self.graph_features_map = {}
         
         self.splits = []
+        self._torch_repr = None
+        self._class_indices = {}
         
         self.check_configuration(self.local_config)
         self.load_or_save()
@@ -48,10 +58,28 @@ class Dataset(Savable):
     def get_instance(self, i: int):
         return self.instances[i]
     
+    def num_node_features(self):
+        return len(self.node_features_map)
+    
+    def num_edge_features(self):
+        return len(self.edge_feature_map)
+    
+    def num_graph_features(self):
+        return len(self.graph_feature_map)
+    
+    def class_indices(self):
+        if not self._class_indices:
+            for i, inst in enumerate(self.instances):
+                self._class_indices[inst.label] = self._class_indices.get(inst.label, []) + [i]
+        return self._class_indices
+    
+    @property        
+    def num_classes(self):
+        return len(self.class_indices())
+    
     def get_split_indices(self, fold_id=-1):
-        print(self.splits)
         if fold_id == -1:
-            return {'train': list(self.splits[0].values()), 'test': []}
+            return {'train': list(range(0, len(self.instances))), 'test': list(range(0, len(self.instances))) }
         else:
             return self.splits[fold_id]
     
@@ -59,22 +87,33 @@ class Dataset(Savable):
         kf = StratifiedKFold(n_splits=n_splits, shuffle=shuffle)
         spl = kf.split([g for g in self.instances], [g.label for g in self.instances])
         for train_index, test_index in spl:
-            self.splits.append({'train': train_index, 'test': test_index})
+            self.splits.append({'train': train_index.tolist(), 'test': test_index.tolist()})
+            
+    def get_torch_loader(self, fold_id=-1, batch_size=4, usage='train', kls=-1):
+        if not self._torch_repr:
+            self._torch_repr = TorchGeometricDataset(self.instances)
+        # get the train/test indices from the dataset
+        indices = self.get_split_indices(fold_id)[usage]
+        # get only the indices of a specific class
+        if kls != -1: 
+            indices = list(set(indices).difference(set(self.class_indices()[kls])))
+        return DataLoader(Subset(self._torch_repr, indices), batch_size=batch_size, shuffle=True)
     
     def read(self):
         if self.saved():
             store_path = self.context.get_path(self)
             with open(store_path, 'rb') as f:
                 dump = pickle.load(f)
-                self = dump['dataset']
+                self.instances = dump['instances']
+                self.splits = dump['splits']
                 self.local_config = dump['config']
-                print(self.splits[0])
                 
     def write(self):
         store_path = self.context.get_path(self)
         
         dump = {
-            "dataset" : self,
+            "instances" : self.instances,
+            "splits": self.splits,
             "config": self.local_config
         }
         
