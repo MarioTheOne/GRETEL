@@ -2,13 +2,12 @@ import pickle
 from typing import List
 
 from sklearn.model_selection import StratifiedKFold
-from torch import Generator
 from torch.utils.data import Subset
 from torch_geometric.loader import DataLoader
 
 from src.core.savable import Savable
 from src.n_dataset.instances.base import DataInstance
-from src.n_dataset.dataset_utils.dataset_torch import \
+from src.n_dataset.dataset_utils.utils import \
     TorchGeometricDataset
 from src.utils.context import Context
 from src.utils.utils import get_instance_kvargs, get_class

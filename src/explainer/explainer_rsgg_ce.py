@@ -12,7 +12,7 @@ import wandb
 from src.dataset.data_instance_base import DataInstance
 from src.dataset.dataset_base import Dataset
 from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
-from src.explainer.explainer_base import Explainer
+from src.core.explainer_base import Explainer
 from src.core.oracle_base import Oracle
 from src.utils.logger import GLogger
 from src.utils.samplers.abstract_sampler import Sampler
@@ -130,7 +130,6 @@ class GraphCounteRGANExplainer(Explainer):
 
     else:
       self.name = explainer_name
-      dataset = self.converter.convert(dataset)
       for i in range(self.n_labels):
         self.__fit(self.explainers[i], oracle, dataset, desired_label=i)
 
