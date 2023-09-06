@@ -144,5 +144,5 @@ class Dataset(Savable):
     
     @property
     def name(self):
-        alias = get_class( self.local_config['parameters']['generator']['class'] ).__class__.__name__
+        alias = get_class( self.local_config['parameters']['generator']['class'] ).__name__
         return self.context.get_name(self,alias=alias)
