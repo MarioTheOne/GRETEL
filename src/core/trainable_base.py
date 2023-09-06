@@ -19,7 +19,7 @@ class Trainable(Savable,metaclass=ABCMeta):
         # real init details
         self.init()
         # retrain if explicitely specified or if the weights of the model don't exists
-        self.load_or_save(self._to_retrain() or not self.saved())
+        self.load_or_create(self._to_retrain() or not self.saved())
         """lock = Lock(self.context.get_path(self)+'.lck',lifetime=timedelta(hours=self.context.lock_release_tout))
         with lock:
             if self._to_retrain() or not self.saved():

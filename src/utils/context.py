@@ -83,8 +83,8 @@ class Context(object):
             return klass.__qualname__ # avoid outputs like 'builtins.str'
         return module + '.' + klass.__qualname__
         
-    def get_name(self, inst, dictionary=None):
-        cls = inst.__class__.__name__
+    def get_name(self, inst, dictionary=None, alias=None):        
+        cls = inst.__class__.__name__ if not alias else alias
         dictionary= inst.local_config if dictionary is None else dictionary
         md5_hash = hashlib.md5()       
 

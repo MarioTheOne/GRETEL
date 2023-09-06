@@ -5,7 +5,6 @@ from torch_geometric.data import Data, Dataset
 
 from src.n_dataset.instances.graph import GraphInstance
 
-
 class TorchGeometricDataset(Dataset):
   
   def __init__(self, instances: List[GraphInstance]):

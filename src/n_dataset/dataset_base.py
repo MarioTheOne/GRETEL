@@ -8,7 +8,7 @@ from torch_geometric.loader import DataLoader
 
 from src.core.savable import Savable
 from src.n_dataset.instances.base import DataInstance
-from src.n_dataset.torch_geometric.dataset_geometric import \
+from src.n_dataset.dataset_utils.dataset_torch import \
     TorchGeometricDataset
 from src.utils.context import Context
 from src.utils.utils import get_instance_kvargs
@@ -18,6 +18,8 @@ class Dataset(Savable):
     
     def __init__(self, context:Context, local_config) -> None:
         super().__init__(context, local_config)
+        self.generator = None
+        ################### PREAMBLE ###################
         self.instances: List[DataInstance] = []
         
         self.node_features_map = {}
@@ -27,9 +29,11 @@ class Dataset(Savable):
         self.splits = []
         self._torch_repr = None
         self._class_indices = {}
+        #################################################
         
+        #TODO: I guess we can  move before everything and including it in the super class ->
         self.check_configuration(self.local_config)
-        self.load_or_save()
+        self.load_or_create()
         
     def create(self):
         self.generator = get_instance_kvargs(self.local_config['parameters']['generator']['class'],
@@ -51,6 +55,7 @@ class Dataset(Savable):
                              shuffle=self.local_config['parameters']['shuffle'])
     
         self.write()
+
         
     def get_data(self):
         return self.instances
@@ -79,6 +84,7 @@ class Dataset(Savable):
     
     def get_split_indices(self, fold_id=-1):
         if fold_id == -1:
+            #NOTE: i am bit worried that it might be weak if you have sparse indices
             return {'train': list(range(0, len(self.instances))), 'test': list(range(0, len(self.instances))) }
         else:
             return self.splits[fold_id]
@@ -135,3 +141,8 @@ class Dataset(Savable):
         local_config['parameters']['shuffle'] = local_config['parameters'].get('shuffle', True)
         
         return local_config
+    
+    @property
+    def name(self):
+        alias = self.generator.__class__.__name__ if self.generator == None else None
+        return self.context.get_name(self,alias=alias)
