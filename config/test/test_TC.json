@@ -32,7 +32,7 @@
                     "sampling_iterations": 50,
                     "feature_dim": 8,
                     "lr_generator": 0.001,
-                    "lr_discriminator": 0.001
+                    "lr_discriminator": 0.001                    
                 } 
             }
         ]    

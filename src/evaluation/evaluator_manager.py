@@ -16,7 +16,7 @@ class EvaluatorManager:
         self.context.factories['datasets'] = DatasetFactory(context, context.conf['datasets'])
         self.context.factories['embedders'] = EmbedderFactory(context)
         self.context.factories['oracles'] = OracleFactory(context, context.conf['oracles'])
-        self.context.factories['explainers'] = ExplainerFactory(context.explainer_store_path)
+        self.context.factories['explainers'] = ExplainerFactory(context, context.conf['explainers'])
         self.context.factories['metrics'] = EvaluationMetricFactory(context.conf)
         self._output_store_path = context.output_store_path
 
@@ -61,7 +61,8 @@ class EvaluatorManager:
 
         #TODO: DANGEROUS wrong logic: explainer creation must be inseterd in the nested loop to avoid side effects. Copy the snippet before passing it.
         for explainer_dict in explainer_dicts:
-            explainer = self.context.factories['explainers'].get_explainer_by_name(explainer_dict, self.context.factories['metrics'])
+            explainer = self.context.factories['explainers']. get_explainer(self, explainer_dict)
+            #.get_explainer_by_name(explainer_dict, self.context.factories['metrics'])
             self.explainers.append(explainer)
 
         #TODO: Shuffling dataset and explainers creation. Must be better implemented after refactoring.
