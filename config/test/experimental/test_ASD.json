@@ -4,19 +4,14 @@
         "parameters" : {
             "lock_release_tout":120,
             "propagate":[
-                {"params" : {"fold_id": 0},  "in_sections" : ["explainers"]},
-                {"params" : {"fold_id": -1,"retrain":false}, "in_sections" : ["oracles"]},
-                {"params": 
-                    {
-                        "compose_mes" : "config/test/configured/centr_and_weights.json"
-                    }, 
-                    "in_sections": ["datasets"]
-                }
+                {"in_sections" : ["explainers"],"params" : {"fold_id": 0}},
+                {"in_sections" : ["oracles"],"params" : {"fold_id": -1,"retrain":false}},
+                {"in_sections": ["datasets"],"params": { "compose_mes" : "config/snippets/centr_and_weights.json" }}
             ]
         }
     },
-    "compose_mes" : "config/test/configured/default_metrics.json",
-    "compose_strs" : "config/test/configured/default_store_paths.json",
+    "compose_mes" : "config/snippets/default_metrics.json",
+    "compose_strs" : "config/snippets/default_store_paths.json",
     "datasets": [
         {
             "class": "src.n_dataset.dataset_base.Dataset",
@@ -29,9 +24,9 @@
         } 
     ],
     "oracles": [
-        {"compose_gcn" : "config/test/configured/GCNOracle.json"},
-        {"compose_gcn" : "config/test/configured/KNNOracle.json"},
-        {"compose_gcn" : "config/test/configured/SVMOracle.json"}
+        {"compose_gcn" : "config/snippets/GCNOracle.json"},
+        {"compose_gcn" : "config/snippets/KNNOracle.json"},
+        {"compose_gcn" : "config/snippets/SVMOracle.json"}
     ],
     "explainers": [
             {
