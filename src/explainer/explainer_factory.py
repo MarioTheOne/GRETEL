@@ -2,7 +2,8 @@ from src.core.factory_base import Factory
 from src.core.explainer_base import Explainer
 from typing import List
 
-class ExplainerFactory(Factory):      
+class ExplainerFactory(Factory):
+          
     def get_explainer(self, explainer_snippet):
         return self._get_object(explainer_snippet)
             

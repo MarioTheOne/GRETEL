@@ -65,6 +65,8 @@ def get_instance(kls, param):
     return get_class(kls)(param)
 
 def get_instance_kvargs(kls, param):
+    print(kls)
+    print(param)
     return get_class(kls)(**param)
 
 

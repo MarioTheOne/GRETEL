@@ -27,6 +27,7 @@ class Dataset(Savable):
         self.splits = []
         self._torch_repr = None
         self._class_indices = {}
+        self._num_nodes = None
         #################################################
         
         #TODO: I guess we can  move before everything and including it in the super class ->
@@ -66,10 +67,10 @@ class Dataset(Savable):
         return len(self.node_features_map)
     
     def num_edge_features(self):
-        return len(self.edge_feature_map)
+        return len(self.edge_features_map)
     
     def num_graph_features(self):
-        return len(self.graph_feature_map)
+        return len(self.graph_features_map)
     
     def class_indices(self):
         if not self._class_indices:
@@ -80,6 +81,12 @@ class Dataset(Savable):
     @property        
     def num_classes(self):
         return len(self.class_indices())
+    
+    @property
+    def num_nodes(self):
+        if not self._num_nodes:
+            self._num_nodes = len(self.get_instance(0).data)
+        return self._num_nodes
     
     def get_split_indices(self, fold_id=-1):
         if fold_id == -1:

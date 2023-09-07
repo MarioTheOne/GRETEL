@@ -59,12 +59,6 @@ class EvaluatorManager:
             eval_metric = self.context.factories['metrics'].get_evaluation_metric_by_name(metric_dict)
             self.evaluation_metrics.append(eval_metric)
 
-        #TODO: DANGEROUS wrong logic: explainer creation must be inseterd in the nested loop to avoid side effects. Copy the snippet before passing it.
-        for explainer_dict in explainer_dicts:
-            explainer = self.context.factories['explainers'].get_explainer(explainer_dict)
-            #.get_explainer_by_name(explainer_dict, self.context.factories['metrics'])
-            self.explainers.append(explainer)
-
         #TODO: Shuffling dataset and explainers creation. Must be better implemented after refactoring.
         random.shuffle(self.datasets)
         random.shuffle(self.explainers)
@@ -72,12 +66,14 @@ class EvaluatorManager:
 
         evaluator_id = 0
         for dataset in self.datasets:
-            for explainer in self.explainers:
+            for explainer_dict in explainer_dicts:
+                explainer_dict['dataset'] = dataset
+                explainer = self.context.factories['explainers'].get_explainer(explainer_dict)
+                
                 for oracle_dict in oracle_dicts:
                     oracle_dict['dataset'] = dataset
                     # The get_oracle_by_name method returns a fitted oracle
                     oracle = self.context.factories['oracles'].get_oracle(oracle_dict)
-
                     # Creating the evaluator
                     evaluator = Evaluator(evaluator_id, dataset, oracle, explainer, self.evaluation_metrics,
                                              self._output_store_path, self.context.run_number)

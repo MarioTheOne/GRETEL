@@ -30,17 +30,8 @@
     ],
     "explainers": [
             {
-                "name": "graph_countergan", 
-                "parameters": {
-                    "n_nodes": 28,
-                    "converter": "tree_cycles",
-                    "n_labels": 2,
-                    "training_iterations": 100,
-                    "sampling_iterations": 50,
-                    "feature_dim": 8,
-                    "lr_generator": 0.001,
-                    "lr_discriminator": 0.001
-                } 
+                "class": "src.explainer.generative.gans.explainer.GANExplainer", 
+                "parameters": {} 
             }
         ]    
 }

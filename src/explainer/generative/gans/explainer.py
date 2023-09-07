@@ -21,7 +21,8 @@ class GANExplainer(Explainer, TorchBase):
 
     
     def real_fit(self):
-        pass
+        for model in self.models:
+            model.read_fit()
             
     def explain(self, instance):            
         with torch.no_grad():
@@ -36,25 +37,28 @@ class GANExplainer(Explainer, TorchBase):
     
     
     def check_configuration(self, local_config):
-        local_config = super().check_configuration(local_config)
         #####################################################################
         # TODO: get_default classmethod for all Base objects
         if 'proto_model' not in self.local_config['parameters']:
             local_config['parameters']['proto_model'] = {
-                "class": "src.core.torch_base.TorchBase",
-                "parameters" : {
-                    "model": {
-                        "class": "src.explainer.generative.gans.model.GAN",
+                "class": "src.explainer.generative.gans.model.GAN",
+                "parameters": {
+                    "generator": {
+                        "class": "src.explainer.generative.gans.generators.residual_generator.ResGenerator",
                         "parameters": {
-                            "generator": {
-                                "class": "src.explainer.generative.gans.generators.GCNEncoder",
-                                "parameters": {}
-                            },
-                            "discriminator": {
-                                "class": "src.explainer.generative.gans.discriminators.SimpleDiscriminator",
-                                "parameters": {}
-                            }
+                            "node_features": self.dataset.num_node_features()
                         }
+                    },
+                    "discriminator": {
+                        "class": "src.explainer.generative.gans.discriminators.SimpleDiscriminator",
+                        "parameters": {
+                            "n_nodes": self.dataset.num_nodes,
+                            "node_features": self.dataset.num_node_features()
+                        }
+                    },
+                    "lr": {
+                        "generator": 0.001,
+                        "discriminator": 0.01
                     }
                 }
             }
@@ -64,6 +68,7 @@ class GANExplainer(Explainer, TorchBase):
                 "class": "src.n_samplers.partial_order_samplers.PositiveAndNegativeEdgeSampler",
                 "parameters": {}
             }
+        
         #####################################################################
         return local_config
     

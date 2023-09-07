@@ -17,7 +17,7 @@ class TorchBase(Trainable):
                                       {'params':self.model.parameters(), **self.local_config['parameters']['optimizer']['parameters']})
         
         self.loss_fn = get_instance_kvargs(self.local_config['parameters']['loss_fn']['class'],
-                                        self.local_config['parameters']['loss_fn']['parameters'])
+                                           self.local_config['parameters']['loss_fn']['parameters'])
         
         self.batch_size = self.local_config['parameters']['batch_size']
         
