@@ -11,16 +11,14 @@ from src.utils.utils import get_instance_kvargs
 class GAN(TorchBase):
     
     def init(self):
-        self.generator = get_instance_kvargs(self.local_config['parameters']['generator']['class'],
-                                             self.local_config['parameters']['generator']['parameters'])
+        self.generator = get_instance_kvargs(self.local_config['generator']['class'],
+                                             self.local_config['generator']['parameters'])
     
-        self.discriminator = get_instance_kvargs(self.local_config['parameters']['discriminator']['class'],
-                                                 self.local_config['parameters']['discriminator']['parameters'])
-        
-        self.explainee_label = self.local_config['parameters']['explainee_label']
-        
-        self.lr_discriminator = self.local_config['parameters']['lr']['discriminator']
-        self.lr_generator = self.local_config['parameters']['lr']['generator']
+        self.discriminator = get_instance_kvargs(self.local_config['discriminator']['class'],
+                                                 self.local_config['discriminator']['parameters'])
+                
+        self.lr_discriminator = self.local_config['lr']['discriminator']
+        self.lr_generator = self.local_config['lr']['generator']
         
         self.epochs = self.local_config['parameters']['epochs']
         

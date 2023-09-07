@@ -65,8 +65,6 @@ def get_instance(kls, param):
     return get_class(kls)(param)
 
 def get_instance_kvargs(kls, param):
-    print(kls)
-    print(param)
     return get_class(kls)(**param)
 
 
@@ -85,6 +83,7 @@ def add_init_defaults_params(kls, config_node):
 
 
 def config_default(node, key, kls):
+    print(node)
     if key not in node['parameters']:
         node['parameters'][key] = {
             "class": kls, 

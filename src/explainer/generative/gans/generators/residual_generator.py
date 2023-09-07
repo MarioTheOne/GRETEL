@@ -9,6 +9,8 @@ from src.utils.torch.gcn import GCN
 class ResGenerator(nn.Module):
     
     def __init__(self, node_features, num_conv_layers=2, conv_booster=2, residuals=True):
+        super(ResGenerator, self).__init__()
+        
         self.node_features = node_features
         self.num_conv_layers = num_conv_layers
         self.conv_booster = conv_booster
