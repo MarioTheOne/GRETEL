@@ -12,13 +12,13 @@ class Trainable(Savable,metaclass=ABCMeta):
         ##############################################################################
         # fit the model on a specific dataset
         # or read if already existing
-        self.dataset = self.local_config['dataset']        
-        self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
-        self.fold_id = self.local_config['parameters']['fold_id']
+        self.dataset = self.local_config['dataset']   #TODO: This cna be moved inside the init
+        self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)#TODO: Move inside the check configuration method
+        self.fold_id = self.local_config['parameters']['fold_id'] #TODO: Move inside the check configuration method
         #TODO: Add getDefault Method that return the default conf snippet of parameters conf node.
-        self.local_config = self.check_configuration(self.local_config)
+        self.local_config = self.check_configuration(self.local_config) #TODO: Move it in the __init__ of Base
         # real init details
-        self.init()
+        self.init() #TODO: Move it in the __init__ of Base
         # retrain if explicitely specified or if the weights of the model don't exists
         self.load_or_create(self._to_retrain() or not self.saved())
         ##############################################################################
@@ -30,7 +30,7 @@ class Trainable(Savable,metaclass=ABCMeta):
 
     def fit(self):
         self.real_fit()
-        self.write()
+        self.write() #TODO: Moving into the savable
         self.context.logger.info(str(self)+" saved.")
         
     def create(self):

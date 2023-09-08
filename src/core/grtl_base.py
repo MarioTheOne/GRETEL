@@ -10,6 +10,7 @@ class Base(metaclass=ABCMeta):
         super().__init__()
         self.context:Context = context
         self.local_config = copy.deepcopy(local_config) if local_config else None
+        
 
     @property
     def name(self):

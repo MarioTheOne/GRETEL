@@ -1,13 +1,14 @@
 from src.core.oracle_base import Oracle
 from src.utils.utils import add_init_defaults_params
 
-class TabularOracle(Oracle):   
+class TabularOracle(Oracle):#TODO: Made it Abstract class
     def init(self):
         embedding_snippet = self.local_config['parameters']['embedder'] 
         self.embedder = self.context.factories['embedders'].get_embedder(embedding_snippet)
+
         
     def real_fit(self):
-        fold_id = self.local_config['parameters']['fold_id']
+        fold_id = self.local_config['parameters']['fold_id'] #TODO: Can be reomved because it is at the moment inside the Trainable init.
         inst_vectors = self.embedder.get_embeddings()
 
         if fold_id == -1:

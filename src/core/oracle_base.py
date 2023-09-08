@@ -39,7 +39,7 @@ class Oracle(Trainable,metaclass=ABCMeta):
         return self._real_predict_proba(data_instance)
     
     @final
-    def retrain(self):
+    def retrain(self):#TODO: Move to trainable
         self.fit()
 
     @final
@@ -50,12 +50,13 @@ class Oracle(Trainable,metaclass=ABCMeta):
     def reset_call_count(self):
         self._call_counter = 0    
 
+    @final
     def predict_list(self, dataset: Dataset, fold_id=0):
         sptest = dataset.get_split_indices()[fold_id]['test']
         result = [self.predict(dataset.get_instance(i)) for i in sptest]
         return result
    
-    '''@abstractmethod'''#TODO: need to be reactivated and implemented.
+    '''@abstractmethod'''#TODO: need to be reactivated and implemented. May can be removed accordingly to Mario and GRETEL philosphy
     def evaluate(self, dataset: Dataset, fold_id=0):
         pass
     
