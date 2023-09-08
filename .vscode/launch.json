@@ -9,11 +9,12 @@
             "name": "Python: Current File with profiler",
             "type": "python",
             "request": "launch",
-            "module": "cProfile",
-            "console": "integratedTerminal",
-            "args": [
-                "-o", "output/tmp.prof", "${file}","./config/optimus/gc-test/fold_0.json", "1"
-            ]
+            "program": "${file}",
+            // "module": "cProfile",
+            "console": "integratedTerminal"
+            // "args": [
+                // "-o", "output/tmp.prof", "${file}","./config/optimus/gc-test/fold_0.json", "1"
+            // ]
         },
         {
             "name": "Python: Current File",
@@ -21,8 +22,8 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["./config/optimus/gc-test/fold_0.json", "1"],
+            "justMyCode": false,
+            // "args": ["./config/optimus/gc-test/fold_0.json", "1"],
         }
     ]
 }
