@@ -7,12 +7,6 @@ class Factory(Base,metaclass=ABCMeta):
         base_obj = get_class(object_snippet['class'])(self.context, object_snippet)
         self.context.logger.info("Created: "+ str(base_obj))
         return base_obj
-    
-    def check_configuration(self, local_config):
-        return local_config
-    
-    def get_default_cfg(self):
-        pass
 
 
 ################ Utilities functions for Object creation ################

@@ -15,9 +15,7 @@ from src.core.factory_base import get_class
 
 class Dataset(Savable):
     
-    def __init__(self, context:Context, local_config) -> None:
-        super().__init__(context, local_config)
-        
+    def init(self):
         ################### PREAMBLE ###################
         self.instances: List[DataInstance] = []
         
@@ -30,10 +28,7 @@ class Dataset(Savable):
         self._class_indices = {}
         self._num_nodes = None
         #################################################
-        
-        #TODO: I guess we can  move before everything and including it in the super class ->
-        self.check_configuration(self.local_config)
-        self.load_or_create()
+    
         
     def create(self):
         self.generator = get_instance_kvargs(self.local_config['parameters']['generator']['class'],
@@ -134,7 +129,9 @@ class Dataset(Savable):
             pickle.dump(dump, f)
             
             
-    def check_configuration(self, local_config):
+    def check_configuration(self):
+        super().check_configuration()
+        local_config = self.local_config
         if 'generator' not in local_config['parameters']:
             raise ValueError(f'''The "generator" parameter needs to be specified in {self}''')
         
@@ -147,7 +144,6 @@ class Dataset(Savable):
         local_config['parameters']['n_splits'] = local_config['parameters'].get('n_splits', 10)
         local_config['parameters']['shuffle'] = local_config['parameters'].get('shuffle', True)
         
-        return local_config
     
     @property
     def name(self):

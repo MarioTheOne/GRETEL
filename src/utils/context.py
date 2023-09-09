@@ -69,7 +69,6 @@ class Context(object):
             directory = os.path.join(self._get_store_path(qualifier), obj.dataset.__class__.__name__)
         else:
             directory = self._get_store_path(qualifier)
-        print(directory)
         lock = Lock(directory+'.lck',lifetime=timedelta(hours=self.lock_release_tout))
         with lock:
             if not os.path.exists(directory):

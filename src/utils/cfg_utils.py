@@ -1,7 +1,10 @@
-
-
 import inspect
+import json
 from src.core.factory_base import get_class
+
+def pprint(dic):
+    print(json.dumps(dic, indent=4))
+
 
 def inject_dataset(cfg, dataset):
     cfg['parameters'] = cfg.get('parameters',{})
@@ -20,16 +23,18 @@ def retake_oracle(cfg):
     return cfg['parameters']['oracle']
 
 def add_init_defaults_params(snippet, **kwargs):
-    default_embedder_cls = get_class(snippet['class'])
+    declared_cls = get_class(snippet['class'])
+    user_defined_params = snippet['parameters']
     # get the parameters of the constructor of the desired class
     # and skip the self class parameter that isn't useful
-    sg = inspect.signature(default_embedder_cls.__init__)
-    default_params = [(p.name, p.default) for p in sg.parameters.values() if ((p.default != p.empty) and p.default != None)]
-    embedder_cls_params = dict(default_params)
-    embedder_params = snippet['parameters']
-    # update the embedder params with only those
+    sg = inspect.signature(declared_cls.__init__)
+    signature_params = [(p.name, p.default) for p in sg.parameters.values() if ((p.default != p.empty) and p.default != None)]
+    default_cls_params = dict(signature_params)
+    
+    # update the user defined params with only those
     # values that haven't been specified and have a default value
-    snippet['parameters'] = {**embedder_cls_params, **kwargs, **embedder_params}
+    # in any case override the user parameters with the code passed one
+    snippet['parameters'] = {**default_cls_params, **user_defined_params, **kwargs}
 
 def init_dflts_to_of(snippet, key, kls, *args, **kwargs):
     __add_dflts_to_of(snippet, key, kls, generate_default_for,*args, **kwargs)

@@ -1,11 +1,11 @@
 from abc import ABCMeta, abstractmethod
 
-from src.core.grtl_base import Base
+from src.core.configurable import Configurable
 from src.n_dataset.dataset_base import Dataset
 from src.utils.context import Context
 
 
-class Generator(Base, metaclass=ABCMeta):
+class Generator(Configurable, metaclass=ABCMeta):
     
     def __init__(self, context: Context, local_config, dataset=None) -> None:
         super().__init__(context, local_config)

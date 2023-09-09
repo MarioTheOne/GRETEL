@@ -56,8 +56,9 @@ class OracleTorch(TorchBase, Oracle):
         return self.model(node_features,edge_index,edge_weights, None).squeeze()
     
                      
-    def check_configuration(self, local_config):
-        local_config = super().check_configuration(local_config)
+    def check_configuration(self):
+        super().check_configuration()
+        local_config = self.local_config
 
         if 'model' not in local_config['parameters']:
             local_config['parameters']['model'] = {
@@ -68,5 +69,3 @@ class OracleTorch(TorchBase, Oracle):
         # set defaults
         local_config['parameters']['model']['parameters']['node_features'] = self.dataset.num_node_features()
         local_config['parameters']['model']['parameters']['n_classes'] = self.dataset.num_classes
-
-        return local_config

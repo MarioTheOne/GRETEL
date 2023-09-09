@@ -8,18 +8,15 @@ from src.utils.cfg_utils import retake_dataset
 from src.utils.context import Context
 
 class Trainable(Savable,metaclass=ABCMeta):
-    
-    def __init__(self, context: Context, local_config, **kwargs) -> None:
-        super().__init__(context,local_config)        
-                
-        self.init() #TODO: Move it in the __init__ of Base
-        # retrain if explicitely specified or if the weights of the model don't exists
-        self.load_or_create(self._to_retrain())
-        ##############################################################################
+
+    def __init__(self, context: Context, local_config):
+        self.dataset = retake_dataset(local_config)
+        super().__init__(context, local_config)
+
+    def load_or_create(self, condition=False):
+        super().load_or_create(self._to_retrain() or condition)
 
     def check_configuration(self):
-        super.check_configuration()
-        self.dataset = retake_dataset(self.local_config)
         self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
         self.fold_id = self.local_config['parameters']['fold_id'] 
         
@@ -58,12 +55,10 @@ class Trainable(Savable,metaclass=ABCMeta):
                 dump = pickle.load(f)
                 self.model = dump['model']
                 self.local_config = dump['config']
-    
-    @abstractmethod
-    def init(self):
-        pass
 
     @abstractmethod
     def real_fit(self):
         pass
+    
+
     

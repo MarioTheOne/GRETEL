@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
         
         {
             "name": "Python: Current File with profiler",
@@ -24,6 +25,15 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": ["config/test/test_TC.json", "1"],
+        }
+        {
+            "name": "Python: RSGG_ASD",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["config/test/experimental/RSGG_ASD.json", "1"],
         }
     ]
 }

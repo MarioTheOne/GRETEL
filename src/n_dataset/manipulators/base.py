@@ -1,8 +1,8 @@
 import numpy as np
 
-from src.core.grtl_base import Base
+from src.core.configurable import Configurable
 
-class BaseManipulator(Base):
+class BaseManipulator(Configurable):
     
     def __init__(self, context, local_config, dataset):
         super().__init__(context, local_config)

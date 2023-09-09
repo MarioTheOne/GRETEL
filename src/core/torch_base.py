@@ -7,7 +7,10 @@ from src.core.factory_base import get_instance_kvargs
 class TorchBase(Trainable):
        
     def init(self):
+        super
         self.epochs = self.local_config['parameters']['epochs']
+        self.batch_size = self.local_config['parameters']['batch_size']
+
         
         self.model = get_instance_kvargs(self.local_config['parameters']['model']['class'],
                                    self.local_config['parameters']['model']['parameters'])
@@ -18,7 +21,6 @@ class TorchBase(Trainable):
         self.loss_fn = get_instance_kvargs(self.local_config['parameters']['loss_fn']['class'],
                                            self.local_config['parameters']['loss_fn']['parameters'])
         
-        self.batch_size = self.local_config['parameters']['batch_size']
         
         #TODO: Need to fix GPU support!!!!
         self.device = (
@@ -57,11 +59,12 @@ class TorchBase(Trainable):
                 self.optimizer.step()
             self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t Train accuracy = {np.mean(accuracy):.4f}')
             
-    def check_configuration(self, local_config):
+    def check_configuration(self):
+        super().check_configuration()
+        local_config=self.local_config
         # set defaults
         local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
         # populate the optimizer
         init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam')
         init_dflts_to_of(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
-        return local_config

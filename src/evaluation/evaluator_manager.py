@@ -34,7 +34,8 @@ class EvaluatorManager:
         datasets_list = self.context.conf['datasets']
         oracles_list = self.context.conf['oracles']
         metrics_list = self.context.conf['evaluation_metrics']
-        explainers_list = self.context.conf['explainers']        
+        explainers_list = self.context.conf['explainers']
+        evaluation_metrics = []
 
         # Shuffling dataset and explainers creation to enabling 
         # parallel distributed cration and trainign by chance.
@@ -44,7 +45,7 @@ class EvaluatorManager:
 
         # Instantiate the evaluation metrics that will be used for the evaluation;
         for metric_dict in metrics_list:
-            self.evaluation_metrics.append(self.context.factories['metrics'].get_evaluation_metric_by_name(metric_dict))
+            evaluation_metrics.append(self.context.factories['metrics'].get_evaluation_metric_by_name(metric_dict))
 
         #TODO: To be removed and inserted in the evaluator
         evaluator_id = 0
@@ -61,7 +62,7 @@ class EvaluatorManager:
                     explainer = self.context.factories['explainers'].get_explainer(explainer_snippet, dataset, oracle)                
                 
                     # Creating the evaluator
-                    evaluator = Evaluator(evaluator_id, dataset, oracle, explainer, self.evaluation_metrics,
+                    evaluator = Evaluator(evaluator_id, dataset, oracle, explainer, evaluation_metrics,
                                              self._output_store_path, self.context.run_number)
 
                     # Adding the evaluator to the evaluator's list

@@ -5,14 +5,14 @@ from torch_geometric.nn import GCNConv
 from src.utils.cfg_utils import default_cfg
 class SimpleDiscriminator(nn.Module):
     
-    def __init__(self, n_nodes=28, node_features=1):
+    def __init__(self, num_nodes, node_features):
         """This class provides a GCN to discriminate between real and generated graph instances"""
         super(SimpleDiscriminator, self).__init__()
 
         self.training = False
         
         self.conv1 = GCNConv(node_features, 2)
-        self.fc = nn.Linear(n_nodes * 2, 1)
+        self.fc = nn.Linear(num_nodes * 2, 1)
         
     def set_training(self, training):
         self.training = training
@@ -37,7 +37,7 @@ class SimpleDiscriminator(nn.Module):
     def grtl_default(kls, num_nodes, node_features):
         return {"class": kls,
                         "parameters": {
-                            "n_nodes": num_nodes,
+                            "num_nodes": num_nodes,
                             "node_features": node_features
                         }
         }
