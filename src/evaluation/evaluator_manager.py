@@ -12,74 +12,60 @@ class EvaluatorManager:
 
     def __init__(self, context: Context) -> None:
         self.context = context
-        
-        self.context.factories['datasets'] = DatasetFactory(context, context.conf['datasets'])
-        self.context.factories['embedders'] = EmbedderFactory(context)
-        self.context.factories['oracles'] = OracleFactory(context, context.conf['oracles'])
-        self.context.factories['explainers'] = ExplainerFactory(context, context.conf['explainers'])
-        self.context.factories['metrics'] = EvaluationMetricFactory(context.conf)
-        self._output_store_path = context.output_store_path
+        self._output_store_path = self.context.output_store_path
 
-        self.datasets = []
-        self.oracles = []
-        self.explainers = []
         self._evaluators = []
-        self.evaluation_metrics = []
+        
+        #TODO: Move the Factories creation outside
+        self.context.factories['datasets'] = DatasetFactory(context)
+        self.context.factories['embedders'] = EmbedderFactory(context)
+        self.context.factories['oracles'] = OracleFactory(context)
+        self.context.factories['explainers'] = ExplainerFactory(context)
+        self.context.factories['metrics'] = EvaluationMetricFactory(context.conf)
 
+        self._create_evaluators()
     
     @property
     def evaluators(self):
         return self._evaluators
 
+    def _create_evaluators(self):
+        # Get the lists of main componets from the main configuration file.
+        datasets_list = self.context.conf['datasets']
+        oracles_list = self.context.conf['oracles']
+        metrics_list = self.context.conf['evaluation_metrics']
+        explainers_list = self.context.conf['explainers']        
 
-    @evaluators.setter
-    def evaluators(self, new_evaluators_list):
-        self._evaluators = new_evaluators_list
-        
-    def create_evaluators(self):
-        """Creates one evaluator for each combination of dataset-oracle-explainer using the chosen metrics
-         
-        -------------
-        INPUT: None
+        # Shuffling dataset and explainers creation to enabling 
+        # parallel distributed cration and trainign by chance.
+        random.shuffle(datasets_list)
+        random.shuffle(explainers_list)
+        random.shuffle(oracles_list)   
 
-        -------------
-        OUTPUT: None
-        """
-        dataset_dicts = self.context.conf['datasets']
-        oracle_dicts = self.context.conf['oracles']
-        metric_dicts = self.context.conf['evaluation_metrics']
-        explainer_dicts = self.context.conf['explainers']
+        # Instantiate the evaluation metrics that will be used for the evaluation;
+        for metric_dict in metrics_list:
+            self.evaluation_metrics.append(self.context.factories['metrics'].get_evaluation_metric_by_name(metric_dict))
 
-        # Create the datasets
-        for dataset_dict in dataset_dicts:
-            self.datasets.append(self.context.factories['datasets'].get_dataset(dataset_dict))
-
-        # Create the evaluation metrics
-        for metric_dict in metric_dicts:
-            eval_metric = self.context.factories['metrics'].get_evaluation_metric_by_name(metric_dict)
-            self.evaluation_metrics.append(eval_metric)
-
-        #TODO: Shuffling dataset and explainers creation. Must be better implemented after refactoring.
-        random.shuffle(self.datasets)
-        random.shuffle(self.explainers)
-        random.shuffle(oracle_dicts)
-
+        #TODO: To be removed and inserted in the evaluator
         evaluator_id = 0
-        for dataset in self.datasets:
-            for explainer_dict in explainer_dicts:
-                explainer_dict['dataset'] = dataset
-                explainer = self.context.factories['explainers'].get_explainer(explainer_dict)
+        for dataset_snippet in datasets_list:
+            # The get_dataset method return an already builded/loaded/generated dataset with all its features already in place;
+            dataset = self.context.factories['datasets'].get_dataset(dataset_snippet)
+
+            for oracle_snippet in oracles_list:                
+                # The get_oracle method returns a fitted oracle on the dataset;
+                oracle = self.context.factories['oracles'].get_oracle(oracle_snippet, dataset)
+
+                for explainer_snippet in explainers_list:
+                    # The get_explainer method returns an (fitted in case is trainable) explainer for the dataset and the oracle;                
+                    explainer = self.context.factories['explainers'].get_explainer(explainer_snippet, dataset, oracle)                
                 
-                for oracle_dict in oracle_dicts:
-                    oracle_dict['dataset'] = dataset
-                    # The get_oracle_by_name method returns a fitted oracle
-                    oracle = self.context.factories['oracles'].get_oracle(oracle_dict)
                     # Creating the evaluator
                     evaluator = Evaluator(evaluator_id, dataset, oracle, explainer, self.evaluation_metrics,
                                              self._output_store_path, self.context.run_number)
 
                     # Adding the evaluator to the evaluator's list
-                    self.evaluators.append(evaluator)
+                    self._evaluators.append(evaluator)
 
                     # increasing the evaluator id counter
                     evaluator_id +=1
@@ -94,7 +80,7 @@ class EvaluatorManager:
         -------------
         OUTPUT: None
         """
-        for evaluator in self.evaluators:
+        for evaluator in self._evaluators:
             evaluator.evaluate()
 
         
@@ -108,6 +94,6 @@ class EvaluatorManager:
         -------------
         OUTPUT: None
         """
-        for evaluator in self.evaluators:
+        for evaluator in self._evaluators:
             for i in range(0, n_runs):
                 evaluator.evaluate()

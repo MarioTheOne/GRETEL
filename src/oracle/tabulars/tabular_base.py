@@ -1,5 +1,5 @@
 from src.core.oracle_base import Oracle
-from src.utils.utils import add_init_defaults_params
+from src.utils.cfg_utils import add_init_defaults_params
 
 class TabularOracle(Oracle):#TODO: Made it Abstract class
     def init(self):

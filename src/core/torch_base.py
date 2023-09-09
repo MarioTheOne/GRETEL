@@ -1,9 +1,8 @@
 import numpy as np
 import torch
-
 from src.core.trainable_base import Trainable
-from src.utils.utils import config_default, get_instance_kvargs
-
+from src.utils.cfg_utils import init_dflts_to_of
+from src.core.factory_base import get_instance_kvargs
 
 class TorchBase(Trainable):
        
@@ -59,11 +58,10 @@ class TorchBase(Trainable):
             self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t Train accuracy = {np.mean(accuracy):.4f}')
             
     def check_configuration(self, local_config):
-        local_config['parameters'] = local_config.get('parameters', {})
         # set defaults
         local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
         # populate the optimizer
-        config_default(local_config, 'optimizer', 'torch.optim.Adam')
-        config_default(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
+        init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam')
+        init_dflts_to_of(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
         return local_config

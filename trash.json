@@ -1,0 +1,54 @@
+{
+    "parameters": {
+        "proto_model": {
+            "class": "src.explainer.generative.gans.model.GAN",
+            "parameters": {
+                "generator": {
+                    "class": "src.explainer.generative.gans.generators.residual_generator.ResGenerator",
+                    "parameters": {
+                        "node_features": 8
+                    }
+                },
+                "discriminator": {
+                    "class": "src.explainer.generative.gans.discriminators.simple_discriminator.SimpleDiscriminator",
+                    "parameters": {
+                        "n_nodes": 200,
+                        "node_features": 8
+                    }
+                },
+                "lr": {
+                    "generator": 0.001,
+                    "discriminator": 0.01
+                },
+                "optimizer": {
+                    "class": "torch.optim.Adam",
+                    "parameters": {
+                        "lr": 0.001,
+                        "betas": [
+                            0.9,
+                            0.999
+                        ],
+                        "eps": 1e-08,
+                        "weight_decay": 0,
+                        "amsgrad": false,
+                        "maximize": false,
+                        "capturable": false,
+                        "differentiable": false
+                    }
+                },
+                "loss_fn": {
+                    "class": "torch.nn.CrossEntropyLoss",
+                    "parameters": {
+                        "ignore_index": -100,
+                        "reduction": "mean",
+                        "label_smoothing": 0.0
+                    }
+                }
+            }
+        },
+        "sampler": {
+            "class": "src.utils.n_samplers.partial_order_samplers.PositiveAndNegativeEdgeSampler",
+            "parameters": {}
+        }
+    }
+}

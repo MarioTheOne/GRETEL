@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv
-
+from src.utils.cfg_utils import default_cfg
 class SimpleDiscriminator(nn.Module):
     
     def __init__(self, n_nodes=28, node_features=1):
@@ -32,3 +32,13 @@ class SimpleDiscriminator(nn.Module):
         x = torch.sigmoid(x).squeeze()
 
         return x
+        
+    @default_cfg
+    def grtl_default(kls, num_nodes, node_features):
+        return {"class": kls,
+                        "parameters": {
+                            "n_nodes": num_nodes,
+                            "node_features": node_features
+                        }
+        }
+        

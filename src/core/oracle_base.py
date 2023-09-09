@@ -37,10 +37,6 @@ class Oracle(Trainable,metaclass=ABCMeta):
         self._call_counter += 1
 
         return self._real_predict_proba(data_instance)
-    
-    @final
-    def retrain(self):#TODO: Move to trainable
-        self.fit()
 
     @final
     def get_calls_count(self):

@@ -1,7 +1,5 @@
 from abc import ABCMeta
 from src.core.grtl_base import Base
-from src.utils.utils import get_class
-
 
 class Factory(Base,metaclass=ABCMeta):    
       
@@ -12,3 +10,25 @@ class Factory(Base,metaclass=ABCMeta):
     
     def check_configuration(self, local_config):
         return local_config
+    
+    def get_default_cfg(self):
+        pass
+
+
+################ Utilities functions for Object creation ################
+
+
+def get_instance_kvargs(kls, param):
+    return get_class(kls)(**param)
+
+
+def get_instance(kls, param):
+    return get_class(kls)(param)
+
+def get_class( kls ):
+    parts = kls.split('.')
+    module = ".".join(parts[:-1])
+    m = __import__( module )
+    for comp in parts[1:]:
+        m = getattr(m, comp)            
+    return m

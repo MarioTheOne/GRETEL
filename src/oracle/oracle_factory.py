@@ -1,13 +1,12 @@
 from src.core.factory_base import Factory
-from src.core.oracle_base import Oracle
-from typing import List
-
+from src.utils.cfg_utils import inject_dataset
 class OracleFactory(Factory):      
-    def get_oracle(self, oracle_snippet):
+    def get_oracle(self, oracle_snippet, dataset):
+        inject_dataset(oracle_snippet, dataset)
         return self._get_object(oracle_snippet)
             
-    def get_oracles(self, config_list) -> List[Oracle]:
-        return [self.get_oracle(obj) for obj in config_list]
+    def get_oracles(self, config_list, dataset):
+        return [self.get_oracle(obj, dataset) for obj in config_list]
     
     """def get_oracle_by_name(self, oracle_dict, dataset: Dataset, emb_factory: EmbedderFactory) -> Oracle:
 

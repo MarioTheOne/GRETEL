@@ -1,3 +1,4 @@
+from src.utils.cfg_utils import default_cfg
 from src.utils.torch.utils import rebuild_adj_matrix
 import torch
 import torch.nn as nn
@@ -35,4 +36,7 @@ class ResGenerator(nn.Module):
             
         return encoded_node_features, edge_list, torch.sigmoid(edge_probabilities)
     
+    @default_cfg
+    def grtl_default(kls, node_features):
+        return {"class": kls, "parameters": { "node_features": node_features } }
     

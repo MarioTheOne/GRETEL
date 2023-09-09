@@ -5,7 +5,7 @@ import torch
 from src.core.torch_base import TorchBase
 from src.n_dataset.instances.graph import GraphInstance
 from src.utils.torch.utils import rebuild_adj_matrix
-from src.utils.utils import get_instance_kvargs
+from src.core.factory_base import get_instance_kvargs
 
 
 class GAN(TorchBase):

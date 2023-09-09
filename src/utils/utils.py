@@ -1,10 +1,9 @@
+from collections import OrderedDict
 import copy
-import inspect
 import json
 import os
-from collections import OrderedDict
-
 import torch
+
 
 def update_saved_pyg(input_file,output_file):
     old_model =  torch.load(input_file, map_location=torch.device('cpu'))
@@ -53,48 +52,6 @@ def unfold_confs(based_dir,out_dir,prefix,num_folds=10):
                                     json.dump(current_conf, o_file)
                                 print(out_file)
 
-def get_class( kls ):
-    parts = kls.split('.')
-    module = ".".join(parts[:-1])
-    m = __import__( module )
-    for comp in parts[1:]:
-        m = getattr(m, comp)            
-    return m
-
-def get_instance(kls, param):
-    return get_class(kls)(param)
-
-def get_instance_kvargs(kls, param):
-    return get_class(kls)(**param)
-
-
-def add_init_defaults_params(kls, config_node):
-    default_embedder_cls = get_class(kls)
-    # get the parameters of the constructor of the desired class
-    # and skip the self class parameter that isn't useful
-    sg = inspect.signature(default_embedder_cls.__init__)
-    default_params = [(p.name, p.default) for p in sg.parameters.values() if ((p.default != p.empty) and p.default != None)]
-    embedder_cls_params = dict(default_params)
-    embedder_params = config_node
-    # update the embedder params with only those
-    # values that haven't been specified and have a default value
-    embedder_params = {**embedder_cls_params, **embedder_params}
-    return embedder_params
-
-
-def config_default(node, key, kls):
-    print(node)
-    if key not in node['parameters']:
-        node['parameters'][key] = {
-            "class": kls, 
-            "parameters": { }
-        }
-    node_config = add_init_defaults_params(kls, node['parameters'][key]['parameters'])
-    node['parameters'][key]['parameters'] = node_config
-    
-def build_default_config_obj(kls):
-    config = {"class": kls, "parameters": add_init_defaults_params(kls, {})}
-    return config
 # from src.utils.utils import update_saved_pyg 
 
 #input_file="/NFSHOME/mprado/CODE/gretel-steel-2/GRETEL/data/explainers/clear_fit_on_tree-cycles_instances-500_nodes_per_inst-28_nodes_in_cycles-7_fold_id=0_batch_size_ratio=0.15_alpha=0.4_lr=0.01_weight_decay=5e-05_epochs=600_dropout=0.1/old_explainer"
