@@ -34,7 +34,7 @@ def add_init_defaults_params(snippet, **kwargs):
     # update the user defined params with only those
     # values that haven't been specified and have a default value
     # in any case override the user parameters with the code passed one
-    snippet['parameters'] = {**default_cls_params, **user_defined_params, **kwargs}
+    snippet['parameters'] = {**default_cls_params, **kwargs,**user_defined_params}
 
 def init_dflts_to_of(snippet, key, kls, *args, **kwargs):
     __add_dflts_to_of(snippet, key, kls, generate_default_for,*args, **kwargs)

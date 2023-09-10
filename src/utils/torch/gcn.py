@@ -29,4 +29,4 @@ class GCN(nn.Module):
             graph_convs.append(GCNConv(in_channels=self.num_conv_layers[i][0],
                                       out_channels=self.num_conv_layers[i][1]).double())
         graph_convs.append(self.pooling)
-        return graph_convs
+        return nn.Sequential(*graph_convs).double()

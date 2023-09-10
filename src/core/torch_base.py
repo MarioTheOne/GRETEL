@@ -66,5 +66,5 @@ class TorchBase(Trainable):
         local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
         # populate the optimizer
-        init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam')
+        init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam',lr=0.001)
         init_dflts_to_of(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')

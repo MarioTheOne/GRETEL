@@ -105,7 +105,13 @@ class Dataset(Savable):
         # get only the indices of a specific class
         if kls != -1:
             indices = list(set(indices).difference(set(self.class_indices()[kls])))
-        return DataLoader(Subset(self._torch_repr, indices), batch_size=batch_size, shuffle=True)
+        return self.__infinite_data_stream(DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=True))
+    
+    def __infinite_data_stream(self, loader: DataLoader):
+        # Define a generator function that yields batches of data
+        while True:
+            for batch in loader:
+                yield batch
     
     def read(self):
         if self.saved():

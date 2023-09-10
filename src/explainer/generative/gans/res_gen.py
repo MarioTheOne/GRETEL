@@ -15,14 +15,14 @@ class ResGenerator(nn.Module):
         self.node_features = node_features
         self.num_conv_layers = num_conv_layers
         self.conv_booster = conv_booster
-        self.residuals = residuals
         # encoder with no pooling
         self.encoder = GCN(self.node_features, self.num_conv_layers, self.conv_booster, nn.Identity())
         # graph autoencoder with inner product decoder
         self.model = GAE(encoder=self.encoder)
+        self.residuals = residuals
         
     def set_training(self, training):
-        self.encoder.set_training(training)
+        self.encoder.training = training
 
     def forward(self, node_features, edge_list, edge_attr):
         encoded_node_features = self.model.encode(node_features, edge_list, edge_attr)
