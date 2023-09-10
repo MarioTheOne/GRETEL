@@ -8,9 +8,8 @@ from src.utils.context import Context
 class Generator(Configurable, metaclass=ABCMeta):
     
     def __init__(self, context: Context, local_config, dataset=None) -> None:
-        super().__init__(context, local_config)
         self.dataset = dataset
-        self.init()
+        super().__init__(context, local_config)
         self.current = 0
         
     @abstractmethod
@@ -36,6 +35,3 @@ class Generator(Configurable, metaclass=ABCMeta):
     
     def reset_iterator(self):
         self.current = 0
-        
-    def check_configuration(self, local_config):
-        return local_config

@@ -1,13 +1,10 @@
-import os
-import pickle
-
 import numpy as np
 import torch
 
 from src.core.oracle_base import Oracle
 from src.core.torch_base import TorchBase
 from src.dataset.dataset_base import Dataset
-from src.dataset.torch_geometric.dataset_geometric import TorchGeometricDataset
+from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 
 
 class OracleTorch(TorchBase, Oracle):
@@ -15,8 +12,7 @@ class OracleTorch(TorchBase, Oracle):
             
     def real_fit(self):
         super().real_fit()
-        fold_id = self.local_config['parameters']['fold_id']
-        self.evaluate(self.dataset, fold_id=fold_id)
+        self.evaluate(self.dataset, fold_id=self.fold_id)
             
     @torch.no_grad()        
     def evaluate(self, dataset: Dataset, fold_id=0):            
@@ -46,8 +42,8 @@ class OracleTorch(TorchBase, Oracle):
         return torch.argmax(self._real_predict_proba(data_instance))
     
     @torch.no_grad()
-    def _real_predict_proba(self, data_instance):       
-        data_inst = TorchGeometricDataset.to_geometric(data_instance)
+    def _real_predict_proba(self, data_inst):
+        data_inst = TorchGeometricDataset.to_geometric(data_inst)
 
         node_features = data_inst.x.to(self.device)
         edge_index = data_inst.edge_index.to(self.device)

@@ -2,6 +2,7 @@ import pickle
 from typing import List
 
 from sklearn.model_selection import StratifiedKFold
+
 from torch.utils.data import Subset
 from torch_geometric.loader import DataLoader
 from src.core.factory_base import get_instance_kvargs
@@ -49,9 +50,6 @@ class Dataset(Savable):
             
         self.generate_splits(n_splits=self.local_config['parameters']['n_splits'],
                              shuffle=self.local_config['parameters']['shuffle'])
-    
-        self.write()
-
         
     def get_data(self):
         return self.instances
@@ -105,9 +103,10 @@ class Dataset(Savable):
         # get only the indices of a specific class
         if kls != -1:
             indices = list(set(indices).difference(set(self.class_indices()[kls])))
-        return self.__infinite_data_stream(DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=True))
-    
-    def __infinite_data_stream(self, loader: DataLoader):
+        #return self.__infinite_data_stream(DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=True))
+        return DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=False)
+
+    def __infinite_data_stream(self, loader: DataLoader , n=3):
         # Define a generator function that yields batches of data
         while True:
             for batch in loader:
@@ -121,6 +120,11 @@ class Dataset(Savable):
                 self.instances = dump['instances']
                 self.splits = dump['splits']
                 self.local_config = dump['config']
+                self.node_features_map = dump['node_features_map']
+                self.edge_features_map = dump['edge_features_map']
+                self.graph_features_map = dump['graph_features_map']
+                self._num_nodes = dump['num_nodes']
+                self._class_indices = dump['class_indices'] 
                 
     def write(self):
         store_path = self.context.get_path(self)
@@ -128,7 +132,12 @@ class Dataset(Savable):
         dump = {
             "instances" : self.instances,
             "splits": self.splits,
-            "config": self.local_config
+            "config": self.local_config,
+            "node_features_map":self.node_features_map,
+            "edge_features_map": self.edge_features_map,
+            "graph_features_map":self.graph_features_map,
+            "num_nodes": self._num_nodes,
+            "class_indices":self._class_indices      
         }
         
         with open(store_path, 'wb') as f:

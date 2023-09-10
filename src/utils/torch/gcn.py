@@ -4,7 +4,7 @@ from torch_geometric.nn.conv import GCNConv
 
 class GCN(nn.Module):
    
-    def __init__(self, node_features, num_conv_layers=2, conv_booster=2, pooling=MeanAggregation()):
+    def __init__(self, node_features, num_conv_layers=2, conv_booster=1, pooling=MeanAggregation()):
         super(GCN, self).__init__()
         
         self.in_channels = node_features
@@ -19,6 +19,8 @@ class GCN(nn.Module):
         for conv_layer in self.graph_convs[:-1]:
             node_features = nn.functional.relu(conv_layer(node_features, edge_index, edge_weight))
         # global pooling
+        if isinstance(self.graph_convs[-1],nn.Identity):
+            return self.graph_convs[-1](node_features)
         return self.graph_convs[-1](node_features, batch)
     
     def __init__conv_layers(self):

@@ -66,7 +66,7 @@ class Context(object):
         qualifier = fullname[1] + '_store_path'
         # change this path when the dataset factories are finished
         if 'dataset' in obj.__dict__.keys():
-            directory = os.path.join(self._get_store_path(qualifier), obj.dataset.__class__.__name__)
+            directory = os.path.join(self._get_store_path(qualifier), str(obj.dataset))
         else:
             directory = self._get_store_path(qualifier)
         lock = Lock(directory+'.lck',lifetime=timedelta(hours=self.lock_release_tout))

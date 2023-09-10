@@ -7,7 +7,6 @@ from src.core.factory_base import get_instance_kvargs
 class TorchBase(Trainable):
        
     def init(self):
-        super
         self.epochs = self.local_config['parameters']['epochs']
         self.batch_size = self.local_config['parameters']['batch_size']
 
@@ -32,9 +31,8 @@ class TorchBase(Trainable):
         )
         self.model.to(self.device)                            
     
-    def real_fit(self):
-        fold_id = self.local_config['parameters']['fold_id']
-        loader = self.dataset.get_torch_loader(fold_id=fold_id, batch_size=self.batch_size, usage='train')
+    def real_fit(self):        
+        loader = self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, usage='train')
         
         for epoch in range(self.epochs):
             losses = []
@@ -54,7 +52,7 @@ class TorchBase(Trainable):
                 loss.backward()
                 
                 pred_label = torch.argmax(pred,dim=1)
-                accuracy += torch.eq(labels, pred_label).int().tolist()
+                accuracy += torch.eq(labels, pred_label).long().tolist()
                 
                 self.optimizer.step()
             self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t Train accuracy = {np.mean(accuracy):.4f}')
@@ -64,7 +62,7 @@ class TorchBase(Trainable):
         local_config=self.local_config
         # set defaults
         local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
-        local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 8)
+        local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 4)
         # populate the optimizer
         init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam',lr=0.001)
         init_dflts_to_of(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')

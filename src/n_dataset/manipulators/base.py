@@ -5,8 +5,10 @@ from src.core.configurable import Configurable
 class BaseManipulator(Configurable):
     
     def __init__(self, context, local_config, dataset):
-        super().__init__(context, local_config)
         self.dataset = dataset
+        super().__init__(context, local_config)
+        
+    def init(self):
         self.manipulated = False
         self._process()
          
@@ -70,6 +72,3 @@ class BaseManipulator(Configurable):
                 features[:, index] = curr_map[key]
                             
         return features
-    
-    def check_configuration(self, local_config):
-        return local_config

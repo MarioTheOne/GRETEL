@@ -25,8 +25,9 @@ class TorchGeometricDataset(Dataset):
   def to_geometric(self, instance: GraphInstance, label=0) -> Data:   
     adj = torch.from_numpy(instance.data).double()
     x = torch.from_numpy(instance.node_features).double()
-    a = torch.nonzero(adj)
+    a = torch.nonzero(adj).int()
     w = torch.from_numpy(instance.edge_features).double()
+    label = torch.tensor(label).long()
     return Data(x=x, y=label, edge_index=a.T, edge_attr=w)  
 
 class GraphPairDataset(Dataset):

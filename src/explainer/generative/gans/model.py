@@ -4,6 +4,7 @@ import numpy as np
 import torch
 
 from src.core.torch_base import TorchBase
+from torch_geometric.loader import DataLoader
 from src.n_dataset.instances.graph import GraphInstance
 from src.utils.cfg_utils import init_dflts_to_of
 from src.utils.torch.utils import rebuild_adj_matrix
@@ -18,6 +19,7 @@ class GAN(TorchBase):
         self.epochs = local_params['epochs']
         self.batch_size = local_params['batch_size']
         self.explainee_label = local_params['model_label']
+        self.oracle = local_params['oracle']
 
         # Initialise the generator and its optimizer
         self.generator = get_instance_kvargs(local_params['generator']['class'],
@@ -37,12 +39,20 @@ class GAN(TorchBase):
         self.loss_fn = get_instance_kvargs(local_params['loss_fn']['class'],
                                            local_params['loss_fn']['parameters'])
         
+    def __infinite_data_stream(self, loader: DataLoader):
+        # Define a generator function that yields batches of data
+        while True:
+            for batch in loader:
+                yield batch
         
     def real_fit(self):
         discriminator_loader = self.dataset.get_torch_loader(fold_id=self.fold_id, kls=self.explainee_label)
         # TODO: make it multiclass in Dataset
         generator_loader = self.dataset.get_torch_loader(fold_id=self.fold_id, kls=1-self.explainee_label)
-        
+
+        discriminator_loader=self.__infinite_data_stream(discriminator_loader)
+        generator_loader=self.__infinite_data_stream(generator_loader)
+
         for epoch in range(self.epochs):
             G_losses, D_losses = [], []
 
@@ -58,22 +68,23 @@ class GAN(TorchBase):
             self.discriminator.train(True)
             #######################################################################
             # discriminator data (real batch)
-            node_features, edge_index, edge_features, _ = next(discriminator_loader)
-            self._logger.info("Passed Neverending loop.")
+            node_features, edge_index, edge_features, _ , _ ,_ = next(discriminator_loader)
+            self.context.logger.info("Passed Neverending loop.")
             #######################################################################
             # generator data (fake batch)
-            fake_node_features, fake_edge_index, fake_edge_features, _ = next(generator_loader)
-            _, fake_edge_index, edge_probs = self.generator(fake_node_features, fake_edge_index, fake_edge_features)
+            batch = next(generator_loader)
+            fake_node_features, fake_edge_index, fake_edge_features, _ , batch , _  = next(generator_loader)
+            _, fake_edge_index, edge_probs = self.generator(fake_node_features[1], fake_edge_index[1], fake_edge_features[1], batch[1])
             # get the real and fake labels
             y_batch = torch.cat([torch.ones((self.batch_size,)), torch.zeros((self.batch_size,))], dim=0)
             #######################################################################
             # get the oracle's predictions
-            oracle_scores = []
-            real_inst = GraphInstance(data=rebuild_adj_matrix(len(node_features), edge_index, edge_features).numpy(),
+            oracle_scores = [] #TODO: Check that the graph does not change its weight (look at the TorchDataset())
+            real_inst = GraphInstance(0,self.explainee_label,data=rebuild_adj_matrix(len(node_features[1]), edge_index[1], edge_features[1].T).numpy(),
                                  node_features=node_features,
                                  edge_features=edge_features)
             
-            fake_inst = GraphInstance(data=rebuild_adj_matrix(len(fake_node_features), fake_edge_index, fake_edge_features).numpy(),
+            fake_inst = GraphInstance(0,1-self.explainee_label,data=rebuild_adj_matrix(len(fake_node_features[1]), fake_edge_index, fake_edge_features[1].T).numpy(),
                                       node_features=fake_node_features,
                                       edge_features=fake_edge_features)
             
@@ -108,7 +119,7 @@ class GAN(TorchBase):
             #######################################################################
             ## Update G network: maximize log(D(G(z)))
             # generator data (fake batch)
-            fake_node_features, fake_edge_index, fake_edge_features, _ = next(generator_loader)
+            fake_node_features, fake_edge_index, fake_edge_features,  _ , _ ,_ = next(generator_loader)
             y_fake = torch.ones((self.batch_size,))
             output = self.discriminator(self.generator(fake_node_features, fake_edge_index, fake_edge_features), fake_edge_index, fake_edge_features)
             # calculate the loss
