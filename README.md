@@ -25,11 +25,17 @@ GRETEL is a highly extensible evaluation framework that promotes Open Science an
 * Ernesto Estevanell-Valladares [Contributor]
 * Daniel Alejandro Valdés-Pérez [Contributor]
 
+## General Information:
+
+GRETEL [1, 2] is an open source framework for Evaluating Graph Counterfactual Explanation Methods. It is implemented using the Object Oriented paradigm and the Factory Method design pattern. Our main goal is to create a generic platform that allows the researchers to speed up the process of developing and testing new Graph Counterfactual Explanation Methods.
+
 ## Citation Request:
 
 Please cite our papers if you use GRETEL in your experiments:
 
 Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactual Explanation Evaluation Framework. In Proceedings of the 31st ACM International Conference on Information and Knowledge Management (CIKM '22). Association for Computing Machinery, New York, NY, USA. https://doi.org/10.1145/3511808.3557608
+
+Mario Alfonso Prado-Romero, Bardh Prenkaj, and Giovanni Stilo. 2023. Developing and Evaluating Graph Counterfactual Explanation with GRETEL. In Proceedings of the Sixteenth ACM International Conference on Web Search and Data Mining (WSDM '23). Association for Computing Machinery, New York, NY, USA, 1180–1183. https://doi.org/10.1145/3539597.3573026
 
 ```latex:
 @inproceedings{prado-romero2022gretel,
@@ -46,26 +52,22 @@ Mario Alfonso Prado-Romero and Giovanni Stilo. 2022. GRETEL: Graph Counterfactua
 }
 ```
 
-Mario Alfonso Prado-Romero, Bardh Prenkaj, and Giovanni Stilo. 2023. Developing and Evaluating Graph Counterfactual Explanation with GRETEL. In Proceedings of the Sixteenth ACM International Conference on Web Search and Data Mining (WSDM '23). Association for Computing Machinery, New York, NY, USA, 1180–1183. https://doi.org/10.1145/3539597.3573026
-
 ```latex:
-@inproceedings{10.1145/3539597.3573026,
+@inproceedings{prado-romero2023developing,
 author = {Prado-Romero, Mario Alfonso and Prenkaj, Bardh and Stilo, Giovanni},
 title = {Developing and Evaluating Graph Counterfactual Explanation with GRETEL},
 year = {2023},
 isbn = {9781450394079},
 publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3539597.3573026},
 doi = {10.1145/3539597.3573026},
 booktitle = {Proceedings of the Sixteenth ACM International Conference on Web Search and Data Mining},
 pages = {1180–1183},
-numpages = {4},
-keywords = {machine learning, graph neural networks, counterfactual, explainable AI, evaluation framework},
 location = {Singapore, Singapore},
 series = {WSDM '23}
-}
+} 
 ```
+
 ## Requirements:
 
 * scikit-learn
@@ -73,6 +75,7 @@ series = {WSDM '23}
 * scipy
 * pandas
 * tensorflow (for GCN)
+* pytorch (for deep-learning-based explainers)
 * jsonpickle (for serialization)
 * joblib
 * rdkit (Molecules)
@@ -103,17 +106,17 @@ For simplicity we provide several **makefile** rules for easy interaction with t
 
 ### Datasets:
 
-* **Tree-Cycles** [2]: Synthetic data set where each instance is a graph. The instance can be either a tree or a tree with several cycle patterns connected to the main graph by one edge
+* **Tree-Cycles** [3]: Synthetic data set where each instance is a graph. The instance can be either a tree or a tree with several cycle patterns connected to the main graph by one edge
 
 * **Tree-Infinity**: It follows the approach of the Tree-Cycles, but instead of cycles, there is an infinity shape.
 
-* **ASD** [3]: Autism Spectrum Disorder (ASD) taken from the Autism Brain Imagine Data Exchange (ABIDE).
+* **ASD** [4]: Autism Spectrum Disorder (ASD) taken from the Autism Brain Imagine Data Exchange (ABIDE).
 
-* **ADHD** [3]: Attention Deficit Hyperactivity Disorder (ADHD), is taken from the USC Multimodal Connectivity Database (USCD).
+* **ADHD** [4]: Attention Deficit Hyperactivity Disorder (ADHD), is taken from the USC Multimodal Connectivity Database (USCD).
 
-* **BBBP** [4]: Blood-Brain Barrier Permeation is a molecular dataset. Predicting if a molecule can permeate the blood-brain barrier.
+* **BBBP** [5]: Blood-Brain Barrier Permeation is a molecular dataset. Predicting if a molecule can permeate the blood-brain barrier.
 
-* **HIV** [4]: It is a molecular dataset that classifies compounds based on their ability to inhibit HIV.
+* **HIV** [5]: It is a molecular dataset that classifies compounds based on their ability to inhibit HIV.
 
 
 ### Oracles:
@@ -124,19 +127,28 @@ For simplicity we provide several **makefile** rules for easy interaction with t
 
 * **GCN**
 
-* **ASD Custom Oracle** [3] (Rules specific for the ASD dataset)
+* **ASD Custom Oracle** [4] (Rules specific for the ASD dataset)
+
+* **Tree-Cycles Custom Oracle** (Guarantees 100% accuracy on Tree-Cycles dataset)
 
 
 ### Explainers:
 
 * **DCE Search**: Distribution Compliant Explanation Search,  mainly used as a baseline, does not make any assumption about the underlying dataset and searches for a counterfactual instance in it.
 
-* **Oblivious Bidirectional Search (OBS)** [3]: It is an heuristic explanation method that uses a 2-stage approach.
+* **Oblivious Bidirectional Search (OBS)** [4]: It is an heuristic explanation method that uses a 2-stage approach.
 
-* **Data-Driven Bidirectional Search (DBS)** [3]: It follows the same logic as OBS. The main difference is that this method uses the probability (computed on the original dataset) of each edge to appear in a graph of a certain class to drive the counterfactual search process.
+* **Data-Driven Bidirectional Search (DDBS)** [4]: It follows the same logic as OBS. The main difference is that this method uses the probability (computed on the original dataset) of each edge to appear in a graph of a certain class to drive the counterfactual search process.
 
-* **MACCS** [4]: Model Agnostic Counterfactual Compounds with STONED (MACCS) is specifically designed to work with molecules.
+* **MACCS** [5]: Model Agnostic Counterfactual Compounds with STONED (MACCS) is specifically designed to work with molecules.
 
+* **MEG** [6]: Molecular Explanation Generator is an RL-based explainer for molecular graphs.
+
+* **CFF** [7] Is a learning-based method that uses Counterfactual and Factual Reasoning in the perturbation mask generation process.
+
+* **CLEAR** [8] is a learning based explanation method that provides Generative Counterfactual Explanations on Graphs.
+
+* **CounteRGAN** [9] is a porting of a GAN-based explanation method for images
 
 ## How to use:
 
@@ -213,12 +225,22 @@ Once the result json files are generated it is possible to use the result_stats.
 
 ## References
 
-1. Prado-Romero, Mario Alfonso, and Giovanni Stilo. "GRETEL: A unified framework for Graph Counterfactual Explanation Evaluation." arXiv preprint arXiv:2206.02957 (2022).
+1. Prado-Romero, M.A. and Stilo, G., 2022, October. Gretel: Graph counterfactual explanation evaluation framework. In Proceedings of the 31st ACM International Conference on Information & Knowledge Management (pp. 4389-4393).
 
-2. Zhitao Ying, Dylan Bourgeois, Jiaxuan You, Marinka Zitnik, and Jure Leskovec. 2019. Gnnexplainer: Generating explanations for graph neural networks. Ad-
+2. Prado-Romero, M.A., Prenkaj, B. and Stilo, G., 2023, February. Developing and Evaluating Graph Counterfactual Explanation with GRETEL. In Proceedings of the Sixteenth ACM International Conference on Web Search and Data Mining (pp. 1180-1183).
+
+3. Zhitao Ying, Dylan Bourgeois, Jiaxuan You, Marinka Zitnik, and Jure Leskovec. 2019. Gnnexplainer: Generating explanations for graph neural networks. Ad-
 vances in neural information processing systems 32 (2019)
 
-3. Carlo Abrate and Francesco Bonchi. 2021. Counterfactual Graphs for Explainable Classification of Brain Networks. In Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining. 2495–2504
+4. Carlo Abrate and Francesco Bonchi. 2021. Counterfactual Graphs for Explainable Classification of Brain Networks. In Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining. 2495–2504
 
-4. Geemi P Wellawatte, Aditi Seshadri, and Andrew D White. 2022. Model agnostic generation of counterfactual explanations for molecules. Chemical science 13, 13
+5. Geemi P Wellawatte, Aditi Seshadri, and Andrew D White. 2022. Model agnostic generation of counterfactual explanations for molecules. Chemical science 13, 13
 (2022), 3697–370
+
+6. Numeroso, D. and Bacciu, D., 2021, July. Meg: Generating molecular counterfactual explanations for deep graph networks. In 2021 International Joint Conference on Neural Networks (IJCNN) (pp. 1-8). IEEE.
+
+7. Tan, J., Geng, S., Fu, Z., Ge, Y., Xu, S., Li, Y. and Zhang, Y., 2022, April. Learning and evaluating graph neural network explanations based on counterfactual and factual reasoning. In Proceedings of the ACM Web Conference 2022 (pp. 1018-1027).
+
+8. Ma, J., Guo, R., Mishra, S., Zhang, A. and Li, J., 2022. Clear: Generative counterfactual explanations on graphs. Advances in Neural Information Processing Systems, 35, pp.25895-25907.
+
+9. Nemirovsky, D., Thiebaut, N., Xu, Y. and Gupta, A., 2022, August. CounteRGAN: Generating counterfactuals for real-time recourse and interpretability using residual GANs. In Uncertainty in Artificial Intelligence (pp. 1488-1497). PMLR.

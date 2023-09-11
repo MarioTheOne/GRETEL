@@ -1,0 +1,16 @@
+wandb_version: 1
+
+alpha:
+  value: 0.6
+batch_size:
+  value: 0.09938516049307151
+epochs:
+  value: 100
+feature_dim:
+  value: 8
+gamma:
+  value: 0.6028599335791377
+lam:
+  value: 900
+lr:
+  value: 0.003696555114847906

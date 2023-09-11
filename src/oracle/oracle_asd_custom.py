@@ -42,9 +42,9 @@ class ASDCustomOracle(Oracle):
     def _real_predict_proba(self, data_instance):
         cls = self._real_predict(data_instance)
         if cls:
-            return np.array([[0,1]])
+            return np.array([0,1])
         else:
-            return np.array([[1,0]])
+            return np.array([1,0])
         
         
     def _real_predict(self, data_instance):

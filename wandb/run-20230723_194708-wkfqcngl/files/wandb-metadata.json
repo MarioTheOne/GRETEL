@@ -1,0 +1,237 @@
+{
+    "os": "Linux-3.10.0-693.5.2.el7.x86_64-x86_64-with-centos-7.4.1708-Core",
+    "python": "3.7.13",
+    "heartbeatAt": "2023-07-23T17:47:09.061639",
+    "startedAt": "2023-07-23T17:47:08.129609",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/NFSHOME/mprado/CODE/gretel-steel/GRETEL/hypop_cf2.py",
+    "codePath": "hypop_cf2.py",
+    "git": {
+        "remote": "https://github.com/MarioTheOne/GRETEL.git",
+        "commit": "00d9a660025e0f936bf30c37b213b83f237e4389"
+    },
+    "email": "bardhprenkaj95@gmail.com",
+    "root": "/NFSHOME/mprado/CODE/gretel-steel/GRETEL",
+    "host": "caliban.disim.univaq.it",
+    "username": "mprado",
+    "executable": "/NFSHOME/mprado/miniconda3/envs/XAI37/bin/python",
+    "cpu_count": 20,
+    "cpu_count_logical": 40,
+    "cpu_freq": {
+        "current": 2294.5929999999985,
+        "min": 0.0,
+        "max": 0.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        },
+        {
+            "current": 2294.593,
+            "min": 0.0,
+            "max": 0.0
+        }
+    ],
+    "disk": {
+        "total": 49.090301513671875,
+        "used": 33.909461975097656
+    },
+    "memory": {
+        "total": 62.745906829833984
+    }
+}

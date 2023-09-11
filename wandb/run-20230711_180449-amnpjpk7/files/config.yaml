@@ -1,0 +1,50 @@
+wandb_version: 1
+
+lr_discriminator:
+  desc: null
+  value: 0.0012638923083010166
+lr_generator:
+  desc: null
+  value: 0.008001701666389496
+sampling_iterations:
+  desc: null
+  value: 14
+training_iterations:
+  desc: null
+  value: 16
+_wandb:
+  desc: null
+  value:
+    python_version: 3.7.13
+    cli_version: 0.15.5
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1689091489.349748
+    t:
+      1:
+      - 1
+      - 2
+      - 3
+      - 5
+      - 53
+      - 55
+      - 76
+      - 77
+      2:
+      - 1
+      - 2
+      - 3
+      - 5
+      - 53
+      - 55
+      - 76
+      - 77
+      3:
+      - 2
+      - 23
+      - 37
+      4: 3.7.13
+      5: 0.15.5
+      8:
+      - 5
