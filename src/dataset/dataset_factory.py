@@ -36,8 +36,11 @@ class DatasetFactory():
             if not 'n_in_cycles' in params_dict:
                 raise ValueError('''"n_in_cycles" parameter containing the number of nodes in cycles per instance
                  is mandatory for tree-cycles graph''')
+            
+            nodes_per_cycle = params_dict.get('nodes_per_cycle', None)
+            number_of_cycles = params_dict.get('number_of_cycles', None)
 
-            return self.get_tree_cycles_dataset(params_dict['n_inst'], params_dict['n_per_inst'], params_dict['n_in_cycles'], False, dataset_dict)
+            return self.get_tree_cycles_dataset(params_dict['n_inst'], params_dict['n_per_inst'], params_dict['n_in_cycles'], False, dataset_dict, nodes_per_cycle, number_of_cycles)
 
         # Check if the graph is a tree-cycles-balanced graph
         elif dataset_name == 'tree-cycles-balanced':
@@ -153,13 +156,17 @@ class DatasetFactory():
             
         return result
 
-    def get_tree_cycles_dataset(self, n_instances=300, n_total=300, n_in_cycles=200, regenerate=False, config_dict=None) -> Dataset:
+    def get_tree_cycles_dataset(self, n_instances=300, n_total=300, n_in_cycles=200, regenerate=False, config_dict=None, nodes_per_cycle=None, number_of_cycles=None) -> Dataset:
         result = Synthetic_Data(self._dataset_id_counter, config_dict)
         self._dataset_id_counter+=1
 
         # Create the name an uri of the dataset using the provided parameters
-        ds_name = ('tree-cycles_instances-'+ str(n_instances) + '_nodes_per_inst-' + str(n_total) +
-                        '_nodes_in_cycles-' + str(n_in_cycles))
+        if nodes_per_cycle is not None and number_of_cycles is not None:
+            ds_name = (f'tree-cycles_instances-{n_instances}_nodes_per_inst-{n_total}_nodes_per_cycle-{nodes_per_cycle}_number_of_cycles-{number_of_cycles}')
+        else:
+            ds_name = ('tree-cycles_instances-'+ str(n_instances) + '_nodes_per_inst-' + str(n_total) +
+                            '_nodes_in_cycles-' + str(n_in_cycles))
+        
         ds_uri = os.path.join(self._data_store_path, ds_name)
         ds_exists = os.path.exists(ds_uri)
 
@@ -173,7 +180,7 @@ class DatasetFactory():
             result.read_data(ds_uri)
         else:
             # Generate the dataset
-            result.generate_tree_cycles_dataset(n_instances, n_total, n_in_cycles)
+            result.generate_tree_cycles_dataset(n_instances, n_total, n_in_cycles, nodes_per_cycle, number_of_cycles)
             result.generate_splits()
             result.write_data(self._data_store_path)
             

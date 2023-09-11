@@ -1,6 +1,8 @@
 from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.dataset.data_instance_base import DataInstance
 from src.oracle.oracle_base import Oracle
+from src.dataset.dataset_base import Dataset
+from src.explainer.explainer_base import Explainer
 import numpy as np
 
 class GraphEditDistanceMetric(EvaluationMetric):
@@ -19,7 +21,7 @@ class GraphEditDistanceMetric(EvaluationMetric):
         self.undirected = undirected
         
 
-    def evaluate(self, instance_1: DataInstance, instance_2: DataInstance, oracle: Oracle = None):
+    def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None, explainer : Explainer=None, dataset : Dataset = None):
         # G1 = instance_1.graph
         # G2 = instance_2.graph
 
@@ -46,6 +48,12 @@ class GraphEditDistanceMetric(EvaluationMetric):
         # Implementation for numpy matrices
         A_g1 = instance_1.to_numpy_array()
         A_g2 = instance_2.to_numpy_array()
+
+        # Bardh idea ----------------------------------------------------------
+
+        # result = float(np.sum(np.absolute(A_g1 - A_g2)))
+        # return result
+        # ---------------------------------------------------------------------
 
         # Get the difference in the number of nodes
         nodes_diff_count = abs(A_g1.shape[0] - A_g2.shape[0])

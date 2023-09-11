@@ -1,6 +1,7 @@
 from src.dataset.dataset_base import Dataset
 
 from abc import ABC, abstractmethod
+from src.utils.logger import GLogger
 
 
 class Oracle(ABC):
@@ -12,6 +13,9 @@ class Oracle(ABC):
         self._name = 'abstract_oracle'
         self._oracle_store_path = oracle_store_path
         self._config_dict = config_dict
+        self._logger = GLogger.getLogger()
+        self._logger.info("Created %s",str(self.__class__))
+      
 
     @property
     def id(self):

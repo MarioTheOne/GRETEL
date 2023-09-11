@@ -146,7 +146,7 @@ class Synthetic_Data(Dataset):
         return result_graph, result_node_labels, result_edge_labels
 
 
-    def generate_tree_cycles_dataset(self, n_instances=300, n_total=300, n_in_cycles=200):
+    def generate_tree_cycles_dataset(self, n_instances=300, n_total=300, n_in_cycles=200, nodes_per_cycle=None, number_of_cycles=None):
         """Generate a dataset of graphs composed by a base tree with added cycles connected to the tree
         by one edge each.
         -------------
@@ -161,8 +161,11 @@ class Synthetic_Data(Dataset):
             graph_label, node_labels, edge_labels, and minimum_counterfactual_distance
         """
 
-        self._name = ('tree-cycles_instances-'+ str(n_instances) + '_nodes_per_inst-' + str(n_total) +
-                        '_nodes_in_cycles-' + str(n_in_cycles))
+        if nodes_per_cycle is not None and number_of_cycles is not None:
+            self._name = (f'tree-cycles_instances-{n_instances}_nodes_per_inst-{n_total}_nodes_per_cycle-{nodes_per_cycle}_number_of_cycles-{number_of_cycles}')
+        else:
+            self._name = ('tree-cycles_instances-'+ str(n_instances) + '_nodes_per_inst-' + str(n_total) +
+                            '_nodes_in_cycles-' + str(n_in_cycles))
 
         # Creating the empty list of instances
         result = []
@@ -176,13 +179,17 @@ class Synthetic_Data(Dataset):
                 data_instance = DataInstance(id=self._instance_id_counter)
                 self._instance_id_counter +=1
 
-                # Choose randomly the number of nodes in each cycle and the number of cycle subgraphs
-                n_cycles = np.random.randint(low=1, high=66)
-                cycle_size = np.random.randint(low=3, high=20)
-                # Check that the total number is lower than the maximum amount of nodes in cycles
-                while(n_cycles*cycle_size > n_in_cycles):
+                if nodes_per_cycle is not None and number_of_cycles is not None:
+                    n_cycles = number_of_cycles
+                    cycle_size = nodes_per_cycle
+                else:
+                    # Choose randomly the number of nodes in each cycle and the number of cycle subgraphs
                     n_cycles = np.random.randint(low=1, high=66)
                     cycle_size = np.random.randint(low=3, high=20)
+                    # Check that the total number is lower than the maximum amount of nodes in cycles
+                    while(n_cycles*cycle_size > n_in_cycles):
+                        n_cycles = np.random.randint(low=1, high=66)
+                        cycle_size = np.random.randint(low=3, high=20)
 
                 # Calculating how many nodes have to contain the tree to maintain the total
                 # number of nodes per instance

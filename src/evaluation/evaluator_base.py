@@ -11,9 +11,11 @@ from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.explainer.explainer_base import Explainer
 from src.oracle.oracle_base import Oracle
 from src.utils.cfgnnexplainer.utils import safe_open
+from src.utils.logger import GLogger
 
 
 class Evaluator(ABC):
+    _logger = GLogger.getLogger()
 
     def __init__(self, id, data: Dataset, oracle: Oracle, explainer: Explainer, evaluation_metrics, results_store_path, run_number=0) -> None:
         super().__init__()
@@ -27,6 +29,7 @@ class Evaluator(ABC):
         self._evaluation_metrics = evaluation_metrics
         self._run_number = run_number
         self._explanations = []
+        
 
         # Building the config file to write into disk
         evaluator_config = {'dataset': data._config_dict, 'oracle': oracle._config_dict, 'explainer': explainer._config_dict, 'metrics': []}
@@ -122,8 +125,8 @@ class Evaluator(ABC):
                 # The runtime metric is built-in inside the evaluator``
                 self._results['runtime'].append(end_time - start_time)
 
-                self._real_evaluate(inst, counterfactual)
-                print('evaluated instance with id ', str(inst.id))
+                self._real_evaluate(inst, counterfactual,self._oracle,self._explainer,self._data)
+                self._logger.info('evaluated instance with id %s', str(inst.id))
         else:
             test_indices = self.dataset.splits[fold_id]['test']
             test_set = [i for i in self.dataset.instances if i.id in test_indices]
@@ -132,6 +135,7 @@ class Evaluator(ABC):
                 
                 start_time = time.time()
                 counterfactual = self._explainer.explain(inst, self._oracle, self._data)
+
                 end_time = time.time()
                 # giving the same id to the counterfactual and the original instance 
                 counterfactual.id = inst.id
@@ -140,20 +144,21 @@ class Evaluator(ABC):
                 # The runtime metric is built-in inside the evaluator``
                 self._results['runtime'].append(end_time - start_time)
 
-                self._real_evaluate(inst, counterfactual)
-                print('evaluated instance with id ', str(inst.id))
+                self._real_evaluate(inst, counterfactual,self._oracle,self._explainer,self._data)
+                self._logger.info('evaluated instance with id %s', str(inst.id))
 
+        print(self._results)
         self.write_results()
 
 
-    def _real_evaluate(self, instance, counterfactual, oracle = None):
+    def _real_evaluate(self, instance, counterfactual, oracle = None, explainer=None, dataset=None):
         is_alt = False
         if (oracle is None):
             is_alt = True
             oracle = self._oracle
 
         for metric in self._evaluation_metrics:
-            m_result = metric.evaluate(instance, counterfactual, oracle)
+            m_result = metric.evaluate(instance, counterfactual, oracle, explainer,dataset)
             self._results[metric.name].append(m_result)
 
 

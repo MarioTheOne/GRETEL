@@ -1,0 +1,14 @@
+wandb_version: 1
+
+alpha:
+  value: 0.7
+batch_size:
+  value: 0.2
+epochs:
+  value: 100
+gamma:
+  value: 0.1
+lam:
+  value: 500
+lr:
+  value: 0.0001

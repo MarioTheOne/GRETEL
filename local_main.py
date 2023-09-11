@@ -7,7 +7,7 @@ print(f"Initializing test ensemble")
 
 # config_file_path = './config/steel/meg-set-1/config_tree-cycles-500-32_tc-custom-oracle_meg_fold-0.json'
 # config_file_path = './config/steel/cf2-bbbp/config_bbbp_gcn-tf_cf2_fold-9.json'
-config_file_path = './config/steel/clear-bbbp/config_bbbp_gcn-tf_clear_fold-0.json'
+config_file_path = './config/ablation_cs/TC128-CS3.json'
 
 print('Creating the evaluation manager.......................................................')
 eval_manager = EvaluatorManager(config_file_path, run_number=4)

@@ -116,7 +116,7 @@ class EvaluatorManager:
         if evaluation_metric_factory is not None:
             self._evaluation_metric_factory = evaluation_metric_factory
         else:
-            self._evaluation_metric_factory = EvaluationMetricFactory()
+            self._evaluation_metric_factory = EvaluationMetricFactory(self._config_dict)
 
         self.datasets = []
         self.oracles = []

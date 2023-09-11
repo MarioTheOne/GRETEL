@@ -1,4 +1,4 @@
-from src.dataset.converters.cf2_converter import CF2TreeCycleConverter
+from src.dataset.converters.tree_cycles_converter import TreeCyclesConverter
 from src.dataset.converters.weights_converter import \
     DefaultFeatureAndWeightConverter
 from src.evaluation.evaluation_metric_factory import EvaluationMetricFactory
@@ -13,15 +13,18 @@ from src.explainer.explainer_clear import CLEARExplainer
 from src.explainer.explainer_countergan import CounteRGANExplainer
 from src.explainer.explainer_dce_search import (DCESearchExplainer,
                                                 DCESearchExplainerOracleless)
+from src.explainer.explainer_rsgg_ce import GraphCounteRGANExplainer
+from src.explainer.explainer_incremental_rand import IRandExplainer
 from src.explainer.explainer_maccs import MACCSExplainer
 from src.explainer.explainer_perturbation_rand import PerturbationRandExplainer
-from src.explainer.meg.environments.bbbp_env import BBBPEnvironment
 from src.explainer.meg.environments.basic_policies import \
     AddRemoveEdgesEnvironment
+from src.explainer.meg.environments.bbbp_env import BBBPEnvironment
 from src.explainer.meg.explainer_meg import MEGExplainer
 from src.explainer.meg.utils.encoders import (
     IDActionEncoder, MorganBitFingerprintActionEncoder)
-from src.explainer.explainer_incremental_rand import IRandExplainer
+from src.utils.samplers.partial_order_samplers import PositiveAndNegativeEdgeSampler
+from src.utils.samplers.blended_sampler import BlendedSampler
 
 
 class ExplainerFactory:
@@ -128,6 +131,43 @@ class ExplainerFactory:
                                                  n_generator_steps, n_labels, fold_id,
                                                  ce_binarization_threshold, explainer_dict)
             
+        elif explainer_name == 'graph_countergan':
+            # Verifying the explainer parameters
+            if not 'n_nodes' in explainer_parameters:
+                raise ValueError('''GraphCounteRGAN requires the number of nodes''')
+            if not 'n_labels' in explainer_parameters:
+                raise ValueError('''GraphCounteRGAN requires a n_labels''')
+            if not 'fold_id' in explainer_parameters:
+                raise ValueError('''CounteRGAN requires a fold_id''')
+            
+            training_iterations = explainer_parameters.get('training_iterations', 20000)
+            n_labels = explainer_parameters['n_labels']
+            feature_dim = explainer_parameters.get('feature_dim', 4)
+            sampling_iterations = explainer_parameters.get('sampling_iterations', 10)
+            lr_discriminator = explainer_parameters.get('lr_discriminator', 0.01)
+            lr_generator = explainer_parameters.get('lr_generator', 0.01)
+            
+            sampling_strategy = BlendedSampler(sampling_iterations)
+            
+            converter_name = explainer_parameters.get('converter', 'tree_cycles')
+            
+            n_nodes = int(explainer_parameters['n_nodes'])
+            fold_id = int(explainer_parameters['fold_id'])
+            
+            converter = None
+            if converter_name == 'tree_cycles':
+                converter = TreeCyclesConverter(feature_dim=feature_dim)
+                # change else in the future to support all datasets
+            else:
+                converter = DefaultFeatureAndWeightConverter(feature_dim=feature_dim,
+                                                             weight_dim=1)
+                
+                
+            return self.get_graph_countergan_explainer(converter, n_nodes,
+                                                 training_iterations, n_labels, fold_id,
+                                                 lr_generator, lr_discriminator,
+                                                 feature_dim, sampling_strategy, sampling_iterations, explainer_dict)
+                        
         elif explainer_name == 'clear':
             # Verifying the explainer parameters
             if not 'n_nodes' in explainer_parameters:
@@ -194,7 +234,7 @@ class ExplainerFactory:
             
             converter = None
             if converter_name == 'tree_cycles':
-                converter = CF2TreeCycleConverter(feature_dim=feature_dim)
+                converter = TreeCyclesConverter(feature_dim=feature_dim)
             else:
                 converter = DefaultFeatureAndWeightConverter(feature_dim=feature_dim,
                                                               weight_dim=n_nodes)
@@ -385,17 +425,45 @@ class ExplainerFactory:
     def get_countergan_explainer(self, n_nodes, batch_size_ratio, device,
                                  training_iterations, n_discriminator_steps, n_generator_steps,
                                  n_labels, fold_id, ce_binarization_threshold, config_dict=None) -> Explainer:
+        
         result = CounteRGANExplainer(self._explainer_id_counter,
-                                     self._explainer_store_path,
-                                     n_nodes=n_nodes,
-                                     batch_size_ratio=batch_size_ratio,
-                                     device=device,
-                                     n_labels=n_labels,
-                                     training_iterations=training_iterations,
-                                     n_generator_steps=n_generator_steps,
-                                     n_discriminator_steps=n_discriminator_steps,
-                                     ce_binarization_threshold=ce_binarization_threshold,
-                                     fold_id=fold_id, config_dict=config_dict)
+                                    self._explainer_store_path,
+                                    n_nodes=n_nodes,
+                                    batch_size_ratio=batch_size_ratio,
+                                    device=device,
+                                    n_labels=n_labels,
+                                    training_iterations=training_iterations,
+                                    n_generator_steps=n_generator_steps,
+                                    n_discriminator_steps=n_discriminator_steps,
+                                    ce_binarization_threshold=ce_binarization_threshold,
+                                    fold_id=fold_id, config_dict=config_dict)
+       
+        self._explainer_id_counter += 1
+        return result
+    
+    
+    def get_graph_countergan_explainer(self, converter, n_nodes,
+                                       training_iterations, n_labels, fold_id,
+                                       lr_generator, lr_discriminator,
+                                       feature_dim,
+                                       sampling_strategy,
+                                       sampling_iterations,
+                                       config_dict=None) -> Explainer:
+        
+        result = GraphCounteRGANExplainer(self._explainer_id_counter,
+                                          self._explainer_store_path,
+                                          converter=converter,
+                                          n_nodes=n_nodes,
+                                          n_labels=n_labels,
+                                          training_iterations=training_iterations,
+                                          n_features=feature_dim,
+                                          fold_id=fold_id,
+                                          sampler=sampling_strategy,
+                                          lr_generator=lr_generator,
+                                          sampling_iterations=sampling_iterations,
+                                          lr_discriminator=lr_discriminator,
+                                          config_dict=config_dict)
+       
         self._explainer_id_counter += 1
         return result
        
