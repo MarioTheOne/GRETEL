@@ -18,7 +18,7 @@ class OracleAccuracyMetric(EvaluationMetric):
 
         predicted_label_instance_1 = oracle.predict(instance_1)
         oracle._call_counter -= 1
-        real_label_instance_1 = instance_1.graph_label
+        real_label_instance_1 = instance_1.label
 
         result = 1 if (predicted_label_instance_1 == real_label_instance_1) else 0
         

@@ -6,7 +6,7 @@ import torch
 from src.core.torch_base import TorchBase
 from torch_geometric.loader import DataLoader
 from src.n_dataset.instances.graph import GraphInstance
-from src.utils.cfg_utils import init_dflts_to_of
+from src.utils.cfg_utils import init_dflts_to_of, retake_oracle
 from src.utils.torch.utils import rebuild_adj_matrix
 from src.core.factory_base import get_instance_kvargs
 
@@ -14,12 +14,13 @@ from src.core.factory_base import get_instance_kvargs
 class GAN(TorchBase):
     
     def init(self):
+        self.oracle = retake_oracle(self.local_config)
         #We override the init of TorchBase
         local_params = self.local_config['parameters']
         self.epochs = local_params['epochs']
         self.batch_size = local_params['batch_size']
         self.explainee_label = local_params['model_label']
-        self.oracle = local_params['oracle']
+        
 
         # Initialise the generator and its optimizer
         self.generator = get_instance_kvargs(local_params['generator']['class'],
@@ -27,8 +28,9 @@ class GAN(TorchBase):
         
         self.generator_optimizer = get_instance_kvargs(local_params['gen_optimizer']['class'],
                                              {'params':self.generator.parameters(), 
-                                              **local_params['gen_optimizer']['parameters']})   
-    
+                                              **local_params['gen_optimizer']['parameters']})  
+         
+        # Initialise the discriminator and its optimizer
         self.discriminator = get_instance_kvargs(local_params['discriminator']['class'],
                                                  local_params['discriminator']['parameters'])
 

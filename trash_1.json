@@ -1,0 +1,39 @@
+{
+    "class": "src.oracle.tabulars.knn.KNNOracle",
+    "parameters": {
+        "fold_id": -1,
+        "retrain": false,
+        "embedder": {
+            "class": "src.embedder.graph2vec.model.Graph2VecEmbedder",
+            "parameters": {
+                "model": {
+                    "class": "src.embedder.graph2vec.estimator.Graph2Vec",
+                    "parameters": {
+                        "wl_iterations": 2,
+                        "attributed": false,
+                        "dimensions": 128,
+                        "workers": 4,
+                        "down_sampling": 0.0001,
+                        "epochs": 10,
+                        "learning_rate": 0.025,
+                        "min_count": 5,
+                        "seed": 42,
+                        "erase_base_features": false
+                    }
+                }
+            }
+        },
+        "model": {
+            "class": "sklearn.neighbors.KNeighborsClassifier",
+            "parameters": {
+                "n_neighbors": 3,
+                "weights": "uniform",
+                "algorithm": "auto",
+                "leaf_size": 30,
+                "p": 2,
+                "metric": "minkowski"
+            }
+        }
+    },
+    "dataset": <src.n_dataset.dataset_base.Dataset object at 0x7f4b19c7be50>
+}

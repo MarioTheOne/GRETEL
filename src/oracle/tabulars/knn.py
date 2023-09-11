@@ -1,5 +1,6 @@
 from sklearn.neighbors import KNeighborsClassifier
 from src.oracle.tabulars.tabular_base import TabularOracle
+from src.utils.cfg_utils import init_dflts_to_of
 
 class KNNOracle(TabularOracle):
 
@@ -7,8 +8,7 @@ class KNNOracle(TabularOracle):
         super().init()
         self.model = KNeighborsClassifier(**self.local_config['parameters']['model']['parameters'])
 
-    def check_configuration(self, local_config):
-        params = local_config['parameters']['model']['parameters']
-        if "n_neighbors" not in params:
-            params['n_neighbors'] = 3
-        return super().check_configuration(local_config)
+    def check_configuration(self):
+        super().check_configuration()
+        kls="sklearn.neighbors.KNeighborsClassifier"
+        init_dflts_to_of(self.local_config, 'model', kls, n_neighbors=3) #Init the default accordingly to the nested Classifier

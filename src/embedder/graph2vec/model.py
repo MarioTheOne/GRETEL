@@ -1,5 +1,6 @@
 from src.embedder.graph2vec.estimator import Graph2Vec
 from src.core.embedder_base import Embedder
+from src.utils.cfg_utils import default_cfg, empty_cfg_for, init_dflts_to_of
 
 class Graph2VecEmbedder(Embedder):
         
@@ -17,4 +18,14 @@ class Graph2VecEmbedder(Embedder):
 
     def get_embedding(self, instance):
         # A Copy of the graph is provided because the _check_graphs function modifies the edges of the passed graph
-        return self.model.infer(instance.build_nx().copy(as_view=False)).reshape(1, -1)    
+        return self.model.infer(instance.get_nx()).reshape(1, -1)    
+    
+    @default_cfg
+    def grtl_default(kls, fold_id):
+        #TODO: add the fold_id  logic so do not inject it for the moment
+        self_kls = "src.embedder.graph2vec.model.Graph2VecEmbedder"
+        self_cfg = empty_cfg_for(self_kls) #Init an empty cfg for this class
+
+        sub_kls ='src.embedder.graph2vec.estimator.Graph2Vec'        
+        init_dflts_to_of(self_cfg, 'model', sub_kls) #Init the default accordingly to the nested Estimator
+        return self_cfg

@@ -64,11 +64,13 @@ class Context(object):
     def get_path(self, obj):
         fullname = self.get_fullname(obj).split('.')
         qualifier = fullname[1] + '_store_path'
+        store_dir = 'data'if not self._get_store_path(qualifier) else self._get_store_path(qualifier)
+
         # change this path when the dataset factories are finished
         if 'dataset' in obj.__dict__.keys():
-            directory = os.path.join(self._get_store_path(qualifier), str(obj.dataset))
+            directory = os.path.join(store_dir, str(obj.dataset))
         else:
-            directory = self._get_store_path(qualifier)
+            directory = store_dir
         lock = Lock(directory+'.lck',lifetime=timedelta(hours=self.lock_release_tout))
         with lock:
             if not os.path.exists(directory):

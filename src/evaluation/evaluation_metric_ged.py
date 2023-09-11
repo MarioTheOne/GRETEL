@@ -46,8 +46,8 @@ class GraphEditDistanceMetric(EvaluationMetric):
         # return edit_distance
     
         # Implementation for numpy matrices
-        A_g1 = instance_1.to_numpy_array()
-        A_g2 = instance_2.to_numpy_array()
+        A_g1 = instance_1.data
+        A_g2 = instance_2.data
 
         # Bardh idea ----------------------------------------------------------
 

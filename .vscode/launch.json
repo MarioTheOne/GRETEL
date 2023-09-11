@@ -6,7 +6,15 @@
     "configurations": [
 
 
-        
+        {
+            "name": "Tabulars_ASD",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["config/test/experimental/test_tabular_ASD.json", "1"],
+        },
         {
             "name": "Python: Current File with profiler",
             "type": "python",
@@ -25,7 +33,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": ["config/test/test_TC.json", "1"],
-        }
+        },
         {
             "name": "Python: RSGG_ASD",
             "type": "python",
@@ -34,6 +42,6 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": ["config/test/experimental/RSGG_ASD.json", "1"],
-        }
+        }       
     ]
 }

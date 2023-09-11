@@ -32,7 +32,7 @@ class Evaluator(ABC):
         
 
         # Building the config file to write into disk
-        evaluator_config = {'dataset': data.local_config, 'oracle': oracle.local_config, 'explainer': explainer._config_dict, 'metrics': []}
+        evaluator_config = {'dataset': data.local_config, 'oracle': oracle.local_config, 'explainer': explainer.local_config, 'metrics': []}
         for metric in evaluation_metrics:
             evaluator_config['metrics'].append(metric._config_dict)
         # creatig the results dictionary with the basic info
@@ -135,7 +135,7 @@ class Evaluator(ABC):
                 self._logger.info("Evaluating instance with id %s", str(inst.id))
 
                 start_time = time.time()
-                counterfactual = self._explainer.explain(inst, self._oracle, self._data)
+                counterfactual = self._explainer.explain(inst)
 
                 end_time = time.time()
                 # giving the same id to the counterfactual and the original instance 

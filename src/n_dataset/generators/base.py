@@ -30,7 +30,7 @@ class Generator(Configurable, metaclass=ABCMeta):
     def __next__(self):
         if (self.current + 1) < self.get_num_instances():
             self.current += 1
-            return self.dataset.instances.get_instance(self.current)
+            return self.dataset.instances[self.current]
         raise StopIteration
     
     def reset_iterator(self):

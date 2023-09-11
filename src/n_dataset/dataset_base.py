@@ -17,6 +17,7 @@ from src.core.factory_base import get_class
 class Dataset(Savable):
     
     def init(self):
+        super().init()
         ################### PREAMBLE ###################
         self.instances: List[DataInstance] = []
         

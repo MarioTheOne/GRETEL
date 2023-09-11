@@ -20,5 +20,5 @@ class SparsityMetric(EvaluationMetric):
         return ged.evaluate(instance_1, instance_2, oracle)/self.number_of_structural_features(instance_1)
 
     def number_of_structural_features(self, data_instance : DataInstance) -> float:
-        return len(data_instance.graph.edges) + len(data_instance.graph.nodes)
+        return len(data_instance.get_nx().edges) + len(data_instance.get_nx().nodes)
 

@@ -1,6 +1,7 @@
-from src.oracle.custom.custom_base import CustomOracle
+from src.core.oracle_base import Oracle 
 
 import numpy as np
+#TODO: Revise with the new data_instance logic.
 
 class TrianglesSquaresOracle(CustomOracle):
 

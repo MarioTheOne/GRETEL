@@ -7,20 +7,16 @@ def pprint(dic):
 
 
 def inject_dataset(cfg, dataset):
-    cfg['parameters'] = cfg.get('parameters',{})
-    cfg['parameters']['dataset']= dataset
+    cfg['dataset']= dataset
 
 def inject_oracle(cfg, oracle):
-    cfg['parameters'] = cfg.get('parameters',{})
-    cfg['parameters']['oracle']= oracle
+    cfg['oracle']= oracle
 
 def retake_dataset(cfg):
-    cfg['parameters'] = cfg.get('parameters',{})
-    return cfg['parameters']['dataset']
+    return cfg['dataset']
 
 def retake_oracle(cfg):
-    cfg['parameters'] = cfg.get('parameters',{})
-    return cfg['parameters']['oracle']
+    return cfg['oracle']
 
 def add_init_defaults_params(snippet, **kwargs):
     declared_cls = get_class(snippet['class'])

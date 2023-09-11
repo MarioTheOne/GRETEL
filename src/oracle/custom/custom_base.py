@@ -7,6 +7,3 @@ from src.core.oracle_base import Oracle
 # must be implemented. 
 # The remaing functions are just empty implementation because are not needed.
 class CustomOracle(Oracle):
-
-    def check_configuration(self, local_config):
-        return local_config

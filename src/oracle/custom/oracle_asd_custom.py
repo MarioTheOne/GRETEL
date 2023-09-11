@@ -1,8 +1,8 @@
-from src.oracle.custom.custom_base import CustomOracle
+from src.core.oracle_base import Oracle 
 
 import numpy as np
 
-class ASDOracle(CustomOracle):
+class ASDOracle(Oracle):
     
     #TODO: Revise _real_predict_* in order to produce a kind of probabilities  
     def _real_predict_proba(self, data_instance):
@@ -13,7 +13,7 @@ class ASDOracle(CustomOracle):
             return np.array([1,0])        
         
     def _real_predict(self, data_instance):
-        g = data_instance.to_numpy_array()
+        g = data_instance.data
         f = self._feature_extraction(g)
         # Apply the rule
         w_1 = -0.181742414867891

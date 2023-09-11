@@ -14,12 +14,7 @@ class Trainable(Savable,metaclass=ABCMeta):
         super().__init__(context, local_config)
 
     def load_or_create(self, condition=False):
-        super().load_or_create(self._to_retrain() or condition)
-
-    def check_configuration(self):
-        self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
-        self.fold_id = self.local_config['parameters']['fold_id'] 
-        
+        super().load_or_create(self._to_retrain() or condition)        
 
     def _to_retrain(self):
         retrain = self.local_config['parameters'].get('retrain', False)
@@ -59,6 +54,11 @@ class Trainable(Savable,metaclass=ABCMeta):
     @abstractmethod
     def real_fit(self):
         pass
+
+    def check_configuration(self):
+        super().check_configuration()
+        self.local_config['parameters']['fold_id'] =  self.local_config['parameters'].get('fold_id', -1)
+        self.fold_id = self.local_config['parameters']['fold_id'] 
     
 
     

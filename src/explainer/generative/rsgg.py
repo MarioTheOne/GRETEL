@@ -41,7 +41,7 @@ class RSGG(Trainable, Explainer):
         init_dflts_to_of(self.local_config,'sampler','src.utils.n_samplers.partial_order_samplers.PositiveAndNegativeEdgeSampler')
 
         # Check if models is present and of the right size
-        if 'models' not in self.local_config['parameters'] or len(self.local_config['parameters']['models'])<self.dataset.num_classes:
+        if 'models' not in self.local_config['parameters'] or len(self.local_config['parameters']['models']) < self.dataset.num_classes:
             #Check if the models exist or create it
             if 'models' not in self.local_config['parameters']:
                 self.local_config['parameters']['models']=[]
@@ -58,22 +58,22 @@ class RSGG(Trainable, Explainer):
             # Add the missed per class models
             models = []
             for i in range(self.dataset.num_classes):
-                proto_model=copy.deepcopy(proto_snippet)
-                proto_model['parameters']['model_label'] = i
+                model=copy.deepcopy(proto_snippet)
+                model['parameters']['model_label'] = i
 
-                for model in cfg_models:
-                    if(model['parameters']['model_label'] == i):
+                for usr_model in cfg_models:
+                    if(usr_model['parameters']['model_label'] == i):
                         # We sobstitute the copied prototype
-                        proto_model = model
+                        model = usr_model
                 
                 # In any case we need to inject oracle and the dataset to the model
-                inject_dataset(proto_model, self.dataset)
-                inject_oracle(proto_model, self.oracle)
+                inject_dataset(model, self.dataset)
+                inject_oracle(model, self.oracle)
 
                 # Check if the fold_id is present is inherited otherwise
-                proto_model['parameters']['fold_id'] = proto_model['parameters'].get('fold_id',self.fold_id)
+                model['parameters']['fold_id'] = model['parameters'].get('fold_id',self.fold_id)
 
-                models.append(proto_model)
+                models.append(model)
 
             # We replace models with the checked ones
             self.local_config['parameters']['models']=models
