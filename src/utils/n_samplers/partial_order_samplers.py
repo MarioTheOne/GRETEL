@@ -23,19 +23,14 @@ class PositiveAndNegativeEdgeSampler(Sampler):
         edge_probs = kwargs.edge_probabilities
         embedded_features = kwargs.embedded_features
         edge_list = kwargs.edge_index
-        
-        pred_label = oracle.predict(instance)
-        
-        edge_probs = edge_probs.get(pred_label)
-        embedded_features = embedded_features.get(pred_label)
                 
-        edge_num = instance.graph.number_of_edges()
+        edge_num = instance.number_of_edges
         cf_instance = self.__sample(instance, embedded_features, edge_probs[edge_list], edge_list, num_samples=edge_num) 
         if oracle.predict(cf_instance) != oracle.predict(instance):
             return cf_instance
         else:
             # get the "negative" edges that aren't estimated
-            missing_edges = self.__negative_edges(edge_list, instance.graph.number_of_nodes())
+            missing_edges = self.__negative_edges(edge_list, instance.number_of_nodes)
             edge_probs = torch.from_numpy(np.array([1 / len(missing_edges) for _ in range(len(missing_edges))]))
             # check sampling for sampling_iterations
             # and see if we find a valid counterfactual
@@ -52,7 +47,7 @@ class PositiveAndNegativeEdgeSampler(Sampler):
         return torch.from_numpy(np.array(list(all_edges.difference(edges))))
   
     def __sample(self, instance: DataInstance, features, probabilities, edge_list, num_samples=1):
-        n_nodes = instance.graph.number_of_nodes()
+        n_nodes = instance.number_of_nodes
         adj = torch.zeros((n_nodes, n_nodes)).double()
         weights = torch.zeros((n_nodes, n_nodes)).double()
         ##################################################
