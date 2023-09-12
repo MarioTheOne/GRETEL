@@ -2,7 +2,7 @@
     "class": "src.oracle.nn.torch.OracleTorch",
     "parameters": {
         "epochs": 50,
-        "batch_size": 4,
+        "batch_size": 16,
         "optimizer": {
           "class": "torch.optim.Adam",
           "parameters": {
@@ -27,7 +27,7 @@
         },
         "model": { 
           "class": "src.oracle.nn.gcn.DownstreamGCN",
-          "parameters": {"num_conv_layers":2}
+          "parameters": {"num_conv_layers":4}
       } 
     }   
 }

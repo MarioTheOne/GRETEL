@@ -134,6 +134,7 @@ class Evaluator(ABC):
             for inst in test_set:
                 self._logger.info("Evaluating instance with id %s", str(inst.id))
 
+
                 start_time = time.time()
                 counterfactual = self._explainer.explain(inst)
 

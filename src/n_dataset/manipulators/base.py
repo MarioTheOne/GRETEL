@@ -24,6 +24,18 @@ class BaseManipulator(Configurable):
             instance.node_features = self.__process_features(instance.node_features, node_features_map, self.dataset.node_features_map)
             instance.edge_features = self.__process_features(instance.edge_features, edge_features_map, self.dataset.edge_features_map)
             instance.graph_features = self.__process_features(instance.graph_features, graph_features_map, self.dataset.graph_features_map)
+           
+
+    def _process_instance(self,instance):
+        node_features_map = self.node_info(instance)
+        edge_features_map = self.edge_info(instance)
+        graph_features_map = self.graph_info(instance)
+        self.manipulate_features_maps((node_features_map, edge_features_map, graph_features_map))
+        # overriding the features
+        # resize in num_nodes x feature dim
+        instance.node_features = self.__process_features(instance.node_features, node_features_map, self.dataset.node_features_map)
+        instance.edge_features = self.__process_features(instance.edge_features, edge_features_map, self.dataset.edge_features_map)
+        instance.graph_features = self.__process_features(instance.graph_features, graph_features_map, self.dataset.graph_features_map)
 
        
     def node_info(self, instance):
