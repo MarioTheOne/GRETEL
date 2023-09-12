@@ -17,9 +17,9 @@ class ResGenerator(nn.Module):
         self.num_conv_layers = num_conv_layers
         self.conv_booster = 1 #conv_booster
         # encoder with no pooling
-        self.encoder = GCN(self.node_features, self.num_conv_layers, self.conv_booster, nn.Identity())
+        self.encoder = GCN(self.node_features, self.num_conv_layers, self.conv_booster, nn.Identity()).double()
         # graph autoencoder with inner product decoder
-        self.model = GAE(encoder=self.encoder)
+        self.model = GAE(encoder=self.encoder).double()
         self.residuals = residuals
         
     def set_training(self, training):
