@@ -34,6 +34,11 @@ class GraphInstance(DataInstance):
         edges = list(nx_repr.edges)
         nx_repr.add_edges_from([(edge[0], edge[1], {'edge_features': self.edge_features[i]}) for i, edge in enumerate(edges)])
         return nx_repr
+    
+    @property
+    def num_edges(self):
+        nx_repr = self.get_nx()
+        return nx_repr.number_of_edges()
             
     
     
