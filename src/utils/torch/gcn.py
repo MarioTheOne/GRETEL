@@ -1,17 +1,23 @@
 import torch.nn as nn
-from torch_geometric.nn.aggr import MeanAggregation
+from torch_geometric.nn.aggr import MeanAggregation,SoftmaxAggregation
 from torch_geometric.nn.conv import GCNConv
+
+from src.core.factory_base import get_class
 
 class GCN(nn.Module):
    
-    def __init__(self, node_features, num_conv_layers=2, conv_booster=1, pooling=MeanAggregation()):
+    def __init__(self, node_features, num_conv_layers=2, conv_booster=1, pooling=SoftmaxAggregation(learn=True)):
         super(GCN, self).__init__()
         
         self.in_channels = node_features
         self.out_channels = int(self.in_channels * conv_booster)
-        self.pooling = pooling
+        self.pooling = get_class(pooling)() if  isinstance(pooling, str) else pooling
+ 
         
-        self.num_conv_layers = [(self.in_channels, self.out_channels)] + [(self.out_channels, self.out_channels) * (num_conv_layers - 1)]
+        if num_conv_layers>1:
+            self.num_conv_layers = [(self.in_channels, self.out_channels)] + [(self.out_channels, self.out_channels) * (num_conv_layers - 1)]
+        else:
+            self.num_conv_layers = [(self.in_channels, self.out_channels)]
         self.graph_convs = self.__init__conv_layers()
         
     def forward(self, node_features, edge_index, edge_weight, batch):

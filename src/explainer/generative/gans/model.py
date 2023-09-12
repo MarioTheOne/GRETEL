@@ -14,6 +14,8 @@ from src.utils.torch.utils import rebuild_adj_matrix
 
 
 class GAN(TorchBase):
+    '''def write(self):
+        pass'''
     
     def init(self):
         self.oracle = retake_oracle(self.local_config)
@@ -165,8 +167,8 @@ class GAN(TorchBase):
     def check_configuration(self):
         # We let TorchBase do some check for us.
         super().check_configuration()
-        local_config = self.local_config        
-        
+        local_config = self.local_config
+                
         #Declare the default classes to use
         gen_kls='src.explainer.generative.gans.res_gen.ResGenerator'
         disc_kls='src.explainer.generative.gans.smpl_disc.SimpleDiscriminator'  
@@ -195,10 +197,10 @@ class GAN(TorchBase):
         # If the gen_optimizer is not present we create it
         if 'disc_optimizer' not in local_config['parameters']:
             local_config['parameters']['disc_optimizer'] = copy.deepcopy(proto_optimizer)
-            local_config['parameters']['disc_optimizer']['parameters']['lr']=0.01 # We override the proto lr        
+            local_config['parameters']['disc_optimizer']['parameters']['lr']=0.001 # We override the proto lr        
         
         init_dflts_to_of(local_config, 'gen_optimizer','torch.optim.SGD',lr=0.001)
-        init_dflts_to_of(local_config, 'disc_optimizer','torch.optim.SGD',lr=0.01)
+        init_dflts_to_of(local_config, 'disc_optimizer','torch.optim.SGD',lr=0.001)
 
    
         

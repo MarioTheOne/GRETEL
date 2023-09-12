@@ -9,7 +9,6 @@ class TorchBase(Trainable):
     def init(self):
         self.epochs = self.local_config['parameters']['epochs']
         self.batch_size = self.local_config['parameters']['batch_size']
-
         
         self.model = get_instance_kvargs(self.local_config['parameters']['model']['class'],
                                    self.local_config['parameters']['model']['parameters'])
@@ -20,6 +19,7 @@ class TorchBase(Trainable):
         self.loss_fn = get_instance_kvargs(self.local_config['parameters']['loss_fn']['class'],
                                            self.local_config['parameters']['loss_fn']['parameters'])
         
+        self.fun = torch.nn.Softmax() if self.dataset.num_classes>2 else torch.nn.Sigmoid()
         
         #TODO: Need to fix GPU support!!!!
         self.device = (
@@ -31,7 +31,8 @@ class TorchBase(Trainable):
         )
         self.model.to(self.device)                            
     
-    def real_fit(self):        
+    def real_fit(self):
+              
         loader = self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, usage='train')
         
         for epoch in range(self.epochs):
@@ -43,11 +44,14 @@ class TorchBase(Trainable):
                 edge_index = batch.edge_index.to(self.device)
                 edge_weights = batch.edge_attr.to(self.device)
                 labels = batch.y.to(self.device)
+                labels_n=torch.nn.functional.one_hot(labels, num_classes=self.dataset.num_classes).double()
+                
+
                 
                 self.optimizer.zero_grad()
                 
-                pred = self.model(node_features, edge_index, edge_weights, batch.batch)
-                loss = self.loss_fn(pred, labels)
+                pred = self.fun(self.model(node_features, edge_index, edge_weights, batch.batch))
+                loss = self.loss_fn(pred, labels_n)
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 
@@ -61,7 +65,7 @@ class TorchBase(Trainable):
         super().check_configuration()
         local_config=self.local_config
         # set defaults
-        local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 100)
+        local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 50)
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 4)
         # populate the optimizer
         init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam',lr=0.001)

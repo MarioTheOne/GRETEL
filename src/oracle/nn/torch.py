@@ -26,11 +26,12 @@ class OracleTorch(TorchBase, Oracle):
             edge_index = batch.edge_index.to(self.device)
             edge_weights = batch.edge_attr.to(self.device)
             labels = batch.y.to(self.device)
+            labels_n=torch.nn.functional.one_hot(labels, num_classes=self.dataset.num_classes).double()
             
             self.optimizer.zero_grad()  
-            pred = self.model(node_features, edge_index, edge_weights, batch.batch)
+            pred = self.fun(self.model(node_features, edge_index, edge_weights, batch.batch))
             
-            loss = self.loss_fn(pred, labels)
+            loss = self.loss_fn(pred, labels_n)
             losses.append(loss.to('cpu').detach().numpy())
             
             pred_label = torch.argmax(pred,dim=1)

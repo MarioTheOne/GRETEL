@@ -32,11 +32,12 @@ class DownstreamGCN(GCN):
         downstream_layers = []
         in_linear = self.out_channels
         for _ in range(self.num_dense_layers-1):
-            downstream_layers.append(nn.Linear(in_linear, in_linear // self.linear_decay))
+            downstream_layers.append(nn.Linear(in_linear, int(in_linear // self.linear_decay)))
             downstream_layers.append(nn.ReLU())
-            in_linear = in_linear // self.linear_decay
+            in_linear = int(in_linear // self.linear_decay)
         # add the output layer
         downstream_layers.append(nn.Linear(in_linear, self.n_classes))
+        downstream_layers.append(nn.ReLU())
         #downstream_layers.append(nn.Softmax())
         # put the linear layers in sequential
         return nn.Sequential(*downstream_layers).double()

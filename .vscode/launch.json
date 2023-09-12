@@ -6,6 +6,7 @@
     "configurations": [
 
 
+
         {
             "name": "Tabulars_ASD",
             "type": "python",
@@ -35,7 +36,7 @@
             "args": ["config/test/test_TC.json", "1"],
         },
         {
-            "name": "Python: RSGG_ASD",
+            "name": "RSGG_ASD",
             "type": "python",
             "request": "launch",
             "program": "main.py",

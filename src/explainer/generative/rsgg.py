@@ -9,24 +9,28 @@ from src.utils.cfg_utils import get_dflts_to_of, init_dflts_to_of, inject_datase
 
 class RSGG(Trainable, Explainer):
     
+    
     def init(self):       
-        self.models = [ get_instance_kvargs(model['class'],
+        self.model = [ get_instance_kvargs(model['class'],
                     {'context':self.context,'local_config':model}) for model in self.local_config['parameters']['models']]
                        
         self.sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
-                                           self.local_config['parameters']['sampler']['parameters'])        
-        self.model = self.models
+                                           self.local_config['parameters']['sampler']['parameters'])
         
     def real_fit(self):
-        for model in self.models:
-            model.real_fit()
+        pass # Not neede because the GAN are trained by their constructor
+        '''for model in self.models:
+            model.real_fit()'''
+        
+    def write(self):
+        pass
             
     def explain(self, instance):            
         with torch.no_grad():
             #######################################################
             batch = TorchGeometricDataset.to_geometric(instance)            
             pred_label = self.oracle.predict(instance)
-            _, _, edge_probs = self.models[pred_label].generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+            _, _, edge_probs = self.model[pred_label].generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
             cf_instance = self.sampler.sample(instance, self.oracle, **{'node_features': batch.x,
                                                                      'edge_probabilities': edge_probs,
                                                                      'edge_index': batch.edge_index})
@@ -73,6 +77,10 @@ class RSGG(Trainable, Explainer):
 
                 # Check if the fold_id is present is inherited otherwise
                 model['parameters']['fold_id'] = model['parameters'].get('fold_id',self.fold_id)
+
+                #Propagate teh retrain
+                retrain = self.local_config['parameters'].get('retrain', False)
+                model['parameters']['retrain']=retrain
 
                 models.append(model)
 

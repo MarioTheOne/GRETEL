@@ -21,7 +21,6 @@ class Trainable(Savable,metaclass=ABCMeta):
         self.local_config['parameters']['retrain']= False
         return retrain
 
-    @final
     def retrain(self):
         self.fit()
         self.write()

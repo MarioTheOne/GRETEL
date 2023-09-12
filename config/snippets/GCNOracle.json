@@ -1,33 +1,13 @@
 {
     "class": "src.oracle.nn.torch.OracleTorch",
     "parameters": {
-        "epochs": 50,
-        "batch_size": 16,
-        "optimizer": {
-          "class": "torch.optim.Adam",
-          "parameters": {
-            "lr": 0.001,
-            "betas": [
-              0.9,
-              0.999
-            ],
-            "eps": 1e-08,
-            "weight_decay": 0,
-            "amsgrad": false,
-            "maximize": false,
-            "capturable": false,
-            "differentiable": false
-          }
-        },
-        "loss_fn": {
-          "class": "torch.nn.CrossEntropyLoss",
-          "parameters": {     
-            "reduction": "mean"
-          }
-        },
+        "epochs": 10,
+        "batch_size": 4,
+        "compose_opt":"config/snippets/torch.optim/Adam.json",
+        "compose_loss":"config/snippets/torch.loss/BCEWithLogitsLoss.json",
         "model": { 
           "class": "src.oracle.nn.gcn.DownstreamGCN",
-          "parameters": {"num_conv_layers":4}
+          "parameters": {"num_conv_layers":1,"num_dense_layers":2,"conv_booster":2,"linear_decay":1.8}
       } 
     }   
 }

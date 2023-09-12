@@ -7,7 +7,7 @@ class Configurable(Base,metaclass=ABCMeta):
     
     def __init__(self, context: Context, local_config):
         super().__init__(context)
-        self.local_config = copy.deepcopy(local_config)
+        self.local_config = local_config#copy.deepcopy(local_config)
         self.check_configuration()
         self.init()
     
