@@ -1,6 +1,6 @@
 
 import copy
-from types import NoneType
+#from types import NoneType
 
 import numpy as np
 import torch
