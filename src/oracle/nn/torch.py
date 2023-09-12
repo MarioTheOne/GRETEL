@@ -5,6 +5,7 @@ from src.core.oracle_base import Oracle
 from src.core.torch_base import TorchBase
 from src.dataset.dataset_base import Dataset
 from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
+from src.oracle.nn.gcn import DownstreamGCN
 
 
 class OracleTorch(TorchBase, Oracle):
@@ -52,13 +53,13 @@ class OracleTorch(TorchBase, Oracle):
         return self.model(node_features,edge_index,edge_weights, None).squeeze()
     
                      
-    def check_configuration(self):
+    def check_configuration(self):#TODO: revise configuration
         super().check_configuration()
         local_config = self.local_config
 
         if 'model' not in local_config['parameters']:
             local_config['parameters']['model'] = {
-                'class': "src.oracle.nn.gcn.GCN",
+                'class': "src.oracle.nn.gcn.DownstreamGCN",
                 "parameters" : {}
             }
 

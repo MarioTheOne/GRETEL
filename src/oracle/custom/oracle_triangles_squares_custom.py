@@ -3,7 +3,7 @@ from src.core.oracle_base import Oracle
 import numpy as np
 #TODO: Revise with the new data_instance logic.
 
-class TrianglesSquaresOracle(CustomOracle):
+class TrianglesSquaresOracle(Oracle):
 
     def _real_predict(self, data_instance):
         # Classify
