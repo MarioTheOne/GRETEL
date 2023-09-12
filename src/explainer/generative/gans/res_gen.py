@@ -25,8 +25,8 @@ class ResGenerator(nn.Module):
     def set_training(self, training):
         self.encoder.training = training
 
-    def forward(self, node_features, edge_list, edge_attr,batch):
-        encoded_node_features = self.model.encode(node_features, edge_list, edge_attr,batch)
+    def forward(self, node_features, edge_list, edge_attr, batch):
+        encoded_node_features = self.model.encode(node_features, edge_list, edge_attr, batch)
         edge_probabilities = self.model.decoder.forward_all(encoded_node_features, sigmoid=False)
         edge_probabilities = torch.nan_to_num(edge_probabilities, 0)
 

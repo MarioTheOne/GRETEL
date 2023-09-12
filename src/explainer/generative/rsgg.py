@@ -26,11 +26,11 @@ class RSGG(Trainable, Explainer):
             #######################################################
             batch = TorchGeometricDataset.to_geometric(instance)            
             pred_label = self.oracle.predict(instance)
-            embedded_features, _, edge_probs = self.models[pred_label].generator(batch.x, batch.edge_index, batch.edge_attr, None)
-            instance = self.sampler.sample(instance, self.oracle, **{'embedded_features': embedded_features, 
+            _, _, edge_probs = self.models[pred_label].generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+            cf_instance = self.sampler.sample(instance, self.oracle, **{'node_features': batch.x,
                                                                      'edge_probabilities': edge_probs,
                                                                      'edge_index': batch.edge_index})
-        return instance
+        return cf_instance if cf_instance else instance
     
     def check_configuration(self):
         super().check_configuration()
