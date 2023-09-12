@@ -1,9 +1,11 @@
 from copy import deepcopy
+from types import NoneType
 
 import networkx as nx
 import numpy as np
 
 from src.n_dataset.instances.base import DataInstance
+
 
 class GraphInstance(DataInstance):
 
@@ -20,11 +22,11 @@ class GraphInstance(DataInstance):
         return deepcopy(self._nx_repr)
     
     def __init_node_features(self, node_features):
-        return np.zeros((self.data.shape[0], 1)) if not node_features else node_features
+        return np.zeros((self.data.shape[0], 1)) if isinstance(node_features, NoneType) else node_features
 
     def __init_edge_features(self, edge_features):
         edges = np.nonzero(self.data)
-        return np.zeros((len(edges[0]), 1)) if not edge_features else edge_features
+        return np.zeros((len(edges[0]), 1)) if isinstance(edge_features, NoneType) else edge_features
     
     def build_nx(self):
         nx_repr = nx.from_numpy_array(self.data)
