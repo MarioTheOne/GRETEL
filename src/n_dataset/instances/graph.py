@@ -18,7 +18,7 @@ class GraphInstance(DataInstance):
                 
     def get_nx(self):
         if not self._nx_repr:
-            self._nx_repr = self.build_nx()
+            self._nx_repr = self._build_nx()
         return deepcopy(self._nx_repr)
     
     def __init_node_features(self, node_features):
@@ -28,7 +28,7 @@ class GraphInstance(DataInstance):
         edges = np.nonzero(self.data)
         return np.zeros((len(edges[0]), 1)) if isinstance(edge_features, NoneType) else edge_features
     
-    def build_nx(self):
+    def _build_nx(self):
         nx_repr = nx.from_numpy_array(self.data)
         nx_repr.add_nodes_from([node, {'node_features': self.node_features[node]}] for node in nx_repr.nodes())
         edges = list(nx_repr.edges)

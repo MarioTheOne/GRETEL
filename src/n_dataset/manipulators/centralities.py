@@ -8,7 +8,7 @@ class NodeCentrality(BaseManipulator):
     
     
     def node_info(self, instance):
-        graph = instance.build_nx()
+        graph = instance._build_nx()
         # Calculate the degree of each node
         degree = dict(graph.degree())
         # Calculate the betweenness centrality

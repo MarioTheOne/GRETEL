@@ -9,6 +9,7 @@ class BaseManipulator(Configurable):
         super().__init__(context, local_config)
         
     def init(self):
+        super().init()
         self.manipulated = False
         self._process()
          
