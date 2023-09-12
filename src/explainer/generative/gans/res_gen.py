@@ -17,16 +17,16 @@ class ResGenerator(nn.Module):
         self.num_conv_layers = num_conv_layers
         self.conv_booster = 1 #conv_booster
         # encoder with no pooling
-        self.encoder = GCN(self.node_features, self.num_conv_layers, self.conv_booster, nn.Identity())
+        self.encoder = GCN(self.node_features, self.num_conv_layers, self.conv_booster, nn.Identity()).double()
         # graph autoencoder with inner product decoder
-        self.model = GAE(encoder=self.encoder)
+        self.model = GAE(encoder=self.encoder).double()
         self.residuals = residuals
         
     def set_training(self, training):
         self.encoder.training = training
 
-    def forward(self, node_features, edge_list, edge_attr,batch):
-        encoded_node_features = self.model.encode(node_features, edge_list, edge_attr,batch)
+    def forward(self, node_features, edge_list, edge_attr, batch):
+        encoded_node_features = self.model.encode(node_features, edge_list, edge_attr, batch)
         edge_probabilities = self.model.decoder.forward_all(encoded_node_features, sigmoid=False)
         edge_probabilities = torch.nan_to_num(edge_probabilities, 0)
 

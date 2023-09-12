@@ -14,8 +14,9 @@ class RSGG(Trainable, Explainer):
                     {'context':self.context,'local_config':model}) for model in self.local_config['parameters']['models']]
                        
         self.sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
-                                           self.local_config['parameters']['sampler']['parameters'])
-    
+                                           self.local_config['parameters']['sampler']['parameters'])        
+        self.model = self.models
+        
     def real_fit(self):
         for model in self.models:
             model.real_fit()
@@ -25,12 +26,11 @@ class RSGG(Trainable, Explainer):
             #######################################################
             batch = TorchGeometricDataset.to_geometric(instance)            
             pred_label = self.oracle.predict(instance)
-            embedded_features, _, edge_probs = self.models[pred_label].generator(batch.x, batch.edge_index, batch.edge_attr, None)
-            instance = self.sampler.sample(instance, **{'embedded_features': embedded_features,
-                                                         'edge_probabilities': edge_probs,
-                                                         'edge_index': batch.edge_index})
-        return instance
-    
+            _, _, edge_probs = self.models[pred_label].generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+            cf_instance = self.sampler.sample(instance, self.oracle, **{'node_features': batch.x,
+                                                                     'edge_probabilities': edge_probs,
+                                                                     'edge_index': batch.edge_index})
+        return cf_instance if cf_instance else instance
     
     def check_configuration(self):
         super().check_configuration()
@@ -38,8 +38,9 @@ class RSGG(Trainable, Explainer):
         proto_kls='src.explainer.generative.gans.model.GAN'
 
         #The sampler must be present in any case
-        init_dflts_to_of(self.local_config,'sampler','src.utils.n_samplers.partial_order_samplers.PositiveAndNegativeEdgeSampler')
-
+        #TODO: bug sul sampling iteration
+        init_dflts_to_of(self.local_config,'sampler','src.utils.n_samplers.partial_order_samplers.PositiveAndNegativeEdgeSampler', sampling_iterations=500)
+        
         # Check if models is present and of the right size
         if 'models' not in self.local_config['parameters'] or len(self.local_config['parameters']['models']) < self.dataset.num_classes:
             #Check if the models exist or create it

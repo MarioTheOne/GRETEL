@@ -106,12 +106,6 @@ class Dataset(Savable):
             indices = list(set(indices).difference(set(self.class_indices()[kls])))
         #return self.__infinite_data_stream(DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=True))
         return DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=False)
-
-    def __infinite_data_stream(self, loader: DataLoader , n=3):
-        # Define a generator function that yields batches of data
-        while True:
-            for batch in loader:
-                yield batch
     
     def read(self):
         if self.saved():
