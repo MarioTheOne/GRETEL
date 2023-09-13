@@ -48,7 +48,7 @@ class Trainable(Savable,metaclass=ABCMeta):
             with open(dump_file, 'rb') as f:
                 dump = pickle.load(f)
                 self.model = dump['model']
-                self.local_config = dump['config']
+                #self.local_config = dump['config']
 
     @abstractmethod
     def real_fit(self):

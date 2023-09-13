@@ -5,6 +5,13 @@ import networkx as nx
 
 class TreeCyclesOracle(Oracle):
 
+    def init(self):
+        super().init()
+        self.model = ""
+
+    def real_fit(self):
+        pass
+
     def _real_predict(self, data_instance):
         try:
             nx.find_cycle(data_instance.get_nx(), orientation='ignore')

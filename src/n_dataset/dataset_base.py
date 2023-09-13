@@ -41,13 +41,13 @@ class Dataset(Savable):
                                                 })
         
         for manipulator in self.local_config['parameters']['manipulators']:
+            self.context.logger.info("Apply: "+manipulator['class'])
             get_instance_kvargs(manipulator['class'],
                                 {
                                     "context": self.context,
                                     "local_config": manipulator,
                                     "dataset": self
                                 })
-            self.context.logger.info("Instantiated: "+manipulator['class'])
             
         self.generate_splits(n_splits=self.local_config['parameters']['n_splits'],
                              shuffle=self.local_config['parameters']['shuffle'])
@@ -99,6 +99,7 @@ class Dataset(Savable):
     def get_torch_loader(self, fold_id=-1, batch_size=4, usage='train', kls=-1):
         if not self._torch_repr:
             self._torch_repr = TorchGeometricDataset(self.instances)
+        
         # get the train/test indices from the dataset
         indices = self.get_split_indices(fold_id)[usage]
         # get only the indices of a specific class
@@ -107,6 +108,11 @@ class Dataset(Savable):
         #return self.__infinite_data_stream(DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=True))
         return DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=False)
     
+    def get_torch_instances(self, fold_id=-1, batch_size=4, usage='train', kls=-1):
+        if not self._torch_repr:
+            self._torch_repr = TorchGeometricDataset(self.instances)
+        return self._torch_repr
+    
     def read(self):
         if self.saved():
             store_path = self.context.get_path(self)
@@ -114,7 +120,7 @@ class Dataset(Savable):
                 dump = pickle.load(f)
                 self.instances = dump['instances']
                 self.splits = dump['splits']
-                self.local_config = dump['config']
+                #self.local_config = dump['config']
                 self.node_features_map = dump['node_features_map']
                 self.edge_features_map = dump['edge_features_map']
                 self.graph_features_map = dump['graph_features_map']
@@ -127,12 +133,12 @@ class Dataset(Savable):
         dump = {
             "instances" : self.instances,
             "splits": self.splits,
-            "config": self.local_config,
-            "node_features_map":self.node_features_map,
+            "config": self.local_config, 
+            "node_features_map": self.node_features_map,
             "edge_features_map": self.edge_features_map,
-            "graph_features_map":self.graph_features_map,
+            "graph_features_map": self.graph_features_map,
             "num_nodes": self._num_nodes,
-            "class_indices":self._class_indices      
+            "class_indices": self._class_indices      
         }
         
         with open(store_path, 'wb') as f:

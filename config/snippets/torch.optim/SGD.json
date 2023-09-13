@@ -2,7 +2,7 @@
 {"optimizer": {
     "class": "torch.optim.SGD",
     "parameters": {
-        "lr":0.01, "momentum":0, "dampening":0, "weight_decay":0.0001, "nesterov":false, "maximize":false, "differentiable":false
+        "lr":0.01
 
     }
   }

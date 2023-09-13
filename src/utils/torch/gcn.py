@@ -6,7 +6,7 @@ from src.core.factory_base import get_class
 
 class GCN(nn.Module):
    
-    def __init__(self, node_features, num_conv_layers=2, conv_booster=1, pooling=SoftmaxAggregation(learn=True)):
+    def __init__(self, node_features, num_conv_layers=2, conv_booster=1, pooling=MeanAggregation):
         super(GCN, self).__init__()
         
         self.in_channels = node_features
