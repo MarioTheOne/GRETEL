@@ -7,7 +7,7 @@ from src.n_dataset.instances.graph import GraphInstance
 from src.n_dataset.generators.base import Generator
 
 
-class ASDGenerator(Generator):
+class ASD(Generator):
     
     def init(self):
         base_path = self.local_config['parameters']['data_dir']
