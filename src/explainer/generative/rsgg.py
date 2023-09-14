@@ -10,7 +10,7 @@ from src.utils.cfg_utils import get_dflts_to_of, init_dflts_to_of, inject_datase
 class RSGG(Trainable, Explainer):
     
     
-    def init(self):       
+    def init(self):
         self.model = [ get_instance_kvargs(model['class'],
                     {'context':self.context,'local_config':model}) for model in self.local_config['parameters']['models']]
                        
@@ -28,12 +28,15 @@ class RSGG(Trainable, Explainer):
     def explain(self, instance):            
         with torch.no_grad():
             #######################################################
-            batch = TorchGeometricDataset.to_geometric(instance)            
-            pred_label = self.oracle.predict(instance)
-            _, _, edge_probs = self.model[pred_label].generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
-            cf_instance = self.sampler.sample(instance, self.oracle, **{'node_features': batch.x,
-                                                                     'edge_probabilities': edge_probs,
-                                                                     'edge_index': batch.edge_index})
+            batch = TorchGeometricDataset.to_geometric(instance)
+            embedded_features, edge_probs = dict(), dict()
+            for i, explainer in enumerate(self.model):
+                node_features, _, probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+                embedded_features[i] = node_features
+                edge_probs[i] = probs.numpy()
+            
+            cf_instance = self.sampler.sample(instance, self.oracle, **{'embedded_features': embedded_features,
+                                                                        'edge_probabilities': edge_probs})            
         return cf_instance if cf_instance else instance
     
     def check_configuration(self):
@@ -65,7 +68,7 @@ class RSGG(Trainable, Explainer):
             for i in range(self.dataset.num_classes):
                 model=copy.deepcopy(proto_snippet)
                 model['parameters']['model_label'] = i
-
+                
                 for usr_model in cfg_models:
                     if(usr_model['parameters']['model_label'] == i):
                         # We sobstitute the copied prototype

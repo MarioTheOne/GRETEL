@@ -1,22 +1,22 @@
 
 import copy
-#from types import NoneType
 
 import numpy as np
 import torch
+from torch import nn
+from torch_geometric.utils.unbatch import unbatch, unbatch_edge_index
 
 from src.core.factory_base import get_instance_kvargs
 from src.core.torch_base import TorchBase
 from src.n_dataset.instances.graph import GraphInstance
-from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 from src.utils.cfg_utils import init_dflts_to_of, retake_oracle
 from src.utils.torch.utils import rebuild_adj_matrix
-from torch_geometric.utils.unbatch import unbatch_edge_index, unbatch
+
+#from types import NoneType
+
 
 
 class GAN(TorchBase):
-    '''def write(self):
-        pass'''
     
     def init(self):
         self.oracle = retake_oracle(self.local_config)
@@ -25,7 +25,8 @@ class GAN(TorchBase):
         self.epochs = local_params['epochs']
         self.batch_size = local_params['batch_size']
         self.explainee_label = local_params['model_label']
-        
+        self.epochs =  500
+        self.batch_size = 1        
 
         # Initialise the generator and its optimizer
         self.generator = get_instance_kvargs(local_params['generator']['class'],
@@ -58,9 +59,9 @@ class GAN(TorchBase):
                 yield batch
                 
     def real_fit(self):
-        discriminator_loader = self.__infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, kls=self.explainee_label))
+        discriminator_loader = self.__infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, kls=self.explainee_label))
         # TODO: make it multiclass in Datase
-        generator_loader = self.__infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, kls=1-self.explainee_label))
+        generator_loader = self.__infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, kls=1-self.explainee_label))
 
         for epoch in range(self.epochs):
             G_losses, D_losses = [], []
@@ -71,28 +72,32 @@ class GAN(TorchBase):
             node_features, edge_index, edge_features, _ , real_batch ,_ = next(discriminator_loader)
             # generator data (fake batch)
             fake_node_features, fake_edge_index, fake_edge_features, _ , fake_batch , _  = next(generator_loader)
-            fake_node_features, fake_edge_index, fake_edge_features = self.generator(fake_node_features[1], fake_edge_index[1], fake_edge_features[1], fake_batch[1])
+            _, fake_edge_index, fake_edge_probs = self.generator(fake_node_features[1], fake_edge_index[1], fake_edge_features[1], fake_batch[1])
             # get the real and fake labels
             y_batch = torch.cat([torch.ones((len(torch.unique(real_batch[1])),)),
                                  torch.zeros(len(torch.unique(fake_batch[1])),)], dim=0)
             #######################################################################
             # get the oracle's predictions
-            print(f'batch = {real_batch[1]}')            
             real_inst = self.__retake_batch(node_features[1], edge_index[1], edge_features[1], real_batch[1])
-            fake_inst = self.__retake_batch(fake_node_features, fake_edge_index, fake_edge_features, fake_batch[1], counterfactual=True, generator=True)
-            
+            fake_inst = self.__retake_batch(fake_node_features[1], fake_edge_index, fake_edge_probs, fake_batch[1], counterfactual=True, generator=True)
             oracle_scores = self.take_oracle_predictions(real_inst + fake_inst, y_batch)
             #######################################################################
             # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
-            loss, _ = self.optimize_discriminator(real_inst + fake_inst, y_batch, oracle_scores)                    
+            real_pred = self.discriminator(node_features[1], edge_index[1], edge_features[1]).expand(1)
+            fake_pred = self.discriminator(fake_node_features[1], fake_edge_index, fake_edge_features[1]).expand(1)
+            y_pred = torch.cat([real_pred, fake_pred])
+            loss = torch.mean(self.loss_fn(y_pred.squeeze().double(), y_batch.double()) * torch.tensor(oracle_scores, dtype=torch.float))
             D_losses.append(loss.item())
             loss.backward()
             self.discriminator_optimizer.step()
             #######################################################################
             self.prepare_generator_for_training()
             ## Update G network: maximize log(D(G(z)))
-            fake_node_features, fake_edge_index, fake_edge_features,  _ , fake_batch ,_ = next(generator_loader)
-            loss = self.optimize_generator(fake_node_features[1], fake_edge_index[1], fake_edge_features[1], fake_batch[1])
+            fake_features, fake_edge_index, fake_edge_attr, _, fake_batch, _ = next(generator_loader)
+            y_fake = torch.ones((len(torch.unique(fake_batch[1])),))
+            output = self.discriminator(self.generator(fake_features[1], fake_edge_index[1], fake_edge_attr[1], fake_batch[1])[0], fake_edge_index[1], fake_edge_attr[1])
+            # calculate the loss
+            loss = self.loss_fn(output.expand(1).double(), y_fake.double())
             loss.backward()
             G_losses.append(loss.item())
             self.generator_optimizer.step()
@@ -106,50 +111,27 @@ class GAN(TorchBase):
         # unbatch node_features
         node_features = unbatch(node_features, batch)
         # unbatch edge features
-        sizes = [index.shape[-1] for index in edges]
-        edge_features = edge_features.split(sizes)
+        if not generator:
+            sizes = [index.shape[-1] for index in edges]
+            edge_features = edge_features.split(sizes)
         # create the instances
         instances = []
         for i in range(len(edges)):
+            if not generator:
+                unbatched_edge_features = edge_features[i]
+            else:
+                mask = torch.zeros(edge_features.shape)
+                mask[edges[i][0,:], edges[i][1,:]] = 1
+                unbatched_edge_features = edge_features * mask
+                indices = torch.nonzero(unbatched_edge_features)
+                unbatched_edge_features = unbatched_edge_features[indices[:,0], indices[:,1]]
+                
             instances.append(GraphInstance(id="dummy",
                                            label=1-self.explainee_label if counterfactual else self.explainee_label,
-                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], edge_features[i].T).detach().numpy(),
+                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], unbatched_edge_features.T).detach().numpy(),
                                            node_features=node_features[i].detach().numpy(),
-                                           edge_features=edge_features[i].detach().numpy()))
+                                           edge_features=unbatched_edge_features.detach().numpy()))
         return instances
-        """print(edge_features)
-        instances = []
-        unique_batch_indices = torch.unique(batch)
-        for index in unique_batch_indices:
-            batch_indices = torch.where(batch == index)[0]
-            batch_edge_indices = edge_indices[:,batch_indices]
-            batch_edge_features = edge_features[batch_indices]
-            if generator:
-                batch_edge_features = edge_features[batch_edge_indices[0,:], batch_edge_indices[1,:]]
-            instances.append(GraphInstance(id=0,
-                                           label=1-self.explainee_label if counterfactual else self.explainee_label,
-                                           data=rebuild_adj_matrix(len(node_features[batch_indices]), batch_edge_indices, batch_edge_features.T).detach().numpy(),
-                                           node_features=node_features[batch_indices].detach().numpy(),
-                                           edge_features=batch_edge_features.detach().numpy()))
-        return instances"""
-    
-    def optimize_discriminator(self, instances, y_true, oracle_scores):
-        preds = torch.zeros((len(instances), self.dataset.num_classes))
-        for i, inst in enumerate(instances):
-            data = TorchGeometricDataset.to_geometric(inst)
-            node_features, edge_index, edge_features = data.x, data.edge_index, data.edge_attr
-            y_pred = self.discriminator(node_features, edge_index, edge_features)
-            preds[i] = y_pred
-        loss = torch.mean(self.loss_fn(preds.squeeze().double(), y_true.long()) * oracle_scores)
-        return loss, preds
-    
-    
-    def optimize_generator(self, node_features, edge_index, edge_features, batch):
-        fake_node_features, fake_edge_index, fake_edge_features = self.generator(node_features, edge_index, edge_features, batch)
-        instances = self.__retake_batch(fake_node_features, fake_edge_index, fake_edge_features, batch, generator=True)
-        y_fake = torch.ones((len(torch.unique(batch)),))
-        loss, _ = self.optimize_discriminator(instances, y_fake, torch.ones((len(y_fake),)))
-        return loss
     
     def prepare_discriminator_for_training(self):
         self.discriminator_optimizer.zero_grad()
@@ -219,10 +201,3 @@ class GAN(TorchBase):
         
         init_dflts_to_of(local_config, 'gen_optimizer','torch.optim.SGD',lr=0.001)
         init_dflts_to_of(local_config, 'disc_optimizer','torch.optim.SGD',lr=0.001)
-
-   
-    def __unbatch(self, tensor, batch):
-        batch_size = len(torch.unique(batch))
-        sizes = degree(batch, batch_size, dtype=torch.long).tolist()
-        return tensor.split(sizes)
-        
