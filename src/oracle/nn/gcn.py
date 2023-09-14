@@ -22,6 +22,24 @@ class DownstreamGCN(GCN):
         
         self.downstream_layers = self.__init__downstream_layers()
         
+        self.init_weights()
+        
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv3d):
+                nn.init.kaiming_normal_(m.weight,
+                                        mode='fan_out',
+                                        nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm3d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.normal_(m.weight, 0, 0.01)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+        
     def forward(self, node_features, edge_index, edge_weight, batch):
         node_features = super().forward(node_features, edge_index, edge_weight, batch)
         return self.downstream_layers(node_features)

@@ -8,6 +8,6 @@
         "model": { 
           "class": "src.oracle.nn.gcn.DownstreamGCN",
           "parameters": {"num_conv_layers":1,"num_dense_layers":1,"conv_booster":4,"linear_decay":2}
-      } 
+      }
     }   
 }
