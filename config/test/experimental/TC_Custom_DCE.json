@@ -18,7 +18,7 @@
             "parameters": {
                 "generator": {
                     "class": "src.n_dataset.generators.treecycles.TreeCycles", 
-                    "parameters": { "num_instances": 1000, "num_nodes_per_instance": 28, "num_nodes_in_cycles": 4 }
+                    "parameters": { "num_instances": 1100, "num_nodes_per_instance": 28, "num_nodes_in_cycles": 4 }
                 }
             } 
         }
@@ -27,13 +27,12 @@
         {
             "class": "src.oracle.nn.torch.OracleTorch",
             "parameters": {
-                "epochs": 50,
-                "batch_size": 64,
+                "epochs": 500,
+                "batch_size": 32,
                 "optimizer": {
                     "class": "torch.optim.SGD",
                     "parameters": {
-                        "lr":0.001
-                
+                        "lr":0.001                
                     }
                   },
                 "loss_fn": {
