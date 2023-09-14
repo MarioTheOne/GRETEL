@@ -2,7 +2,7 @@ import torch.nn as nn
 from torch_geometric.nn.aggr import MeanAggregation,SoftmaxAggregation
 from torch_geometric.nn.conv import GCNConv
 
-from src.core.factory_base import get_class
+from src.core.factory_base import build_w_params_string
 
 class GCN(nn.Module):
    
@@ -11,7 +11,8 @@ class GCN(nn.Module):
         
         self.in_channels = node_features
         self.out_channels = int(self.in_channels * conv_booster)
-        self.pooling = get_class(pooling)() if  isinstance(pooling, str) else pooling
+          
+        self.pooling =  build_w_params_string(pooling)
  
         
         if num_conv_layers>1:

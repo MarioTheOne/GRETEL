@@ -17,8 +17,8 @@
             "class": "src.n_dataset.dataset_base.Dataset",
             "parameters": {
                 "generator": {
-                    "class": "src.n_dataset.generators.treecycles.TreeCycles", 
-                    "parameters": { "num_instances": 1100, "num_nodes_per_instance": 28, "num_nodes_in_cycles": 4 }
+                    "class": "src.n_dataset.generators.treecycles_rand.TreeCyclesRand", 
+                    "parameters": { "num_instances": 256, "num_nodes_per_instance": 64, "ratio_nodes_in_cycles": 0.2 }
                 }
             } 
         }
@@ -27,12 +27,12 @@
         {
             "class": "src.oracle.nn.torch.OracleTorch",
             "parameters": {
-                "epochs": 500,
+                "epochs": 100,
                 "batch_size": 32,
                 "optimizer": {
-                    "class": "torch.optim.SGD",
+                    "class": "torch.optim.RMSprop",
                     "parameters": {
-                        "lr":0.001                
+                        "lr":0.01                
                     }
                   },
                 "loss_fn": {
@@ -43,7 +43,7 @@
                   },
                 "model": { 
                   "class": "src.oracle.nn.gcn.DownstreamGCN",
-                  "parameters": {"num_conv_layers":1,"num_dense_layers":2,"conv_booster":2,"linear_decay":1.8}
+                  "parameters": {"num_conv_layers":3,"num_dense_layers":1,"conv_booster":2,"linear_decay":1.8}
               } 
             }   
         }

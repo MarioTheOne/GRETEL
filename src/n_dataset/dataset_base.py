@@ -126,6 +126,10 @@ class Dataset(Savable):
                 self.graph_features_map = dump['graph_features_map']
                 self._num_nodes = dump['num_nodes']
                 self._class_indices = dump['class_indices'] 
+
+            #TODO: Attach the dataset back to all the instances
+            
+            
                 
     def write(self):
         store_path = self.context.get_path(self)

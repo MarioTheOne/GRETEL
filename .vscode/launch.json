@@ -7,14 +7,15 @@
 
 
 
+
         {
-            "name": "Tabulars_ASD",
+            "name": "TC_Custom_DCE",
             "type": "python",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["config/test/experimental/test_tabular_ASD.json", "1"],
+            "args": ["config/test/experimental/TC_Custom_DCE.json", "1"],
         },
         {
             "name": "Python: Current File with profiler",

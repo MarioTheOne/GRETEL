@@ -24,6 +24,7 @@ class BaseManipulator(Configurable):
             instance.node_features = self.__process_features(instance.node_features, node_features_map, self.dataset.node_features_map)
             instance.edge_features = self.__process_features(instance.edge_features, edge_features_map, self.dataset.edge_features_map)
             instance.graph_features = self.__process_features(instance.graph_features, graph_features_map, self.dataset.graph_features_map)
+
            
 
     def _process_instance(self,instance):

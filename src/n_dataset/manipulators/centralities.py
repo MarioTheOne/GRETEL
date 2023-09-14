@@ -8,6 +8,7 @@ class NodeCentrality(BaseManipulator):
     
     
     def node_info(self, instance):
+        #self.context.logger.info("Building centralities for: "+str(instance.id))
         graph = instance._build_nx()
         # Calculate the degree of each node
         degree = dict(graph.degree())

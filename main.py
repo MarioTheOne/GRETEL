@@ -1,6 +1,6 @@
 import os
 import torch
-torch.manual_seed(5)#3,5
+#torch.manual_seed(5)#3,5
 import random
 #random.seed(0)
 import numpy as np
