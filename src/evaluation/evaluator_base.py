@@ -116,7 +116,7 @@ class Evaluator(ABC):
             for inst in self._data.instances:
                 self._logger.info("Evaluating instance with id %s", str(inst.id))
                 start_time = time.time()
-                counterfactual = self._explainer.explain(inst, self._oracle, self._data)
+                counterfactual = self._explainer.explain(inst)
                 end_time = time.time()
                 # giving the same id to the counterfactual and the original instance 
                 counterfactual.id = inst.id

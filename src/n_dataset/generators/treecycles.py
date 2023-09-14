@@ -41,6 +41,8 @@ class TreeCycles(Generator):
                 # Generating a random tree containing all the nodes of the instance
                 tc_graph = self.create_tree(tree_size=self.num_nodes_per_instance)
                 self.dataset.instances.append(GraphInstance(id=i, data=nx.to_numpy_array(tc_graph), label=0))
+
+            self.context.logger.info("Generated instance with id:"+str(i))
         
     
     def get_num_instances(self):
