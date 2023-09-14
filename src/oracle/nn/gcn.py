@@ -37,7 +37,7 @@ class DownstreamGCN(GCN):
             in_linear = int(in_linear // self.linear_decay)
         # add the output layer
         downstream_layers.append(nn.Linear(in_linear, self.n_classes))
-        downstream_layers.append(nn.ReLU())
+        #downstream_layers.append(nn.Sigmoid())
         #downstream_layers.append(nn.Softmax())
         # put the linear layers in sequential
         return nn.Sequential(*downstream_layers).double()

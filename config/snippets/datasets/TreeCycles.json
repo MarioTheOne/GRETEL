@@ -2,7 +2,7 @@
     "parameters": {
         "generator": {
             "class": "src.n_dataset.generators.treecycles.TreeCycles", 
-            "parameters": { "num_instances": 500, "num_nodes_per_instance": 28, "num_nodes_in_cycles": 7 }
+            "parameters": { "num_instances": 100, "num_nodes_per_instance": 28, "num_nodes_in_cycles": 7 }
         }
     }
 }

@@ -3,6 +3,7 @@ import torch
 from src.core.trainable_base import Trainable
 from src.utils.cfg_utils import init_dflts_to_of
 from src.core.factory_base import get_instance_kvargs
+from sklearn.metrics import accuracy_score
 
 class TorchBase(Trainable):
        
@@ -35,13 +36,14 @@ class TorchBase(Trainable):
         
         for epoch in range(self.epochs):
             losses = []
-            accuracy = []
+            preds = []
+            labels_list = []
             for batch in loader:
                 batch.batch = batch.batch.to(self.device)
                 node_features = batch.x.to(self.device)
                 edge_index = batch.edge_index.to(self.device)
                 edge_weights = batch.edge_attr.to(self.device)
-                labels = batch.y.to(self.device)
+                labels = batch.y.to(self.device).long()
                 
                 self.optimizer.zero_grad()
                 
@@ -50,11 +52,13 @@ class TorchBase(Trainable):
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 
-                pred_label = torch.argmax(pred,dim=1)
-                accuracy += torch.eq(labels, pred_label).long().tolist()
-                
+                labels_list += list(labels.squeeze().long().numpy())
+                preds += list(pred.squeeze().detach().numpy())
+               
                 self.optimizer.step()
-            self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t Train accuracy = {np.mean(accuracy):.4f}')
+
+            accuracy = self.accuracy(labels_list, preds)
+            self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t accuracy = {accuracy:.4f}')
             
     def check_configuration(self):
         super().check_configuration()
@@ -64,4 +68,8 @@ class TorchBase(Trainable):
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 4)
         # populate the optimizer
         init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam',lr=0.001)
-        init_dflts_to_of(local_config, 'loss_fn', 'torch.nn.CrossEntropyLoss')
+        init_dflts_to_of(local_config, 'loss_fn', 'torch.nn.BCELoss')
+        
+    def accuracy(self, testy, probs):
+        acc = accuracy_score(testy, np.argmax(probs, axis=1))
+        return acc
