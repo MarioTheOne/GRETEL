@@ -1,4 +1,10 @@
 import os
+import torch
+torch.manual_seed(5)#3,5
+import random
+#random.seed(0)
+import numpy as np
+#np.random.seed(0)
 
 '''os.environ["OMP_NUM_THREADS"] = "4" # export OMP_NUM_THREADS=1
 os.environ["OPENBLAS_NUM_THREADS"] = "4" # export OPENBLAS_NUM_THREADS=1 
