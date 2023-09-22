@@ -61,9 +61,22 @@ booktitle = {Proceedings of the Sixteenth ACM International Conference on Web Se
 pages = {1180–1183},
 location = {Singapore, Singapore},
 series = {WSDM '23}
-}
+} 
+```
 
-  
+```latex:
+@article{prado-romero2023survey,
+author = {Prado-Romero, Mario Alfonso and Prenkaj, Bardh and Stilo, Giovanni and Giannotti, Fosca},
+title = {A Survey on Graph Counterfactual Explanations: Definitions, Methods, Evaluation, and Research Challenges},
+year = {2023},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+issn = {0360-0300},
+url = {https://doi.org/10.1145/3618105},
+doi = {10.1145/3618105},
+journal = {ACM Comput. Surv.},
+month = {sep}
+}
 ```
 
 ## Requirements:
