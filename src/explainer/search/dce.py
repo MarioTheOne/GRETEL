@@ -3,6 +3,7 @@ import sys
 
 from src.core.explainer_base import Explainer
 from src.evaluation.evaluation_metric_ged import GraphEditDistanceMetric
+import numpy as np
 
 
 class DCESearchExplainer(Explainer):
@@ -18,7 +19,9 @@ class DCESearchExplainer(Explainer):
     def init(self):
         super().init()
         self._gd = GraphEditDistanceMetric()
-        self.fold_id=-1
+        self.fold_id=-1        
+        self.dist_mat = np.full((len(self.dataset.instances), len(self.dataset.instances)), -1)
+        self.cls_mat = np.full((len(self.dataset.instances), len(self.dataset.instances)), -1)
 
 
     def explain(self, instance):
@@ -28,15 +31,21 @@ class DCESearchExplainer(Explainer):
         min_counterfactual = instance
         
         min_counterfactual_dist = sys.float_info.max
-
+        
         for d_inst in self.dataset.instances:
+            if self.cls_mat[instance.id,d_inst.id] == -1:
+                l_data_inst = self.oracle.predict(d_inst)
+                self.cls_mat[instance.id,d_inst.id] = (l_input_inst == l_data_inst)
+                self.cls_mat[d_inst.id,instance.id] = (l_input_inst == l_data_inst)
 
-            l_data_inst = self.oracle.predict(d_inst)
+            if self.cls_mat[instance.id,d_inst.id] == 0:
+                if self.dist_mat[instance.id,d_inst.id] == -1:                
+                    d_inst_dist = self._gd.evaluate(instance, d_inst, self.oracle)
+                    self.dist_mat[instance.id,d_inst.id]=d_inst_dist
+                    self.dist_mat[d_inst.id,instance.id]=d_inst_dist
 
-            if (l_input_inst != l_data_inst):
-                d_inst_dist = self._gd.evaluate(instance, d_inst, self.oracle)
-
-                if (d_inst_dist < min_counterfactual_dist):
+                d_inst_dist=self.dist_mat[instance.id,d_inst.id]
+                if (d_inst_dist < min_counterfactual_dist):                
                     min_counterfactual_dist = d_inst_dist
                     min_counterfactual = d_inst
 

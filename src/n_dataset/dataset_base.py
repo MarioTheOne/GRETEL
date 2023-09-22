@@ -28,6 +28,7 @@ class Dataset(Savable):
         self.splits = []
         self._torch_repr = None
         self._class_indices = {}
+        
         self._num_nodes = None
         #################################################
     
@@ -57,6 +58,15 @@ class Dataset(Savable):
     
     def get_instance(self, i: int):
         return self.instances[i]
+    
+    def get_instances_by_class(self,cls):
+        if not self._inst_by_cls:
+            self._inst_by_cls= []
+
+        if not self._inst_by_cls[cls]:            
+            idx = self.class_indices[cls]
+            self._inst_by_cls[cls]=[self.instances[i] for i in idx]
+        return self._inst_by_cls[cls]
     
     def num_node_features(self):
         return len(self.node_features_map)
