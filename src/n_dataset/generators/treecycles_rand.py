@@ -22,7 +22,7 @@ class TreeCyclesRand(Generator):
             # If the graph will contain cycles
             if(has_cycles):
                 cycles = []
-                budget = int(self.ratio_nodes_in_cycles*self.num_nodes_per_instance)
+                budget = int( self.ratio_nodes_in_cycles * self.num_nodes_per_instance )
                 left = self.num_nodes_per_instance - budget
                             
                 while budget > 2: 
@@ -31,7 +31,7 @@ class TreeCyclesRand(Generator):
                     budget -= num_nodes
                 
                 left += budget
-                tc_graph = self.join_graphs(nx.random_tree(n=left), cycles)                
+                tc_graph = self._join_graphs_as_adj(nx.random_tree(n=left), cycles)                
              
                 self.dataset.instances.append(GraphInstance(id=i, data=tc_graph, label=1))
             else:
@@ -45,7 +45,7 @@ class TreeCyclesRand(Generator):
     def get_num_instances(self):
         return len(self.dataset.instances)
     
-    def join_graphs(self, base, others):
+    def _join_graphs_as_adj(self, base, others):
         Ab = nx.to_numpy_array(base)
         A = Ab
         for other in others:

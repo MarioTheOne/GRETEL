@@ -55,7 +55,7 @@ class BaseManipulator(Configurable):
             self.dataset.edge_features_map = self.__process_map(edge_features_map, self.dataset.edge_features_map)
             self.dataset.graph_features_map = self.__process_map(graph_features_map, self.dataset.graph_features_map)
             self.manipulated = True
-        
+    
     def __process_map(self, curr_map, dataset_map):
         _max = max(dataset_map.values()) if dataset_map.values() else -1
         for key in curr_map:

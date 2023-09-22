@@ -1,18 +1,16 @@
-import re
-class_parameters = "torch_geometric.nn.aggr.PowerMeanAggregation({'learn':True})"
-class_only = "torch_geometric.nn.aggr.PowerMeanAggregation"
+from rdkit import Chem
+from rdkit.Chem import Draw
 
-input = class_parameters
-_cls_param_ptrn = re.compile('(^.*)'+ '\(' +'(.*)'+'\)')
 
-res = _cls_param_ptrn.findall(input)
+mol = Chem.MolFromSmiles('Cc1ccccc1')
+img = Draw.MolToImage(m)
 
-obj = input 
-if len(res)==0:
-    obj = input
-else:
-    obj =  [res[0][0],eval(res[0][1])]
- 
-print(obj)
-
+for atom in mol.GetAtoms():
+            G.add_node(atom.GetIdx(),
+                    atomic_num=atom.GetAtomicNum(),
+                    formal_charge=atom.GetFormalCharge(),
+                    chiral_tag=atom.GetChiralTag(),
+                    hybridization=atom.GetHybridization(),
+                    num_explicit_hs=atom.GetNumExplicitHs(),
+                    is_aromatic=atom.GetIsAromatic())
 
