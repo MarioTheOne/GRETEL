@@ -13,7 +13,7 @@ class OracleTorch(TorchBase, Oracle):
         super().real_fit()
         self.evaluate(self.dataset, fold_id=self.fold_id)
             
-    @torch.no_grad()        
+    @torch.no_grad()
     def evaluate(self, dataset: Dataset, fold_id=0):            
         loader = dataset.get_torch_loader(fold_id=fold_id, batch_size=self.batch_size, usage='test')
         

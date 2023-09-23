@@ -9,7 +9,7 @@
                     "class": "torch.optim.RMSprop",
                     "parameters": {
                         "lr":0.001,
-                        "momentum":0.5         
+                        "momentum":0.5
                     }
                 },
                 "loss_fn": {

@@ -1,9 +1,8 @@
 FROM tensorflow/tensorflow:2.7.4-gpu
 
-ARG USERNAME=coder
+ARG USERNAME=scientist
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-
 
 # Setup VS code compatibility for easy interaction with code inside container
 RUN mkdir -p /home/$USERNAME/.vscode-server/extensions \

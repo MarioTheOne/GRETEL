@@ -14,7 +14,7 @@ class TorchBase(Trainable):
         
         self.model = get_instance_kvargs(self.local_config['parameters']['model']['class'],
                                    self.local_config['parameters']['model']['parameters'])
-
+        
         self.optimizer = get_instance_kvargs(self.local_config['parameters']['optimizer']['class'],
                                       {'params':self.model.parameters(), **self.local_config['parameters']['optimizer']['parameters']})
         
@@ -23,8 +23,6 @@ class TorchBase(Trainable):
         
         self.lr_scheduler =  lr_scheduler.LinearLR(self.optimizer, start_factor=1.0, end_factor=0.5, total_iters=self.epochs)
 
-                
-        #TODO: Need to fix GPU support!!!!
         self.device = (
             "cuda"
             if torch.cuda.is_available()

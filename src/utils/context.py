@@ -4,6 +4,7 @@ import os
 from flufl.lock import Lock
 from datetime import timedelta
 import jsonpickle
+from jsonc_parser.parser import JsoncParser
 import hashlib
 from src.utils.composer import compose,propagate
 from src.utils.logger import GLogger
@@ -33,8 +34,10 @@ class Context(object):
 
         self.config_file = config_file
         # Read the config dictionary inside the config path with the composer
-        with open(self.config_file, 'r') as config_reader:
+        '''with open(self.config_file, 'r') as config_reader:
             self.conf = propagate(compose(jsonpickle.decode(config_reader.read()))) #First read config, then apply the compose and finally it propagate some homogeneous config params
+        '''
+        self.conf = propagate(compose(JsoncParser.parse_file(self.config_file)))
 
         self._scope = self.conf['experiment']['scope']
         self.conf['experiment']['parameters']=self.conf['experiment'].get('parameters',{})
