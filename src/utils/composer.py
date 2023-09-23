@@ -45,22 +45,44 @@ def propagate(config):
     try:
         if 'parameters' in config['experiment'] and 'propagate' in config['experiment']['parameters']:
             prop_list = config['experiment']['parameters']['propagate']
-            for field in prop_list:        
-                for sec in field['in_sections']:
-                    for item in config[sec]:
-                        for key in field['params']:
-                            item['parameters'][key]=field['params'][key]
+            for prop_item in prop_list:        
+                for target in prop_item['in_sections']:
+                    ord_secs = target.split('/')
+                    main = ord_secs.pop(0)
+                    for item in config[main]:
+                        if 'parameters' not in item and len(ord_secs) == 0:
+                            item['parameters']={}
+                        for sub in ord_secs:
+                            item=item[sub]
+                        for key in prop_item['params']:
+                            item['parameters'][key]=prop_item['params'][key]
         return config
     except BaseException:
-        print("Incomplete/error configuration in:"+json.dumps(config['experiment'], indent=2))
+        print("Incomplete/error configuration in:\n"+json.dumps(item, indent=2))
         raise 
 
 
-'''#snippet_path = 'config/test/test_compose.json'
-snippet_path = 'config/test/experimental/expansion.json'
-#snippet_path = 'config/test/comp_stores.json'
-with open(snippet_path, 'r') as config_reader:
-    in_conf = jsonpickle.decode(config_reader.read())        
+'''"experiment" : {
+        "scope": "gcn_oracle",
+        "parameters" : {
+            "lock_release_tout":120,
+            "propagate":[
+                {"in_sections" : ["explainers"],"params" : {"fold_id": 0}},
+                {"in_sections" : ["do-pairs/oracle"],"params" : {"fold_id": -1,"retrain":false}},
+                {"in_sections": ["do-pairs/dataset"],"params": { "compose_mes" : "config/snippets/centr_and_weights.json" }}
+            ]
+        }
+    }'''
 
-out_conf = propagate(compose(in_conf))
-print(json.dumps(out_conf, indent=2))'''
+
+def main():
+    snippet_path = 'config/test/do-pairs/BBBP_GCN_DCE.json'
+    with open(snippet_path, 'r') as config_reader:
+        in_conf = jsonpickle.decode(config_reader.read())        
+
+    out_conf = propagate(compose(in_conf))
+    print(json.dumps(out_conf, indent=2))
+
+
+if __name__ == '__main__':
+    main()

@@ -42,7 +42,7 @@ class BBBP(Generator):
                                                             data=A, 
                                                             node_features=X, 
                                                             #edge_features=W, #TODO: GCN Message passing not take into account edges features but only weights. Look how to enable that in PyG
-                                                            graph_features={"smile":smi}, 
+                                                            graph_features={"smile":smi,"string_repp":smi}, 
                                                             dataset=self.dataset))
             else:
                 skipped_molecules += 1                

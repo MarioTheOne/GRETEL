@@ -1,3 +1,4 @@
+import copy
 import inspect
 import os
 from flufl.lock import Lock
@@ -33,12 +34,14 @@ class Context(object):
         self.config_file = config_file
         # Read the config dictionary inside the config path with the composer
         with open(self.config_file, 'r') as config_reader:
-            self.conf = propagate(compose(jsonpickle.decode(config_reader.read())))
+            self.conf = propagate(compose(jsonpickle.decode(config_reader.read()))) #First read config, then apply the compose and finally it propagate some homogeneous config params
 
         self._scope = self.conf['experiment']['scope']
         self.conf['experiment']['parameters']=self.conf['experiment'].get('parameters',{})
         self.conf['experiment']['parameters']['lock_release_tout']=self.conf['experiment']['parameters'].get('lock_release_tout',24*5) #Expressed in hours
         self.lock_release_tout = self.conf['experiment']['parameters']['lock_release_tout']
+
+        self.raw_conf = copy.deepcopy(self.conf) #TODO: I think it is will be useless remove that in the future.
 
         self.__create_storages()
         
@@ -113,15 +116,7 @@ class Context(object):
         for store_path in self.conf['store_paths']:
             if not os.path.exists(store_path['address']):
                 os.mkdir(store_path['address'])
-                
-    @property                
-    def raw_conf(self):
-        return self.conf
-                
-    @property
-    def evaluation_metrics(self):
-        return self.conf['evaluation_metrics']
-        
+
     @property
     def dataset_store_path(self):
         return self._get_store_path(inspect.stack()[0][3])
