@@ -115,8 +115,8 @@ class Dataset(Savable):
         # get only the indices of a specific class
         if kls != -1:
             indices = list(set(indices).difference(set(self.class_indices()[kls])))
-        #return self.__infinite_data_stream(DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=True))
-        return DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=False)
+            
+        return DataLoader(Subset(self._torch_repr.instances, indices), batch_size=batch_size, shuffle=True)
     
     def get_torch_instances(self, fold_id=-1, batch_size=4, usage='train', kls=-1):
         if not self._torch_repr:

@@ -4,6 +4,7 @@ from src.core.trainable_base import Trainable
 from src.utils.cfg_utils import init_dflts_to_of
 from src.core.factory_base import get_instance_kvargs
 from sklearn.metrics import accuracy_score
+import torch.optim.lr_scheduler as lr_scheduler
 
 class TorchBase(Trainable):
        
@@ -19,6 +20,9 @@ class TorchBase(Trainable):
         
         self.loss_fn = get_instance_kvargs(self.local_config['parameters']['loss_fn']['class'],
                                            self.local_config['parameters']['loss_fn']['parameters'])
+        
+        self.lr_scheduler =  lr_scheduler.LinearLR(self.optimizer, start_factor=1.0, end_factor=0.5, total_iters=self.epochs)
+
                 
         #TODO: Need to fix GPU support!!!!
         self.device = (
@@ -52,13 +56,14 @@ class TorchBase(Trainable):
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 
-                labels_list += list(labels.squeeze().long().numpy())
-                preds += list(pred.squeeze().detach().numpy())
+                labels_list += list(labels.squeeze().long().detach().to('cpu').numpy())
+                preds += list(pred.squeeze().detach().to('cpu').numpy())
                
                 self.optimizer.step()
 
             accuracy = self.accuracy(labels_list, preds)
             self.context.logger.info(f'epoch = {epoch} ---> loss = {np.mean(losses):.4f}\t accuracy = {accuracy:.4f}')
+            self.lr_scheduler.step()
             
     def check_configuration(self):
         super().check_configuration()
