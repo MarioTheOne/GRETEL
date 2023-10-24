@@ -13,30 +13,29 @@ import torch.optim as optim
 class SDNEEmbedder(Embedder):
 
     def init(self):
-        # todo move this to the configuration
-        self.nhid0 = None
-        self.nhid1 = None
-        self.dropout = None
-        self.alpha = None
-        self.lr = None
-        self.step_size = None
-        self.gamma = None
-        self.bs = None
-        self.epochs = None
-        self.beta = None
-        self.nu1 = None
-        self.nu2 = None
+        self.nhid0 = self.local_config['parameters']['nhid0']
+        self.nhid1 = self.local_config['parameters']['nhid1']
+        self.dropout = self.local_config['parameters']['dropout']
+        self.alpha = self.local_config['parameters']['alpha']
+        self.lr = self.local_config['parameters']['lr']
+        self.step_size = self.local_config['parameters']['step_size']
+        self.gamma = self.local_config['parameters']['gamma']
+        self.bs = self.local_config['parameters']['bs']
+        self.epochs = self.local_config['parameters']['epochs']
+        self.beta = self.local_config['parameters']['beta']
+        self.nu1 = self.local_config['parameters']['nu1']
+        self.nu2 = self.local_config['parameters']['nu2']
 
     def real_fit(self):
-        pass
+        self.model = { instance.id:self._train_embedding(instance) for instance in self.dataset.instances }
 
     def get_embeddings(self):
-        result = [ self.get_embedding(x) for x in self.dataset.instances]
+        return self.model.values()
     
     def get_embedding(self, instance):
-        return self._get_embedding(instance)
+        return self.model[instance.id]
 
-    def _get_embedding(self, instance: GraphInstance):
+    def _train_embedding(self, instance: GraphInstance):
         n_nodes = instance.num_nodes
         adj_matrix = instance.get_nx().to_numpy_array()
         Adj = torch.FloatTensor(adj_matrix)
@@ -80,3 +79,18 @@ class SDNEEmbedder(Embedder):
         model.eval()
         embedding = model.savector(Adj)
         return embedding.detach().numpy()
+    
+    def check_configuration(self):
+        super().check_configuration()
+        self.local_config['parameters']['nhid0'] =  self.local_config['parameters'].get('nhid0', 1000)
+        self.local_config['parameters']['nhid1'] =  self.local_config['parameters'].get('nhid1', 128)
+        self.local_config['parameters']['dropout'] =  self.local_config['parameters'].get('dropout', 0.5)
+        self.local_config['parameters']['alpha'] =  self.local_config['parameters'].get('alpha', 1e-2)
+        self.local_config['parameters']['gamma'] =  self.local_config['parameters'].get('gamma', 0.9)
+        self.local_config['parameters']['lr'] =  self.local_config['parameters'].get('lr', 0.001)
+        self.local_config['parameters']['step_size'] =  self.local_config['parameters'].get('step_size', 10)
+        self.local_config['parameters']['bs'] =  self.local_config['parameters'].get('bs', 100)
+        self.local_config['parameters']['epochs'] =  self.local_config['parameters'].get('epochs', 100)
+        self.local_config['parameters']['beta'] =  self.local_config['parameters'].get('beta', 5.)
+        self.local_config['parameters']['nu1'] =  self.local_config['parameters'].get('nu1', 1e-5)
+        self.local_config['parameters']['nu2'] =  self.local_config['parameters'].get('nu2', 1e-4)
