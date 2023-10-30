@@ -5,14 +5,14 @@ from src.embedder.newgraph2vec.graph2vec_model import WeisfeilerLehmanMachine
 
 
 class Graph2VecEmbedder(Embedder):
-
+    # todo support more than one feature
     def get_embeddings(self):
         return np.array(self._embedding)
 
     def get_embedding(self, instance):
         graph = instance.get_nx()
-        #todo get features
-        document = WeisfeilerLehmanMachine(graph, None, self.wl_iterations)
+        features = self._get_instace_features(instance)
+        document = WeisfeilerLehmanMachine(graph, features, self.wl_iterations)
         document = TaggedDocument(words=document.extracted_features, tags=[str(0)])
         return np.array(self.model.infer_vector(document.words))
 
@@ -54,3 +54,13 @@ class Graph2VecEmbedder(Embedder):
         # self.epochs
         # self.alpha
         # self.seed
+        # selected feature to apply embeedding froms so far, node feature
+        self.selected_feature = None
+
+    def _get_instace_features(self, instance):
+        if not instance.node_features or not len(instance.node_features):
+            return None
+        
+        key = instance.dataset.node_features_map[self.selected_feature]
+
+        return {i:elem for i,elem in enumerate(instance.node_features[key,:])}
