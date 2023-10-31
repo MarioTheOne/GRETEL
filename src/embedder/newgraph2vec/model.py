@@ -33,7 +33,7 @@ class Graph2VecEmbedder(Embedder):
         #todo get or set features for g
         documents = [
             WeisfeilerLehmanMachine(
-                graph, None, self.wl_iterations
+                graph, self._get_instace_features(graph), self.wl_iterations
             )
             for graph in graphs
         ]
@@ -77,7 +77,7 @@ class Graph2VecEmbedder(Embedder):
             return {i:elem for i,elem in enumerate(instance.node_features[key,:])}
 
         graph = instance.get_nx()
-
+        
         return { node: graph.degree(node) for node in graph.nodes() }
 
         
