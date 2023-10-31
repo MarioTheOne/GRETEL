@@ -2,14 +2,26 @@ import numpy as np
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from src.core.embedder_base import Embedder
 from src.embedder.newgraph2vec.graph2vec_model import WeisfeilerLehmanMachine
+from src.n_dataset.instances.graph import GraphInstance
 
 
 class Graph2VecEmbedder(Embedder):
+    def init(self):
+        self.wl_iterations = self.local_config['parameters']['wl_iterations']
+        self.dimensions = self.local_config['parameters']['dimensions']
+        self.min_count = self.local_config['parameters']['min_count']
+        self.down_sampling = self.local_config['parameters']['down_sampling']
+        self.workers = self.local_config['parameters']['workers']
+        self.epochs = self.local_config['parameters']['epochs']
+        self.learning_rate = self.local_config['parameters']['learning_rate']
+        self.seed = self.local_config['parameters']['seed']
+        self.selected_feature = self.local_config['parameters']['selected_feature']
+
     # todo support more than one feature
     def get_embeddings(self):
         return np.array(self._embedding)
 
-    def get_embedding(self, instance):
+    def get_embedding(self, instance: GraphInstance):
         graph = instance.get_nx()
         features = self._get_instace_features(instance)
         document = WeisfeilerLehmanMachine(graph, features, self.wl_iterations)
@@ -47,20 +59,27 @@ class Graph2VecEmbedder(Embedder):
 
     def check_configuration(self):
         super().check_configuration()
-        # self.window
-        # self.min_count
-        # self.sample
-        # self.workers
-        # self.epochs
-        # self.alpha
-        # self.seed
-        # selected feature to apply embeedding froms so far, node feature
-        self.selected_feature = None
+        self.local_config['parameters']['wl_iterations'] =  self.local_config['parameters'].get('wl_iterations', 2)
+        self.local_config['parameters']['dimensions'] =  self.local_config['parameters'].get('dimensions', 128)
+        self.local_config['parameters']['min_count'] =  self.local_config['parameters'].get('min_count', 5)
+        self.local_config['parameters']['down_sampling'] =  self.local_config['parameters'].get('down_sampling', 0.0001)
+        self.local_config['parameters']['workers'] =  self.local_config['parameters'].get('workers', 4)
+        self.local_config['parameters']['epochs'] =  self.local_config['parameters'].get('epochs', 10)
+        self.local_config['parameters']['learning_rate'] =  self.local_config['parameters'].get('learning_rate', 0.025)
+        self.local_config['parameters']['seed'] =  self.local_config['parameters'].get('seed', 42)
+        self.local_config['parameters']['selected_feature'] =  self.local_config['parameters'].get('selected_feature', None)
 
-    def _get_instace_features(self, instance):
-        if not instance.node_features or not len(instance.node_features):
-            return None
+    def _get_instace_features(self, instance: GraphInstance):
+        feature = self.selected_feature if self.selected_feature in instance.dataset.node_features_map.keys() else 'degrees'
+
+        if feature in instance.dataset.node_features_map.keys():
+            key = instance.dataset.node_features_map[self.selected_feature]
+            return {i:elem for i,elem in enumerate(instance.node_features[key,:])}
+
+        graph = instance.get_nx()
+
+        return { node: graph.degree(node) for node in graph.nodes() }
+
         
-        key = instance.dataset.node_features_map[self.selected_feature]
 
-        return {i:elem for i,elem in enumerate(instance.node_features[key,:])}
+        
