@@ -9,6 +9,8 @@ class TabularOracle(Oracle):#TODO: Made it Abstract class
 
         
     def real_fit(self):
+        #TODO this is a hotfix, not sure about the real location of the embedder fit
+        self.embedder.fit()
         inst_vectors = self.embedder.get_embeddings()
 
         if self.fold_id == -1:
