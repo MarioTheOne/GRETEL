@@ -7,10 +7,10 @@ from src.utils.cfg_utils import init_dflts_to_of
 
 class SVMOracle(TabularOracle):
 
-    def init(self):
-        super().init()
+    def init(self):        
         svm = LinearSVC(**self.local_config['parameters']['model']['parameters'])
         self.model = CalibratedClassifierCV(svm)
+        super().init()
 
     def check_configuration(self):
         super().check_configuration()

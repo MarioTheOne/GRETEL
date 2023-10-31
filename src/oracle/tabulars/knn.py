@@ -5,8 +5,9 @@ from src.utils.cfg_utils import init_dflts_to_of
 class KNNOracle(TabularOracle):
 
     def init(self):
-        super().init()
+
         self.model = KNeighborsClassifier(**self.local_config['parameters']['model']['parameters'])
+        super().init()
 
     def check_configuration(self):
         super().check_configuration()
