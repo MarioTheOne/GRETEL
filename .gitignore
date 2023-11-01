@@ -139,7 +139,6 @@ legacy/
 wandb/
 data/oracles/
 #config/test
-launchers/
 AAAI/
 
 #masked src
