@@ -26,7 +26,7 @@ class TorchGeometricDataset(Dataset):
     adj = torch.from_numpy(instance.data).double()
     x = torch.from_numpy(instance.node_features).double()
     a = torch.nonzero(adj).int()
-    w = torch.from_numpy(instance.edge_features).double()
+    w = torch.from_numpy(instance.edge_weights).double()
     label = torch.tensor(label).long()
     return Data(x=x, y=label, edge_index=a.T, edge_attr=w)  
 
