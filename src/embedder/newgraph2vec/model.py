@@ -21,7 +21,6 @@ class Graph2VecEmbedder(Embedder):
 
     # todo support more than one feature
     def get_embeddings(self):
-        print(self.dataset)
         return np.array(self._embedding)
 
     def get_embedding(self, instance: GraphInstance):
