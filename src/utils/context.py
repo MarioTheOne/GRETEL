@@ -118,7 +118,7 @@ class Context(object):
     def __create_storages(self):
         for store_path in self.conf['store_paths']:
             if not os.path.exists(store_path['address']):
-                os.mkdir(store_path['address'])
+                os.makedirs(store_path['address'])
 
     @property
     def dataset_store_path(self):

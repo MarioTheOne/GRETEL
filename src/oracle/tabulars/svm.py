@@ -15,4 +15,5 @@ class SVMOracle(TabularOracle):
     def check_configuration(self):
         super().check_configuration()
         kls="sklearn.svm.LinearSVC"
+        self.local_config['parameters']['model']['class'] = self.local_config['parameters']['model'].get('class',kls)
         init_dflts_to_of(self.local_config, 'model', kls) #Init the default accordingly to the nested Classifier

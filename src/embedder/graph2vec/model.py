@@ -10,7 +10,7 @@ class Graph2VecEmbedder(Embedder):
     def real_fit(self):
         #TODO: Currently the fold are not managed
         # Copies of the graphs are provided because the _check_graphs function modifies the edges of the passed graph
-        graphs = [i.build_nx().copy(as_view=False) for i in self.dataset.get_data()]
+        graphs = [i.get_nx() for i in self.dataset.get_data()]
         self.model.fit(graphs)
 
     def get_embeddings(self):

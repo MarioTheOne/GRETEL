@@ -132,6 +132,7 @@ dmypy.json
 
 # data folders
 data/
+cache/
 output/
 stats/
 legacy/
