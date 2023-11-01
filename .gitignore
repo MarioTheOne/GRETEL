@@ -132,13 +132,13 @@ dmypy.json
 
 # data folders
 data/
+cache/
 output/
 stats/
 legacy/
 wandb/
 data/oracles/
 #config/test
-launchers/
 AAAI/
 
 #masked src

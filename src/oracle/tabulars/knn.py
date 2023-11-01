@@ -11,4 +11,5 @@ class KNNOracle(TabularOracle):
     def check_configuration(self):
         super().check_configuration()
         kls="sklearn.neighbors.KNeighborsClassifier"
+        self.local_config['parameters']['model']['class'] = self.local_config['parameters']['model'].get('class',kls)
         init_dflts_to_of(self.local_config, 'model', kls, n_neighbors=3) #Init the default accordingly to the nested Classifier

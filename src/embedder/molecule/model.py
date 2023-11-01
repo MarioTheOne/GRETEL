@@ -12,7 +12,7 @@ class RDKFingerprintEmbedder(Embedder):
 
     def real_fit(self):
         for inst in self.dataset.instances:
-            fingerprint = RDKFingerprint(inst.data)
+            fingerprint = RDKFingerprint(inst.graph_features['mol'])
             fingerprint_np = np.array(fingerprint)
             self.model.append(fingerprint_np)
 
@@ -20,8 +20,8 @@ class RDKFingerprintEmbedder(Embedder):
         return self.model
 
     def get_embedding(self, instance):
-        fingerprint_rdk = RDKFingerprint(instance.data)
-        fingerprint_rdk_np = np.array(fingerprint_rdk)
+        fingerprint_rdk = RDKFingerprint(instance.graph_features['mol'])
+        fingerprint_rdk_np = np.array(fingerprint_rdk).reshape(1, -1)
         return fingerprint_rdk_np
     
     

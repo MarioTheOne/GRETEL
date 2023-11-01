@@ -6,8 +6,16 @@
     "configurations": [
 
 
-
-
+        {
+            "name": "BBBP_KNN-MOL_DCE",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["config/BBBP_KNN-MOL_DCE.json", "1"],
+        },
+        
         {
             "name": "TC_Custom_DCE",
             "type": "python",

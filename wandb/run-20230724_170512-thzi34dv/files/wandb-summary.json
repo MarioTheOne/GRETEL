@@ -1,1 +1,0 @@
-{"loss": 20.08888816833496, "_timestamp": 1690213550.7650044, "_runtime": 2438.3973553180695, "_step": 100, "Graph_Edit_Distance": 27.58, "Oracle_Calls": 3.2967032967032965, "Correctness": 0.5, "Sparsity": 0.49615629984051035, "Fidelity": 0.5, "Oracle_Accuracy": 1.0, "_wandb": {"runtime": 2437}}
