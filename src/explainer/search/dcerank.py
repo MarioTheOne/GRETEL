@@ -1,9 +1,9 @@
 import copy
-import sys
+import numpy as np
 
 from src.core.explainer_base import Explainer
 from src.evaluation.evaluation_metric_ged import GraphEditDistanceMetric
-import numpy as np
+from src.n_dataset.instances.graph import GraphInstance
 
 
 class DCESearchExplainerWithRank(Explainer):
@@ -17,15 +17,14 @@ class DCESearchExplainerWithRank(Explainer):
         self.cls_mat = np.full((len(self.dataset.instances), len(self.dataset.instances)), -1)
 
 
-    def explain(self, instance):
+    def explain(self, instance: GraphInstance):
         l_input_inst = self.oracle.predict(instance)
 
         # if the method does not find a counterfactual example returns the original graph
         min_counterfactual = instance
 
-        if "distance_rank_index" in instance.dataset.graph_features_map.keys() and "distance_rank_value" in instance.dataset.graph_features_map.keys():
-            rank_index = instance.dataset.graph_features_map["distance_rank_index"]
-            rank_values_index = instance.dataset.graph_features_map["distance_rank_value"]        
+        if "distance_rank_index" in self.dataset.graph_features_map.keys():
+            rank_index = self.dataset.graph_features_map["distance_rank_index"]   
 
             rank = [ int(x) for x in instance.graph_features[:,rank_index]]
 
