@@ -9,10 +9,11 @@ from src.n_dataset.instances.base import DataInstance
 
 class GraphInstance(DataInstance):
 
-    def __init__(self, id, label, data, node_features=None, edge_features=None, graph_features=None, dataset=None):
+    def __init__(self, id, label, data, node_features=None, edge_features=None, edge_weights=None, graph_features=None, dataset=None):
         super().__init__(id, label, data, dataset=dataset)
         self.node_features = self.__init_node_features(node_features)
         self.edge_features = self.__init_edge_features(edge_features)
+        self.edge_weights = self.__init_edge_weights(edge_weights)
         self.graph_features = graph_features
         self._nx_repr = None
                 
@@ -27,6 +28,10 @@ class GraphInstance(DataInstance):
     def __init_edge_features(self, edge_features):
         edges = np.nonzero(self.data)
         return np.zeros((len(edges[0]), 1)) if isinstance(edge_features, (str, type(None))) else edge_features
+    
+    def __init_edge_weights(self, edge_weights):
+        edges = np.nonzero(self.data)
+        return np.zeros((len(edges[0]), 1)) if isinstance(edge_weights, (str, type(None))) else edge_weights
     
     def _build_nx(self):
         nx_repr = nx.from_numpy_array(self.data)
