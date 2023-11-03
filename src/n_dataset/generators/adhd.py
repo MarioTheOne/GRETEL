@@ -14,6 +14,7 @@ class ADHD(Generator):
         base_path = self.local_config['parameters']['data_dir']
         # Path to the instances of the "Attention Deficit Hyperactivity Disorder class"
         self.adhd_class_path = join(base_path, 'adhd_dataset')  
+        self._td_file_path = join(base_path, 'td')
         self.generate_dataset()
 
     def get_num_instances(self):
@@ -29,7 +30,15 @@ class ADHD(Generator):
         """
 
         instance_id = 0
-        graph_label = 0
+        label = 0
+
+        for filename in listdir(self._td_file_path):
+            with open(join(self._td_file_path, filename), 'r') as f:
+                instance = [[int(num) for num in line.split(' ')] for line in f]
+                self.dataset.instances.append(GraphInstance(instance_id, label=label, data=np.array(instance, dtype=np.int32)))
+                instance_id += 1
+
+        label += 1
 
         for filename in listdir(self.adhd_class_path):
             # Reading the graph files
@@ -47,11 +56,13 @@ class ADHD(Generator):
             npdata = _nd_array_from_adjlist(adjlist)
 
             # Creating the instance
-            inst = GraphInstance(instance_id, graph_label, npdata, dataset=self.dataset)
+            inst = GraphInstance(instance_id, label, npdata, dataset=self.dataset)
             instance_id += 1    
             
             # Adding the instance to the instances list
             self.dataset.instances.append(inst)
+
+        
 
             
 def _nd_array_from_adjlist(path: str):
