@@ -6,16 +6,14 @@
     "configurations": [
 
 
-
-
         {
-            "name": "TC_Custom_DCE",
+            "name": "BBBP_KNN-MOL_DCE",
             "type": "python",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["config/test/experimental/TC_Custom_DCE.json", "1"],
+            "args": ["config/BBBP_KNN-MOL_DCE.json", "1"],
         },
         {
             "name": "Python: Current File with profiler",
@@ -43,7 +41,7 @@
             "program": "main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["config/test/experimental/RSGG_ASD.json", "1"],
+            "args": ["config/RSGG_ASD.json", "1"],
         }       
     ]
 }

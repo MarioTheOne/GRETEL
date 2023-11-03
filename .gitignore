@@ -131,14 +131,9 @@ dmypy.json
 .pyre/
 
 # data folders
-data/
+data/cache/
 output/
 stats/
-legacy/
-wandb/
-data/oracles/
-#config/test
-launchers/
 AAAI/
 
 #masked src

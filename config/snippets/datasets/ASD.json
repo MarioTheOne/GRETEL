@@ -1,4 +1,5 @@
-{"class": "src.n_dataset.dataset_base.Dataset",
+{ 
+    "class": "src.n_dataset.dataset_base.Dataset",
     "parameters": {
         "generator": {
             "class": "src.n_dataset.generators.asd.ASD", 
