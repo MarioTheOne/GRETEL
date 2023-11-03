@@ -1,5 +1,13 @@
 {
-    "dataset" : {"compose_gcn" : "config/snippets/datasets/TCR-500-128-0.3.json"},
+    "dataset" : {
+      "class": "src.n_dataset.dataset_base.Dataset",
+      "parameters": {
+          "generator": {
+              "class": "src.n_dataset.generators.treecycles_rand.TreeCyclesRand", 
+              "parameters": { "num_instances": 500, "num_nodes_per_instance": 128, "ratio_nodes_in_cycles": 0.3 }
+          }
+      } 
+  },
     "oracle": {
       "class": "src.oracle.nn.torch.OracleTorch",
       "parameters": {

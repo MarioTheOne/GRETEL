@@ -1,5 +1,6 @@
 
 import copy
+import json
 
 import numpy as np
 import torch
@@ -24,9 +25,7 @@ class GAN(TorchBase):
         local_params = self.local_config['parameters']
         self.epochs = local_params['epochs']
         self.batch_size = local_params['batch_size']
-        self.explainee_label = local_params['model_label']
-        self.epochs =  500
-        self.batch_size = 1        
+        self.explainee_label = local_params['model_label']       
 
         # Initialise the generator and its optimizer
         self.generator = get_instance_kvargs(local_params['generator']['class'],
@@ -168,6 +167,8 @@ class GAN(TorchBase):
         # We let TorchBase do some check for us.
         super().check_configuration()
         local_config = self.local_config
+        #local_config['parameters']['epochs'] = 2000
+        local_config['parameters']['batch_size'] = 1
                 
         #Declare the default classes to use
         gen_kls='src.explainer.generative.gans.res_gen.ResGenerator'
@@ -201,3 +202,12 @@ class GAN(TorchBase):
         
         init_dflts_to_of(local_config, 'gen_optimizer','torch.optim.SGD',lr=0.001)
         init_dflts_to_of(local_config, 'disc_optimizer','torch.optim.SGD',lr=0.001)
+
+        '''dataset = self.local_config['dataset']
+        oracle = self.local_config['oracle']
+        del self.local_config['dataset']
+        del self.local_config['oracle']
+        with open('GAN_dflt_'+str(self.local_config['parameters']['model_label'])+'.json', 'w') as f:
+            json.dump(self.local_config,f,indent=2)
+        self.local_config['dataset'] = dataset
+        self.local_config['oracle'] = oracle'''

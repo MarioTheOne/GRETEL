@@ -1,5 +1,6 @@
 
 import copy
+import json
 import torch
 from src.core.explainer_base import Explainer
 from src.core.factory_base import get_instance_kvargs
@@ -45,7 +46,6 @@ class RSGG(Trainable, Explainer):
         proto_kls='src.explainer.generative.gans.model.GAN'
 
         #The sampler must be present in any case
-        #TODO: bug sul sampling iteration
         init_dflts_to_of(self.local_config,'sampler','src.utils.n_samplers.partial_order_samplers.PositiveAndNegativeEdgeSampler', sampling_iterations=500)
         
         # Check if models is present and of the right size
@@ -81,9 +81,13 @@ class RSGG(Trainable, Explainer):
                 # Check if the fold_id is present is inherited otherwise
                 model['parameters']['fold_id'] = model['parameters'].get('fold_id',self.fold_id)
 
-                #Propagate teh retrain
+                #Propagate the retrain
                 retrain = self.local_config['parameters'].get('retrain', False)
                 model['parameters']['retrain']=retrain
+
+                #Propagate the epochs if available and not present
+                if 'epochs' in self.local_config['parameters'] and 'epochs' not in model['parameters']:
+                    model['parameters']['epochs']=self.local_config['parameters']['epochs']
 
                 models.append(model)
 
