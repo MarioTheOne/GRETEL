@@ -16,7 +16,7 @@
           "parameters": {
               "generator": {
                   "class": "src.n_dataset.generators.treecycles_rand.TreeCyclesRand", 
-                  "parameters": { "num_instances": 500, "num_nodes_per_instance": 28, "ratio_nodes_in_cycles": 0.3 }
+                  "parameters": { "num_instances": 500, "num_nodes_per_instance": 64, "ratio_nodes_in_cycles": 0.4 }
               }
           } 
       },
@@ -45,7 +45,7 @@
       }
     }],
     
-    "explainers": [{"class": "src.explainer.generative.rsgg.RSGG","parameters":{"epochs": 5000}}],
+    "explainers": [{"class": "src.explainer.generative.rsgg.RSGG","parameters":{"epochs": 2000}}],
     "compose_mes" : "config/snippets/default_metrics.json",
     "compose_strs" : "config/snippets/default_store_paths.json"
 }
