@@ -18,6 +18,14 @@ class RSGG(Trainable, Explainer):
         self.sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
                                            self.local_config['parameters']['sampler']['parameters'])
         
+        self.device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
+        
     def real_fit(self):
         pass # Not neede because the GAN are trained by their constructor
         '''for model in self.models:
@@ -29,12 +37,12 @@ class RSGG(Trainable, Explainer):
     def explain(self, instance):            
         with torch.no_grad():
             #######################################################
-            batch = TorchGeometricDataset.to_geometric(instance)
+            batch = TorchGeometricDataset.to_geometric(instance).to(self.device)
             embedded_features, edge_probs = dict(), dict()
             for i, explainer in enumerate(self.model):
                 node_features, _, probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
                 embedded_features[i] = node_features
-                edge_probs[i] = probs.numpy()
+                edge_probs[i] = probs.cpu().numpy()
             
             cf_instance = self.sampler.sample(instance, self.oracle, **{'embedded_features': embedded_features,
                                                                         'edge_probabilities': edge_probs})            

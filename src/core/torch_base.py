@@ -76,3 +76,8 @@ class TorchBase(Trainable):
     def accuracy(self, testy, probs):
         acc = accuracy_score(testy, np.argmax(probs, axis=1))
         return acc
+
+    def read(self):
+        super().read()
+        self.model.to(self.device)
+        

@@ -46,6 +46,19 @@ class GAN(TorchBase):
         self.loss_fn = get_instance_kvargs(local_params['loss_fn']['class'],
                                            local_params['loss_fn']['parameters'])
         
+        self.device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
+        self.generator.to(self.device)
+        self.discriminator.to(self.device)
+
+        self.generator.device = self.device
+        self.discriminator.device = self.device
+
         self.model = [
             self.generator,
             self.discriminator
@@ -55,7 +68,7 @@ class GAN(TorchBase):
         # Define a generator function that yields batches of data
         while True:
             for batch in loader:
-                yield batch
+                yield batch.to(self.device)
                 
     def real_fit(self):
         discriminator_loader = self.__infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, kls=self.explainee_label))
@@ -74,7 +87,7 @@ class GAN(TorchBase):
             _, fake_edge_index, fake_edge_probs = self.generator(fake_node_features[1], fake_edge_index[1], fake_edge_features[1], fake_batch[1])
             # get the real and fake labels
             y_batch = torch.cat([torch.ones((len(torch.unique(real_batch[1])),)),
-                                 torch.zeros(len(torch.unique(fake_batch[1])),)], dim=0)
+                                 torch.zeros(len(torch.unique(fake_batch[1])),)], dim=0).to(self.device)
             #######################################################################
             # get the oracle's predictions
             real_inst = self.__retake_batch(node_features[1], edge_index[1], edge_features[1], real_batch[1])
@@ -93,7 +106,7 @@ class GAN(TorchBase):
             self.prepare_generator_for_training()
             ## Update G network: maximize log(D(G(z)))
             fake_features, fake_edge_index, fake_edge_attr, _, fake_batch, _ = next(generator_loader)
-            y_fake = torch.ones((len(torch.unique(fake_batch[1])),))
+            y_fake = torch.ones((len(torch.unique(fake_batch[1])),)).to(self.device)
             output = self.discriminator(self.generator(fake_features[1], fake_edge_index[1], fake_edge_attr[1], fake_batch[1])[0], fake_edge_index[1], fake_edge_attr[1])
             # calculate the loss
             loss = self.loss_fn(output.expand(1).double(), y_fake.double())
@@ -119,7 +132,7 @@ class GAN(TorchBase):
             if not generator:
                 unbatched_edge_features = edge_features[i]
             else:
-                mask = torch.zeros(edge_features.shape)
+                mask = torch.zeros(edge_features.shape).to(self.device)
                 mask[edges[i][0,:], edges[i][1,:]] = 1
                 unbatched_edge_features = edge_features * mask
                 indices = torch.nonzero(unbatched_edge_features)
@@ -127,9 +140,9 @@ class GAN(TorchBase):
                 
             instances.append(GraphInstance(id="dummy",
                                            label=1-self.explainee_label if counterfactual else self.explainee_label,
-                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], unbatched_edge_features.T).detach().numpy(),
-                                           node_features=node_features[i].detach().numpy(),
-                                           edge_features=unbatched_edge_features.detach().numpy()))
+                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], unbatched_edge_features.T,self.device).detach().cpu().numpy(),
+                                           node_features=node_features[i].detach().cpu().numpy(),
+                                           edge_features=unbatched_edge_features.detach().cpu().numpy()))
         return instances
     
     def prepare_discriminator_for_training(self):
@@ -159,7 +172,7 @@ class GAN(TorchBase):
         
         fake_samples = torch.where(y_true == 0.)
         oracle_scores[fake_samples] = 1.
-        oracle_scores = torch.tensor(oracle_scores, dtype=torch.float)
+        oracle_scores = torch.tensor(oracle_scores, dtype=torch.float).to(self.device)
         
         return oracle_scores
         
