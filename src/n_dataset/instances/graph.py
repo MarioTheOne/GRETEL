@@ -1,11 +1,7 @@
+from src.n_dataset.instances.base import DataInstance
 from copy import deepcopy
-#from types import NoneType
-
 import networkx as nx
 import numpy as np
-
-from src.n_dataset.instances.base import DataInstance
-
 
 class GraphInstance(DataInstance):
 
@@ -44,6 +40,15 @@ class GraphInstance(DataInstance):
     def num_edges(self):
         nx_repr = self.get_nx()
         return nx_repr.number_of_edges()
+    
+    def nodes(self):
+        return [ i for i in range(self.data.shape[0])]
+
+    def neighbors(self, node):
+        return [i for i in self.data[node,:] if i != 0]
+    
+    def degree(self,node):
+        return len(self.neighbors(node))
             
     
     
