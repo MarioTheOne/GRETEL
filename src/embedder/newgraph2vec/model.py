@@ -1,10 +1,8 @@
-import numpy as np
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from src.core.embedder_base import Embedder
 from src.embedder.newgraph2vec.graph2vec_model import WeisfeilerLehmanMachine
 from src.n_dataset.instances.graph import GraphInstance
-import networkx as nx
-
+import numpy as np
 
 class Graph2VecEmbedder(Embedder):
     def init(self):
@@ -25,14 +23,14 @@ class Graph2VecEmbedder(Embedder):
 
     def get_embedding(self, instance: GraphInstance):
         features = self._get_instace_features(instance)
-        document = WeisfeilerLehmanMachine(instance.get_nx(), features, self.wl_iterations)
+        document = WeisfeilerLehmanMachine(instance, features, self.wl_iterations)
         document = TaggedDocument(words=document.extracted_features, tags=[str(0)])
         return np.array(self.model.infer_vector(document.words)).reshape(1, -1)
 
     def real_fit(self):
         documents = [
             WeisfeilerLehmanMachine(
-                graph.get_nx(), self._get_instace_features(graph), self.wl_iterations
+                graph, self._get_instace_features(graph), self.wl_iterations
             )
             for graph in self.dataset.instances
         ]
@@ -75,10 +73,8 @@ class Graph2VecEmbedder(Embedder):
             
             values =  {i:elem for i,elem in enumerate(instance.node_features[:,key])}
             return values
-
-        graph = instance.get_nx()
         
-        return { node: graph.degree(node) for node in graph.nodes() }
+        return { node: instance.degree(node) for node in instance.nodes() }
 
         
 
