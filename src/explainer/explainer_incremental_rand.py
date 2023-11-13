@@ -41,10 +41,10 @@ class IRandExplainer(Explainer):
         new_edges = np.array(new_edges)
         
         # Calculate the maximun percent of edges to modify
-        k = int(len(new_edges) * self.perturbation_percentage)
+        k = [int(len(new_edges) * i%100) for i in range(1, int(self.perturbation_percentage*100))]
 
         # increase the number of random modifications
-        for i in range(1, k):
+        for i in k:
             # how many attempts at a current modification level
             for j in range(0, self.tries):
                 cf_cand_matrix = np.copy(adj_matrix)
