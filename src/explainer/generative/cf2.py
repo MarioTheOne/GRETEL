@@ -45,18 +45,13 @@ class CF2Explainer(Trainable, Explainer):
         )
 
     def real_fit(self):
-        graphs, _ = self.transform_data(self.dataset)
-        
         self.explainer.train()
-        for epoch in range(self.epochs):
-            
-            losses = list()
-            
-            for graph in graphs:
-                graph = graph.to(self.device)
 
+        for epoch in range(self.epochs):         
+            losses = list()
+
+            for graph in self.dataset.instances:
                 pred1, pred2 = self.explainer(graph, self.oracle)
-                
                 loss = self.explainer.loss(graph,
                                            pred1, pred2,
                                            self.gamma, self.lam,
@@ -68,51 +63,22 @@ class CF2Explainer(Trainable, Explainer):
             
             print(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
 
-            # Logging into wandb
-            # wandb.log({f'loss': np.mean(losses)})
-
-    def transform_data(self, dataset: Dataset):
-        adj  = np.array([i.to_numpy_array() for i in dataset.instances])
-        features = np.array([i.features for i in dataset.instances])
-        weights = np.array([i.weights for i in dataset.instances])
-        y = np.array([i.graph_label for i in dataset.instances])
-        
-        indices = dataset.get_split_indices()[self.fold_id]['train'] 
-        adj, features, weights, y = adj[indices], features[indices], weights[indices], y[indices]
-        dgl_dataset = CustomDGLDataset(adj, features, weights, y)
-
-        return dgl_dataset.graphs, dgl_dataset.labels
-
-    def explain(self, instance):
-        oracle = self.oracle
-        dataset = self.dataset
+    def explain(self, instance : GraphInstance):
 
         if(not self._fitted):
             self.explainer.train()
-            self.fit(dataset, oracle)
+            self.fit()
             self._fitted = True
 
         self.explainer.eval()
         
         with torch.no_grad():
-            features_and_weight_instance = dataset.get_instance(instance.id)
-            adj = features_and_weight_instance.to_numpy_array()
-            weights = features_and_weight_instance.weights
-            features = features_and_weight_instance.features
-            
-            g = from_networkx(nx.from_numpy_array(adj))
-            # set node features of the graph
-            g.ndata['feat'] = torch.from_numpy(features).float()
-            # set the edge weights of the graph
-            g.edata['weights'] = torch.from_numpy(weights).float()
-            
+            cf_instance = deepcopy(instance)
+
             weighted_adj = self.explainer._rebuild_weighted_adj(g)
             masked_adj = self.explainer.get_masked_adj(weighted_adj).numpy()
-
-            cf_instance = DataInstanceWFeaturesAndWeights(instance.id)
-            cf_instance.from_numpy_array(masked_adj)
-            cf_instance = self.converter.convert_instance(cf_instance)    
-                    
+            # update instance copy from masked_ajd
+            cf_instance.data = masked_adj         
             print(f'Finished evaluating for instance {instance.id}')
             return cf_instance
 
