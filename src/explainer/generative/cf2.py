@@ -1,22 +1,11 @@
 import math
-import os
-
-import networkx as nx
 import numpy as np
 import torch
-from dgl import from_networkx, to_networkx
-from torch.utils.data import Dataset
 from copy import deepcopy
-# import wandb
-
-from src.dataset.data_instance_base import DataInstance
-from src.dataset.data_instance_features import DataInstanceWFeaturesAndWeights
-from src.n_dataset.dataset_base import Dataset
 from src.n_dataset.instances.graph import GraphInstance
 from src.core.explainer_base import Explainer
 from src.core.trainable_base import Trainable
 from src.core.oracle_base import Oracle
-from src.oracle.todo.oracle_cf2 import CustomDGLDataset
 
 
 class CF2Explainer(Trainable, Explainer):
@@ -102,7 +91,7 @@ class ExplainModelGraph(torch.nn.Module):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.mask = self.build_adj_mask()
 
-    def forward(self, graph, oracle):        
+    def forward(self, graph : GraphInstance, oracle : Oracle):        
         pred1 = oracle.predict(graph)
 
         # re-build weighted adjacency matrix
@@ -139,7 +128,7 @@ class ExplainModelGraph(torch.nn.Module):
         masked_adj = weights * sym_mask
         return masked_adj
 
-    def loss(self, graph, pred1, pred2, gam, lam, alp):
+    def loss(self, graph : GraphInstance, pred1, pred2, gam, lam, alp):
         weights = self._rebuild_weighted_adj(graph)
         bpr1 = torch.nn.functional.relu(gam + 0.5 - pred1)  # factual
         bpr2 = torch.nn.functional.relu(gam + pred2 - 0.5)  # counterfactual
