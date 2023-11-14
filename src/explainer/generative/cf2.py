@@ -22,20 +22,14 @@ from src.oracle.todo.oracle_cf2 import CustomDGLDataset
 class CF2Explainer(Trainable, Explainer):
 
     def init(self):
-
-        self.name = "cf2"
-        self.n_nodes = 0
-        self.converter = 0
-        self.batch_size_ratio = 0
-        self.fold_id = 0
-        self.explainer_store_path = 0
-        self.lr = 0
-        self.weight_decay = 0
-        self.gamma = 0
-        self.lam = 0
-        self.alpha = 0
-        self.epochs = 0
-        self.fold_id = 0
+        self.n_nodes = self.local_config['parameters']['n_nodes']
+        self.batch_size_ratio = self.local_config['parameters']['batch_size_ratio']
+        self.lr = self.local_config['parameters']['lr']
+        self.weight_decay = self.local_config['parameters']['weight_decay']
+        self.gamma = self.local_config['parameters']['gamma']
+        self.lam = self.local_config['parameters']['lam']
+        self.alpha = self.local_config['parameters']['alpha']
+        self.epochs = self.local_config['parameters']['epochs']
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self._fitted = False
 
@@ -43,6 +37,22 @@ class CF2Explainer(Trainable, Explainer):
         self.optimizer = torch.optim.Adam(
             self.explainer.parameters(), lr=self.lr, weight_decay=self.weight_decay
         )
+
+    def check_configuration(self):
+        super().check_configuration()
+        self.local_config['parameters']['batch_size_ratio'] =  self.local_config['parameters'].get('batch_size_ratio', 0.1)
+        self.local_config['parameters']['lr'] =  self.local_config['parameters'].get('lr', 1e-3)
+        self.local_config['parameters']['weight_decay'] =  self.local_config['parameters'].get('weight_decay', 0)
+        self.local_config['parameters']['gamma'] =  self.local_config['parameters'].get('gamma', 1e-4)
+        self.local_config['parameters']['lam'] =  self.local_config['parameters'].get('lam', 1e-4)
+        self.local_config['parameters']['alpha'] =  self.local_config['parameters'].get('alpha', 1e-4)
+        self.local_config['parameters']['epochs'] =  self.local_config['parameters'].get('epochs', 200)
+
+        # fix the number of nodes
+        n_nodes = self.local_config['parameters'].get('n_nodes', None)
+        if not n_nodes:
+            n_nodes = max([len(x.nodes()) for x in self.dataset.instances])
+        self.local_config['parameters']['n_nodes'] = n_nodes
 
     def real_fit(self):
         self.explainer.train()
@@ -138,6 +148,7 @@ class ExplainModelGraph(torch.nn.Module):
         return L1 + lam * (alp * bpr1 + (1 - alp) * bpr2)
     
     
+    # todo reimplement this part
     def _rebuild_weighted_adj(self, graph):
         u,v = graph.all_edges(order='eid')
         weights = np.zeros((self.n_nodes, self.n_nodes))
