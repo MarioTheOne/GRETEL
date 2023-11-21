@@ -1,7 +1,6 @@
 import numpy as np
 from src.n_dataset.manipulators.base import BaseManipulator
 
-
 class Causality(BaseManipulator):
 
     def init(self):
