@@ -49,6 +49,9 @@ class GraphInstance(DataInstance):
     
     def degree(self,node):
         return len(self.neighbors(node))
+    
+    def degrees(self):
+        return [ len(self.neighbors(y)) for y in self.nodes()]
             
     
     
