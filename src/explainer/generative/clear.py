@@ -83,13 +83,11 @@ class CLEARExplainer(Trainable, Explainer):
             n_nodes = max([x.num_nodes for x in self.dataset.instances])
         self.local_config['parameters']['n_nodes'] = n_nodes
 
-
-                
-    def explain(self, instance, oracle: Oracle, dataset: Dataset):
-        dataset = self.converter.convert(dataset)      
+    def explain(self, instance):
+        dataset = self.converter.convert(self.dataset)      
         
         if(not self._fitted):
-            self.fit(oracle, dataset, self.fold_id)
+            self.fit(self.oracle, self.dataset, self.fold_id)
 
         instance = dataset.get_instance(instance.id)
         self.explainer.eval()
@@ -112,42 +110,8 @@ class CLEARExplainer(Trainable, Explainer):
             print(f'Finished evaluating for instance {instance.id}')
             return cf_instance
 
-    def save_explainers(self):
-        torch.save(self.explainer.state_dict(),
-                   os.path.join(self.explainer_store_path, self.name, f'explainer'))
- 
-    def load_explainers(self):
-        self.explainer.load_state_dict(torch.load(
-            os.path.join(self.explainer_store_path, self.name, f'explainer')))
-
-    def fit(self, oracle: Oracle, dataset : Dataset, fold_id=0):
-        # explainer_name = 'clear_fit_on_' + dataset.name + '_fold_id_' + str(fold_id)
-
-        explainer_name = (
-            f'clear_fit_on_{dataset.name}_fold_id={self.fold_id}_batch_size_ratio={self.batch_size_ratio}_alpha={self.alpha}'\
-                + f'_lr={self.lr}_weight_decay={self.weight_decay}_epochs={self.epochs}_dropout={self.dropout}'
-                # + f'_z_dim={self.z_dim}_encoder_type={self.encoder_type}_graph_pool_type={self.graph_pool_type}'\
-                # + f'_disable_u={self.disable_u}_lambda_sim={self.lambda_sim}_lambda_kl={self.lambda_kl}_h_dim={self.h_dim}'\
-                # + f'_lambda_cfe={self.lambda_cfe}_beta_x={self.beta_x}_beta_adj={self.beta_adj}_feature_dim={self.feature_dim}'
-        )
-
-        explainer_uri = os.path.join(self.explainer_store_path, explainer_name)
-        self.name = explainer_name
-        
-        if os.path.exists(explainer_uri):
-            # Load the weights of the trained model
-            self.load_explainers()
-        else:
-            # Create the folder to store the oracle if it does not exist
-            os.mkdir(explainer_uri)                    
-            self.__fit(oracle, dataset, fold_id)
-            self.save_explainers()        
-        # setting the flag to signal the explainer was already trained
-        self._fitted = True
-
-    def __fit(self, oracle, dataset, fold_id):
+    def real_fit(self):
         train_loader = self.transform_data(dataset, fold_id=fold_id)
-        
         for epoch in range(self.epochs):
             self.explainer.train()
             
@@ -199,7 +163,6 @@ class CLEARExplainer(Trainable, Explainer):
             alpha = self.alpha if epoch >= 450 else 0
             ((loss_sim + loss_kl + alpha * loss_cfe) / batch_num).backward()        
             self.optimizer.step()
-        
         
     def __compute_loss(self, params):
         model, oracle, z_mu, z_logvar, adj_permuted, features_permuted, adj_reconst, features_reconst, \
