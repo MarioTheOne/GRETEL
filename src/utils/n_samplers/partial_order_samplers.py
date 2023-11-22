@@ -28,7 +28,7 @@ class PositiveAndNegativeEdgeSampler(Sampler):
 
         pred_label = oracle.predict(instance)
         edge_probs = torch.from_numpy(edge_probs.get(pred_label))
-        node_features = embedded_features.get(pred_label).numpy()
+        node_features = embedded_features.get(pred_label).cpu().numpy()
         cf_instance = self.__sample(instance, node_features, edge_probs[edge_list[0,:], edge_list[1,:]], edge_list, num_samples=edge_num)
         if oracle.predict(cf_instance) != pred_label:
             return cf_instance

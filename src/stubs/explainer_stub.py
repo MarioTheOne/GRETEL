@@ -30,8 +30,7 @@ class ExplainerStub(Trainable, Explainer):
     #        mes_acc = np.mean(cacc[cacc != 0])
 
     def explain(self, instance):
-        for _ in range(100):
-            
+        for _ in range(100):            
             cg = nx.connected_watts_strogatz_graph(instance.num_nodes, int(instance.num_nodes*0.1), 0.2, tries=100)
             cg = GraphInstance(0,  1 - instance.label, nx.to_numpy_array(cg))
             self.weights_man._process_instance(cg)

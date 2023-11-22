@@ -1,4 +1,5 @@
 import pickle
+import time
 from typing import final
 from flufl.lock import Lock
 from datetime import timedelta
@@ -27,7 +28,12 @@ class Trainable(Savable,metaclass=ABCMeta):
         self.context.logger.info(str(self)+" re-saved.")
 
     def fit(self):
-        self.real_fit()       
+        stime = time.time()
+        self.real_fit()
+        if self.device != None:
+            self.context.logger.info(self.__class__.__name__+" trained on "+self.device+" in: "+str((time.time()-stime))+" secs")   
+        else:
+            self.context.logger.info(self.__class__.__name__+" trained in: "+str((time.time()-stime))+" secs")  
         
     def create(self):
         self.fit()

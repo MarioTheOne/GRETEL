@@ -1,5 +1,6 @@
 
 import copy
+import json
 import torch
 from src.core.explainer_base import Explainer
 from src.core.factory_base import get_instance_kvargs
@@ -17,6 +18,14 @@ class RSGG(Trainable, Explainer):
         self.sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
                                            self.local_config['parameters']['sampler']['parameters'])
         
+        self.device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
+        
     def real_fit(self):
         pass # Not neede because the GAN are trained by their constructor
         '''for model in self.models:
@@ -28,12 +37,12 @@ class RSGG(Trainable, Explainer):
     def explain(self, instance):            
         with torch.no_grad():
             #######################################################
-            batch = TorchGeometricDataset.to_geometric(instance)
+            batch = TorchGeometricDataset.to_geometric(instance).to(self.device)
             embedded_features, edge_probs = dict(), dict()
             for i, explainer in enumerate(self.model):
                 node_features, _, probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
                 embedded_features[i] = node_features
-                edge_probs[i] = probs.numpy()
+                edge_probs[i] = probs.cpu().numpy()
             
             cf_instance = self.sampler.sample(instance, self.oracle, **{'embedded_features': embedded_features,
                                                                         'edge_probabilities': edge_probs})            
@@ -45,7 +54,6 @@ class RSGG(Trainable, Explainer):
         proto_kls='src.explainer.generative.gans.model.GAN'
 
         #The sampler must be present in any case
-        #TODO: bug sul sampling iteration
         init_dflts_to_of(self.local_config,'sampler','src.utils.n_samplers.partial_order_samplers.PositiveAndNegativeEdgeSampler', sampling_iterations=500)
         
         # Check if models is present and of the right size
@@ -81,9 +89,13 @@ class RSGG(Trainable, Explainer):
                 # Check if the fold_id is present is inherited otherwise
                 model['parameters']['fold_id'] = model['parameters'].get('fold_id',self.fold_id)
 
-                #Propagate teh retrain
+                #Propagate the retrain
                 retrain = self.local_config['parameters'].get('retrain', False)
                 model['parameters']['retrain']=retrain
+
+                #Propagate the epochs if available and not present
+                if 'epochs' in self.local_config['parameters'] and 'epochs' not in model['parameters']:
+                    model['parameters']['epochs']=self.local_config['parameters']['epochs']
 
                 models.append(model)
 

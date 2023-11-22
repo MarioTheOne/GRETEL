@@ -5,7 +5,16 @@
     "version": "0.2.0",
     "configurations": [
 
-
+ 
+        {
+            "name": "TCR-500_RSGG",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["config/TCR-500-28-0.3_GCN_RSGG.jsonc", "1"],
+        },
         {
             "name": "BBBP_KNN-MOL_DCE",
             "type": "python",
