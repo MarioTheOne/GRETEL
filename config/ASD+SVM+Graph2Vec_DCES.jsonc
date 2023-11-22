@@ -26,7 +26,7 @@
                 "parameters": {
                     "embedder": {
                         "class": "src.embedder.newgraph2vec.model.Graph2VecEmbedder", 
-                        "parameters": { "wl_iterations": 17 }
+                        "parameters": {"retrain":false,"wl_iterations": 17 }
                     },
                     "model": {  "parameters": {} }
                     
