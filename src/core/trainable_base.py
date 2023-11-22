@@ -30,7 +30,7 @@ class Trainable(Savable,metaclass=ABCMeta):
     def fit(self):
         stime = time.time()
         self.real_fit()
-        if self.device != None:
+        if hasattr(self, 'device') and self.device is not None:
             self.context.logger.info(self.__class__.__name__+" trained on "+self.device+" in: "+str((time.time()-stime))+" secs")   
         else:
             self.context.logger.info(self.__class__.__name__+" trained in: "+str((time.time()-stime))+" secs")  
