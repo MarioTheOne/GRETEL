@@ -5,7 +5,7 @@ from src.core.explainer_base import Explainer
 from src.core.factory_base import get_instance_kvargs
 from src.core.trainable_base import Trainable
 from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
-from src.utils.cfg_utils import get_dflts_to_of, init_dflts_to_of, inject_dataset, inject_oracle
+from src.utils.cfg_utils import get_dflts_to_of, init_dflts_to_of, inject_dataset, inject_oracle, retake_oracle, retake_dataset
 
 from src.evaluation.evaluation_metric_ged import GraphEditDistanceMetric
 from src.explainer.ensemble.explanation_aggregator_base import ExplanationAggregator
@@ -20,7 +20,7 @@ class ExplainerEnsemble(Explainer, Trainable):
         super().init()
 
         self.explanation_aggregator = get_instance_kvargs(self.local_config['parameters']['aggregator']['class'], 
-                                                          self.local_config['parameters']['aggregator']['parameters'])
+                                                          {'context':self.context,'local_config': self.local_config['parameters']['aggregator']['parameters']})
         
         self.base_explainers = [ get_instance_kvargs(exp['class'],
                     {'context':self.context,'local_config':exp}) for exp in self.local_config['parameters']['explainers']]
@@ -33,7 +33,7 @@ class ExplainerEnsemble(Explainer, Trainable):
         for explainer in self.base_explainers:
             explanations.append(explainer.explain(instance))
 
-        result = self.explanation_aggregator.aggregate(instance, explanations, self.oracle)
+        result = self.explanation_aggregator.aggregate(instance, explanations)
 
         return result
     
@@ -44,6 +44,9 @@ class ExplainerEnsemble(Explainer, Trainable):
     
     def check_configuration(self):
         super().check_configuration()
+
+        inject_dataset(self.local_config['parameters']['aggregator']['parameters'], self.dataset)
+        inject_oracle(self.local_config['parameters']['aggregator']['parameters'], self.oracle)
 
         for exp in self.local_config['parameters']['explainers']:
             exp['parameters']['fold_id'] = self.local_config['parameters']['fold_id']
