@@ -10,9 +10,10 @@ from torch_geometric.nn import DenseGCNConv, DenseGraphConv
 
 
 from src.n_dataset.dataset_base import Dataset
+from src.n_dataset.instances.graph import GraphInstance
 from src.core.explainer_base import Explainer
 from src.core.trainable_base import Trainable
-from src.core.oracle_base import Oracle
+from src.utils.logger import GLogger
 
 
 class CLEARExplainer(Trainable, Explainer):
@@ -52,9 +53,10 @@ class CLEARExplainer(Trainable, Explainer):
                                device=self.device
                             ).to(torch.device(self.device))
                         
-        self.optimizer = torch.optim.Adam(self.explainer.parameters(),
+        self.optimizer = torch.optim.Adam(self.model.parameters(),
                                           lr=self.lr, weight_decay=self.weight_decay)
 
+        self._logger = GLogger.getLogger()
         self._fitted = False
         
     def check_configuration(self):
@@ -69,7 +71,6 @@ class CLEARExplainer(Trainable, Explainer):
         self.local_config['parameters']['disable_u'] =  self.local_config['parameters'].get('disable_u', False)
         self.local_config['parameters']['epochs'] =  self.local_config['parameters'].get('epochs', 200)
         self.local_config['parameters']['alpha'] =  self.local_config['parameters'].get('alpha', 5)
-        self.local_config['parameters']['feature_dim'] =  self.local_config['parameters'].get('feature_dim', 2)
         self.local_config['parameters']['lr'] =  self.local_config['parameters'].get('lr', 1e-3)
         self.local_config['parameters']['weight_decay'] =  self.local_config['parameters'].get('weight_decay', 1e-5)
         self.local_config['parameters']['lambda_sim'] =  self.local_config['parameters'].get('lambda_sim', 1)
@@ -83,37 +84,40 @@ class CLEARExplainer(Trainable, Explainer):
             n_nodes = max([x.num_nodes for x in self.dataset.instances])
         self.local_config['parameters']['n_nodes'] = n_nodes
 
+        self.local_config['parameters']['feature_dim'] = len(self.dataset.node_features_map)
+
+
     def explain(self, instance):
-        dataset = self.converter.convert(self.dataset)      
+        # dataset = self.converter.convert(self.dataset)      
         
         if(not self._fitted):
-            self.fit(self.oracle, self.dataset, self.fold_id)
+            self.fit()
 
-        instance = dataset.get_instance(instance.id)
-        self.explainer.eval()
+        # instance = dataset.get_instance(instance.id)
+        self.model.eval()
         
         with torch.no_grad():
-            features = torch.from_numpy(np.array(instance.features)).float().to(self.device)
-            adj = torch.from_numpy(instance.to_numpy_array()).float().to(self.device)
-            u = torch.from_numpy(np.array(instance.causality)).float().to(self.device)[None,:]
-            labels = torch.from_numpy(np.array([instance.graph_label])).to(self.device)[None,:]
+            features = torch.from_numpy(np.array(instance.node_features)).float().to(self.device)
+            adj = torch.from_numpy(instance.data).float().to(self.device)
+            u = torch.from_numpy(np.array(instance.graph_features[self.dataset.graph_features_map["graph_causality"]])).float().to(self.device)[None,:]
+            labels = torch.from_numpy(np.array([instance.label])).to(self.device)[None,:]
             
-            model_return = self.explainer(features, u, adj, labels)
+            model_return = self.model(features, u, adj, labels)
             adj_reconst, features_reconst = model_return['adj_reconst'], model_return['features_reconst']
             
             adj_reconst_binary = torch.bernoulli(adj_reconst.squeeze())
             
-            cf_instance = DataInstanceWFeatures(instance.id)
-            cf_instance.from_numpy_array(adj_reconst_binary.to("cpu").detach().numpy())
-            cf_instance.features = features_reconst.squeeze().to("cpu").detach().numpy()
+            cf_instance = GraphInstance(id=instance.id,
+                                        label=instance.label,
+                                        data=adj_reconst_binary.to("cpu").detach().numpy(),
+                                        node_features=features_reconst.squeeze().to("cpu").detach().numpy())
             
-            print(f'Finished evaluating for instance {instance.id}')
             return cf_instance
 
     def real_fit(self):
-        train_loader = self.transform_data(dataset, fold_id=fold_id)
+        train_loader = self.transform_data(self.dataset, fold_id=self.fold_id)
         for epoch in range(self.epochs):
-            self.explainer.train()
+            self.model.train()
             
             batch_num = 0
             loss, loss_kl, loss_sim, loss_cfe, loss_kl_cf = 0, 0, 0, 0, 0
@@ -128,17 +132,17 @@ class CLEARExplainer(Trainable, Explainer):
             
                 self.optimizer.zero_grad()
                 # forward pass
-                retr = self.explainer(features, u, adj, labels)
+                retr = self.model(features, u, adj, labels)
                 # z_cf
-                z_mu_cf, z_logvar_cf = self.explainer.get_represent(
+                z_mu_cf, z_logvar_cf = self.model.get_represent(
                     retr['features_reconst'], 
                     u, 
                     retr['adj_reconst'], 
                     labels)
                 # compute loss
                 loss_params = {
-                    'model': self.explainer,
-                    'oracle': oracle,
+                    'model': self.model,
+                    'oracle': self.oracle,
                     'adj_input': adj,
                     'features_input': features,
                     'y_cf': labels,
@@ -158,11 +162,13 @@ class CLEARExplainer(Trainable, Explainer):
                 loss_kl_cf += loss_kl_batch_cf
                 
             loss, loss_kl, loss_sim, loss_cfe, loss_kl_cf = loss / batch_num, loss_kl / batch_num, loss_sim / batch_num, loss_cfe / batch_num, loss_kl_cf / batch_num
-            print(f'Epoch {epoch+1} ---> loss {loss}')
+            self._logger.info(f'Epoch {epoch+1} ---> loss {loss}')
             # backward
             alpha = self.alpha if epoch >= 450 else 0
             ((loss_sim + loss_kl + alpha * loss_cfe) / batch_num).backward()        
             self.optimizer.step()
+        
+        self._fitted = True
         
     def __compute_loss(self, params):
         model, oracle, z_mu, z_logvar, adj_permuted, features_permuted, adj_reconst, features_reconst, \
@@ -182,15 +188,14 @@ class CLEARExplainer(Trainable, Explainer):
         loss_sim = self.beta_x * dist_x + self.beta_adj * dist_a
         
         # CFE loss
-        temp_instance = DataInstanceWFeatures(-1)
         y_pred = []
         for i in range(len(adj_reconst)):
-            temp_instance.from_numpy_array(
-                adj_reconst[i].to("cpu").detach().numpy().squeeze()
-            )
-            temp_instance.features = features_reconst[i].to("cpu").detach().numpy().squeeze()
-            y_pred.append(oracle.predict_proba(temp_instance))
-            
+            temp_instance = GraphInstance(id=-1,
+                                          label=None,
+                                          data=adj_reconst[i].to("cpu").detach().numpy().squeeze(),
+                                          node_features=features_reconst[i].to("cpu").detach().numpy().squeeze())
+            y_pred.append(np.array(oracle.predict_proba(temp_instance)))
+
         y_pred = torch.from_numpy(np.array(y_pred)).float().squeeze()
         loss_cfe = F.nll_loss(F.log_softmax(y_pred, dim=-1), y_cf.to("cpu").view(-1).long())
         
@@ -214,16 +219,17 @@ class CLEARExplainer(Trainable, Explainer):
     def __distance_graph_prob(self, adj_1, adj_2_prob):
         return F.binary_cross_entropy(adj_2_prob, adj_1)
     
-    def transform_data(self, dataset: Dataset, fold_id=0):             
-        X_adj  = np.array([i.to_numpy_array() for i in dataset.instances])
-        X_features = np.array([i.features for i in dataset.instances])
-        X_causality = np.array([i.causality for i in dataset.instances])
-        y = np.array([i.graph_label for i in dataset.instances])[..., np.newaxis]
-        
-        X_adj = X_adj[dataset.get_split_indices()[fold_id]['train']]
-        X_features = X_features[dataset.get_split_indices()[fold_id]['train']]
-        X_causality = X_causality[dataset.get_split_indices()[fold_id]['train']]
-        y_train = y[dataset.get_split_indices()[fold_id]['train']]
+    def transform_data(self, dataset: Dataset, fold_id=0):  
+        X_adj  = np.array([i.data for i in dataset.instances])
+        X_features = np.array([i.node_features for i in dataset.instances])
+        X_causality = np.array([i.graph_features[dataset.graph_features_map["graph_causality"]] for i in dataset.instances])
+        y = np.array([i.label for i in dataset.instances])[..., np.newaxis]
+
+        indexs = dataset.get_split_indices(fold_id)['train']
+        X_adj = X_adj[indexs]
+        X_features = X_features[indexs]
+        X_causality = X_causality[indexs]
+        y_train = y[indexs]
         
         dataset = TensorDataset(
             torch.tensor(X_adj, dtype=torch.float),
