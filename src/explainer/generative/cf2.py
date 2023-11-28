@@ -22,9 +22,9 @@ class CF2Explainer(Trainable, Explainer):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self._fitted = False
 
-        self.explainer = ExplainModelGraph(self.n_nodes).to(self.device)
+        self.model = ExplainModelGraph(self.n_nodes).to(self.device)
         self.optimizer = torch.optim.Adam(
-            self.explainer.parameters(), lr=self.lr, weight_decay=self.weight_decay
+            self.model.parameters(), lr=self.lr, weight_decay=self.weight_decay
         )
 
     def check_configuration(self):
@@ -40,18 +40,18 @@ class CF2Explainer(Trainable, Explainer):
         # fix the number of nodes
         n_nodes = self.local_config['parameters'].get('n_nodes', None)
         if not n_nodes:
-            n_nodes = max([len(x.nodes()) for x in self.dataset.instances])
+            n_nodes = max([x.num_nodes for x in self.dataset.instances])
         self.local_config['parameters']['n_nodes'] = n_nodes
 
     def real_fit(self):
-        self.explainer.train()
+        self.model.train()
 
         for epoch in range(self.epochs):         
             losses = list()
 
             for graph in self.dataset.instances:
-                pred1, pred2 = self.explainer(graph, self.oracle)
-                loss = self.explainer.loss(graph,
+                pred1, pred2 = self.model(graph, self.oracle)
+                loss = self.model.loss(graph,
                                            pred1, pred2,
                                            self.gamma, self.lam,
                                            self.alpha)
@@ -62,20 +62,20 @@ class CF2Explainer(Trainable, Explainer):
             
             print(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
 
+            self._fitted = True
+
     def explain(self, instance : GraphInstance):
 
         if(not self._fitted):
-            self.explainer.train()
             self.fit()
-            self._fitted = True
 
-        self.explainer.eval()
+        self.model.eval()
         
         with torch.no_grad():
             cf_instance = deepcopy(instance)
 
-            weighted_adj = self.explainer._rebuild_weighted_adj(g)
-            masked_adj = self.explainer.get_masked_adj(weighted_adj).numpy()
+            weighted_adj = self.model._rebuild_weighted_adj(instance)
+            masked_adj = self.model.get_masked_adj(weighted_adj).numpy()
             # update instance copy from masked_ajd
             cf_instance.data = masked_adj         
             print(f'Finished evaluating for instance {instance.id}')
@@ -139,7 +139,17 @@ class ExplainModelGraph(torch.nn.Module):
     
     # todo reimplement this part
     def _rebuild_weighted_adj(self, graph):
-        u,v = graph.all_edges(order='eid')
         weights = np.zeros((self.n_nodes, self.n_nodes))
-        weights[u.numpy(), v.numpy()] = graph.edata['weights'].detach().numpy()
+
+        u = []
+        v = []
+        for i, j in zip(*np.nonzero(graph.data)):
+            if i < j:
+                u.append(i)
+                v.append(j)
+        print(graph.edge_weights.shape)
+        print(graph.edge_weights)
+        print(u)
+        print(v)
+        weights[u+v,v+u] = graph.edge_weights
         return torch.from_numpy(weights).float()

@@ -27,7 +27,7 @@ class GraphInstance(DataInstance):
     
     def __init_edge_weights(self, edge_weights):
         edges = np.nonzero(self.data)
-        return np.zeros((len(edges[0]), 1)) if isinstance(edge_weights, (str, type(None))) else edge_weights
+        return np.zeros(len(edges[0])) if isinstance(edge_weights, float) else edge_weights
     
     def _build_nx(self):
         nx_repr = nx.from_numpy_array(self.data)
