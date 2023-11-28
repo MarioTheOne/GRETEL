@@ -67,7 +67,7 @@ class TorchBase(Trainable):
         super().check_configuration()
         local_config=self.local_config
         # set defaults
-        local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 50)
+        local_config['parameters']['epochs'] = local_config['parameters'].get('epochs', 200)
         local_config['parameters']['batch_size'] = local_config['parameters'].get('batch_size', 4)
         # populate the optimizer
         init_dflts_to_of(local_config, 'optimizer', 'torch.optim.Adam',lr=0.001)
@@ -76,3 +76,8 @@ class TorchBase(Trainable):
     def accuracy(self, testy, probs):
         acc = accuracy_score(testy, np.argmax(probs, axis=1))
         return acc
+
+    def read(self):
+        super().read()
+        self.model.to(self.device)
+        

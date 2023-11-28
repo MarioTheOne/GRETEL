@@ -1,6 +1,7 @@
 #!/bin/bash
 search_dir=./config/
+
 for entry in "$search_dir"/*
 do
-  qsub launch.sh main.py $entry
+  qsub launchers/launch.sh main.py $entry
 done
