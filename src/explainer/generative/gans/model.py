@@ -1,5 +1,6 @@
 
 import copy
+import json
 
 import numpy as np
 import torch
@@ -24,9 +25,7 @@ class GAN(TorchBase):
         local_params = self.local_config['parameters']
         self.epochs = local_params['epochs']
         self.batch_size = local_params['batch_size']
-        self.explainee_label = local_params['model_label']
-        self.epochs =  500
-        self.batch_size = 1        
+        self.explainee_label = local_params['model_label']       
 
         # Initialise the generator and its optimizer
         self.generator = get_instance_kvargs(local_params['generator']['class'],
@@ -47,6 +46,19 @@ class GAN(TorchBase):
         self.loss_fn = get_instance_kvargs(local_params['loss_fn']['class'],
                                            local_params['loss_fn']['parameters'])
         
+        self.device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
+        self.generator.to(self.device)
+        self.discriminator.to(self.device)
+
+        self.generator.device = self.device
+        self.discriminator.device = self.device
+
         self.model = [
             self.generator,
             self.discriminator
@@ -56,7 +68,7 @@ class GAN(TorchBase):
         # Define a generator function that yields batches of data
         while True:
             for batch in loader:
-                yield batch
+                yield batch.to(self.device)
                 
     def real_fit(self):
         discriminator_loader = self.__infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, kls=self.explainee_label))
@@ -75,7 +87,7 @@ class GAN(TorchBase):
             _, fake_edge_index, fake_edge_probs = self.generator(fake_node_features[1], fake_edge_index[1], fake_edge_features[1], fake_batch[1])
             # get the real and fake labels
             y_batch = torch.cat([torch.ones((len(torch.unique(real_batch[1])),)),
-                                 torch.zeros(len(torch.unique(fake_batch[1])),)], dim=0)
+                                 torch.zeros(len(torch.unique(fake_batch[1])),)], dim=0).to(self.device)
             #######################################################################
             # get the oracle's predictions
             real_inst = self.__retake_batch(node_features[1], edge_index[1], edge_features[1], real_batch[1])
@@ -94,7 +106,7 @@ class GAN(TorchBase):
             self.prepare_generator_for_training()
             ## Update G network: maximize log(D(G(z)))
             fake_features, fake_edge_index, fake_edge_attr, _, fake_batch, _ = next(generator_loader)
-            y_fake = torch.ones((len(torch.unique(fake_batch[1])),))
+            y_fake = torch.ones((len(torch.unique(fake_batch[1])),)).to(self.device)
             output = self.discriminator(self.generator(fake_features[1], fake_edge_index[1], fake_edge_attr[1], fake_batch[1])[0], fake_edge_index[1], fake_edge_attr[1])
             # calculate the loss
             loss = self.loss_fn(output.expand(1).double(), y_fake.double())
@@ -120,7 +132,7 @@ class GAN(TorchBase):
             if not generator:
                 unbatched_edge_features = edge_features[i]
             else:
-                mask = torch.zeros(edge_features.shape)
+                mask = torch.zeros(edge_features.shape).to(self.device)
                 mask[edges[i][0,:], edges[i][1,:]] = 1
                 unbatched_edge_features = edge_features * mask
                 indices = torch.nonzero(unbatched_edge_features)
@@ -128,9 +140,9 @@ class GAN(TorchBase):
                 
             instances.append(GraphInstance(id="dummy",
                                            label=1-self.explainee_label if counterfactual else self.explainee_label,
-                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], unbatched_edge_features.T).detach().numpy(),
-                                           node_features=node_features[i].detach().numpy(),
-                                           edge_features=unbatched_edge_features.detach().numpy()))
+                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], unbatched_edge_features.T,self.device).detach().cpu().numpy(),
+                                           node_features=node_features[i].detach().cpu().numpy(),
+                                           edge_features=unbatched_edge_features.detach().cpu().numpy()))
         return instances
     
     def prepare_discriminator_for_training(self):
@@ -160,7 +172,7 @@ class GAN(TorchBase):
         
         fake_samples = torch.where(y_true == 0.)
         oracle_scores[fake_samples] = 1.
-        oracle_scores = torch.tensor(oracle_scores, dtype=torch.float)
+        oracle_scores = torch.tensor(oracle_scores, dtype=torch.float).to(self.device)
         
         return oracle_scores
         
@@ -168,6 +180,8 @@ class GAN(TorchBase):
         # We let TorchBase do some check for us.
         super().check_configuration()
         local_config = self.local_config
+        #local_config['parameters']['epochs'] = 2000
+        local_config['parameters']['batch_size'] = 1
                 
         #Declare the default classes to use
         gen_kls='src.explainer.generative.gans.res_gen.ResGenerator'
@@ -201,3 +215,12 @@ class GAN(TorchBase):
         
         init_dflts_to_of(local_config, 'gen_optimizer','torch.optim.SGD',lr=0.001)
         init_dflts_to_of(local_config, 'disc_optimizer','torch.optim.SGD',lr=0.001)
+
+        '''dataset = self.local_config['dataset']
+        oracle = self.local_config['oracle']
+        del self.local_config['dataset']
+        del self.local_config['oracle']
+        with open('GAN_dflt_'+str(self.local_config['parameters']['model_label'])+'.json', 'w') as f:
+            json.dump(self.local_config,f,indent=2)
+        self.local_config['dataset'] = dataset
+        self.local_config['oracle'] = oracle'''

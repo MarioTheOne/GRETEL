@@ -6,6 +6,18 @@
     "configurations": [
 
 
+
+
+ 
+        {
+            "name": "ASD+SVM+Graph2Vec_DCES",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["config/ASD+SVM+Graph2Vec_DCES.jsonc", "1"],
+        },
         {
             "name": "BBBP_KNN-MOL_DCE",
             "type": "python",

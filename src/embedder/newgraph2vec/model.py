@@ -15,11 +15,11 @@ class Graph2VecEmbedder(Embedder):
         self.learning_rate = self.local_config['parameters']['learning_rate']
         self.seed = self.local_config['parameters']['seed']
         self.selected_feature = self.local_config['parameters']['selected_feature']
-        self._embedding = None
+        self.embedding = None
 
     # todo support more than one feature
     def get_embeddings(self):
-        return np.array(self._embedding)
+        return np.array(self.embedding)
 
     def get_embedding(self, instance: GraphInstance):
         features = self._get_instace_features(instance)
@@ -51,7 +51,7 @@ class Graph2VecEmbedder(Embedder):
             alpha=self.learning_rate,
             seed=self.seed,
         )
-        self._embedding = [self.model.docvecs[str(i)] for i, _ in enumerate(documents)]
+        self.embedding = [self.model.docvecs[str(i)] for i, _ in enumerate(documents)]
 
     def check_configuration(self):
         super().check_configuration()
