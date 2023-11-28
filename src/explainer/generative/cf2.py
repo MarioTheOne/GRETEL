@@ -147,9 +147,9 @@ class ExplainModelGraph(torch.nn.Module):
             if i < j:
                 u.append(i)
                 v.append(j)
-        print(graph.edge_weights.shape)
-        print(graph.edge_weights)
-        print(u)
-        print(v)
+        #print(graph.edge_weights.shape)
+        #print(graph.edge_weights)
+        #print(u)
+        #print(v)
         weights[u+v,v+u] = graph.edge_weights
         return torch.from_numpy(weights).float()
