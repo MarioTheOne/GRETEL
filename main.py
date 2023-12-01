@@ -23,7 +23,6 @@ if __name__ == "__main__":
     context = Context.get_context(sys.argv[1])
     context.run_number = int(sys.argv[2]) if len(sys.argv) == 3 else -1
         
-
     context.logger.info(f"Executing: {context.config_file} Run: {context.run_number}")
     context.logger.info(
         "Creating the evaluation manager......................................................."
@@ -41,4 +40,4 @@ if __name__ == "__main__":
         "Evaluating the explainers............................................................."
     )
 
-    #eval_manager.evaluate()
+    eval_manager.evaluate()
