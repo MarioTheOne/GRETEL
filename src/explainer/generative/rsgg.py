@@ -17,12 +17,13 @@ class RSGG(PerClassExplainer):
             res = super().explain(instance)
 
             embedded_features, edge_probs = dict(), dict()
-            for _, values in res.items():
+            for key, values in res.items():
                 # take the node features and edge probabilities
-                embedded_features, edge_probs = values[0], values[-1].cpu.numpy()
+                embedded_features[key] = values[0]
+                edge_probs[key] = values[-1]
 
             cf_instance = self.sampler.sample(instance, self.oracle, **{'embedded_features': embedded_features,
-                                                                        'edge_probabilities': edge_probs})            
+                                                                        'edge_probabilities': edge_probs})
         return cf_instance if cf_instance else instance
     
     def check_configuration(self):
