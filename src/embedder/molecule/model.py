@@ -1,5 +1,4 @@
 from src.core.embedder_base import Embedder
-from src.dataset.dataset_base import Dataset
 
 import numpy as np
 from rdkit.Chem import RDKFingerprint
