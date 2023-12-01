@@ -16,7 +16,6 @@ from src.utils.torch.utils import rebuild_adj_matrix
 #from types import NoneType
 
 
-
 class GAN(TorchBase):
     
     def init(self):
