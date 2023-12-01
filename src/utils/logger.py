@@ -21,7 +21,7 @@ class GLogger(object):
         if not os.path.exists(GLogger._path):
             os.makedirs(GLogger._path)
 
-        file_handler = logging.FileHandler(GLogger._path+"/"+str(os.getenv('JOB_ID',str(os.getpid())))+"-"+socket.gethostname()+".info")
+        file_handler = logging.FileHandler(GLogger._path+"/"+str(os.getenv('JOB_ID',str(os.getpid())))+"-"+socket.gethostname()+".info", encoding='utf-8')
         stdout_handler = logging.StreamHandler(sys.stdout)
         fmt = logging.Formatter(
             "%(asctime)s | %(levelname)s | %(process)d - %(message)s"
