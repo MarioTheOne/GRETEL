@@ -30,10 +30,16 @@ class PerClassExplainer(Trainable, Explainer):
         with torch.no_grad():
             return { i : explainer(instance) for i, explainer in enumerate(self.model) }
     
+    def set_proto_kls(self, kls):
+        self._proto_kls = kls
+        
+    def get_proto_kls(self):
+        return self._proto_kls
+    
     def check_configuration(self):
         super().check_configuration()
         
-        proto_kls='src.explainer.generative.gans.graph_model.GAN'
+        proto_kls = self.get_proto_kls()
         
         # Check if models is present and of the right size
         if 'models' not in self.local_config['parameters'] or len(self.local_config['parameters']['models']) < self.dataset.num_classes:

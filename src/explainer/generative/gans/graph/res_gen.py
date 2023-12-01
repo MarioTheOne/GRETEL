@@ -1,4 +1,3 @@
-from src.oracle.nn.gcn import DownstreamGCN
 from src.utils.cfg_utils import default_cfg
 from src.utils.torch.utils import rebuild_adj_matrix
 import torch
@@ -21,6 +20,14 @@ class ResGenerator(nn.Module):
         # graph autoencoder with inner product decoder
         self.model = GAE(encoder=self.encoder).double()
         self.residuals = residuals
+        
+        self.device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
         
         self.init_weights()
         

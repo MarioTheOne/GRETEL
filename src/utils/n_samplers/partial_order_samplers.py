@@ -20,7 +20,6 @@ class PositiveAndNegativeEdgeSampler(Sampler):
           
     def sample(self, instance: GraphInstance, oracle: Oracle, **kwargs) -> List[GraphInstance]:
         kwargs = SimpleNamespace(**kwargs)
-        
         edge_probs = kwargs.edge_probabilities
         embedded_features = kwargs.embedded_features
         edge_list = self.__get_edges(instance)

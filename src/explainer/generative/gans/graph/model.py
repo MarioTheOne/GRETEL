@@ -1,13 +1,22 @@
 import numpy as np
 import torch
-from torch_geometric.utils.unbatch import unbatch, unbatch_edge_index
+from typing import Any, Tuple
 
 from src.explainer.generative.gans.model import BaseGAN
 from src.n_dataset.instances.graph import GraphInstance
 from src.utils.torch.utils import rebuild_adj_matrix
+from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 
+from torch_geometric.utils.unbatch import unbatch, unbatch_edge_index
+from src.utils.cfg_utils import init_dflts_to_of
 
 class GAN(BaseGAN):
+    
+    def infinite_data_stream(self, loader):
+        # Define a generator function that yields batches of data
+        while True:
+            for batch in loader:
+                yield batch.to(self.device)
                 
     def real_fit(self):
         discriminator_loader = self.infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, kls=self.explainee_label))
@@ -29,8 +38,8 @@ class GAN(BaseGAN):
                                  torch.zeros(len(torch.unique(fake_batch[1])),)], dim=0).to(self.device)
             #######################################################################
             # get the oracle's predictions
-            real_inst = self.__retake_batch(node_features[1], edge_index[1], edge_features[1], real_batch[1])
-            fake_inst = self.__retake_batch(fake_node_features[1], fake_edge_index, fake_edge_probs, fake_batch[1], counterfactual=True, generator=True)
+            real_inst = self.retake_batch(node_features[1], edge_index[1], edge_features[1], real_batch[1])
+            fake_inst = self.retake_batch(fake_node_features[1], fake_edge_index, fake_edge_probs, fake_batch[1], counterfactual=True, generator=True)
             oracle_scores = self.take_oracle_predictions(real_inst + fake_inst, y_batch)
             #######################################################################
             # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
@@ -55,8 +64,7 @@ class GAN(BaseGAN):
                 
             self.context.logger.info(f'Epoch {epoch}\t Loss_D = {np.mean(D_losses): .4f}\t Loss_G = {np.mean(G_losses): .4f}')
   
-  
-    def __retake_batch(self, node_features, edge_indices, edge_features, batch, counterfactual=False, generator=False):
+    def retake_batch(self, node_features, edge_indices, edge_features, batch, counterfactual=False, generator=False):
         # unbatch edge indices
         edges = unbatch_edge_index(edge_indices, batch)
         # unbatch node_features
@@ -79,12 +87,23 @@ class GAN(BaseGAN):
                 
             instances.append(GraphInstance(id="dummy",
                                            label=1-self.explainee_label if counterfactual else self.explainee_label,
-                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], unbatched_edge_features.T,self.device).detach().cpu().numpy(),
+                                           data=rebuild_adj_matrix(len(node_features[i]), edges[i], unbatched_edge_features.T, self.device).detach().cpu().numpy(),
                                            node_features=node_features[i].detach().cpu().numpy(),
                                            edge_features=unbatched_edge_features.detach().cpu().numpy()))
         return instances
-        
+    
     def check_configuration(self):
-        self.set_generator_kls('src.explainer.generative.gans.res_gen.ResGenerator')
-        self.set_discriminator_kls('src.explainer.generative.gans.smpl_disc.SimpleDiscriminator')  
+        self.set_generator_kls('src.explainer.generative.gans.graph.res_gen.ResGenerator')
+        self.set_discriminator_kls('src.explainer.generative.gans.graph.smpl_disc.SimpleDiscriminator')
+        
+        #Check if the generator exist or build with its defaults:
+        init_dflts_to_of(self.local_config, 'generator', self.get_generator_kls(), self.dataset.num_node_features())
+        #Check if the generator exist or build with its defaults:
+        init_dflts_to_of(self.local_config, 'discriminator', self.get_discriminator_kls(),
+                         self.dataset.num_nodes, self.dataset.num_node_features())  
+        
         super().check_configuration()
+        
+    def __call__(self, *args: Tuple[GraphInstance], **kwds: Any) -> Any:
+        batch = TorchGeometricDataset.to_geometric(args[0]).to(self.device)
+        return self.generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)

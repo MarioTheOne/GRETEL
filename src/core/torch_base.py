@@ -79,5 +79,9 @@ class TorchBase(Trainable):
 
     def read(self):
         super().read()
-        self.model.to(self.device)
+        if isinstance(self.model, list):
+            for mod in self.model:
+                mod.to(self.device)
+        else:
+            self.model.to(self.device)
         

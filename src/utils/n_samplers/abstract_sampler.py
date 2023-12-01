@@ -13,4 +13,4 @@ class Sampler(ABC):
         
     @abstractmethod
     def sample(self, instance: DataInstance, oracle: Oracle, **kwargs) -> List[DataInstance]:
-        raise NotImplemented("The sample method hasn't been implemented yet!")
+        pass

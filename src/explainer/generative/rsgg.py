@@ -4,12 +4,13 @@ from src.explainer.per_cls_explainer import PerClassExplainer
 
 from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 from src.utils.cfg_utils import init_dflts_to_of
+from src.utils.n_samplers.abstract_sampler import Sampler
 
 class RSGG(PerClassExplainer):
 
     def init(self):
         super().init()
-        self.sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
+        self.sampler: Sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
                                         self.local_config['parameters']['sampler']['parameters'])
                 
     def explain(self, instance):          
@@ -27,6 +28,7 @@ class RSGG(PerClassExplainer):
         return cf_instance if cf_instance else instance
     
     def check_configuration(self):
+        self.set_proto_kls('src.explainer.generative.gans.graph.model.GAN')
         super().check_configuration()
         #The sampler must be present in any case
         init_dflts_to_of(self.local_config,
