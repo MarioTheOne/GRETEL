@@ -33,7 +33,7 @@ class PerClassExplainer(Trainable, Explainer):
     def check_configuration(self):
         super().check_configuration()
         
-        proto_kls='src.explainer.generative.gans.model.GAN'
+        proto_kls='src.explainer.generative.gans.model.BaseGAN'
         
         # Check if models is present and of the right size
         if 'models' not in self.local_config['parameters'] or len(self.local_config['parameters']['models']) < self.dataset.num_classes:
