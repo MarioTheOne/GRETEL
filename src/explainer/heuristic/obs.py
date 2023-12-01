@@ -24,7 +24,7 @@ class ObliviousBidirectionalSearchExplainer(Explainer):
     def check_configuration(self):
         super().check_configuration()
 
-        dst_metric='src.evaluation.evaluation_metric_ged.GraphEditDistanceMetric'  
+        dst_metric='src.explainer.heuristic.obs_dist.ObliviousBidirectionalDistance'  
 
         #Check if the distance metric exist or build with its defaults:
         init_dflts_to_of(self.local_config, 'distance_metric', dst_metric)
@@ -124,7 +124,7 @@ class ObliviousBidirectionalSearchExplainer(Explainer):
 
             if r==y_bar:
                 #print('- A counterfactual is found!')
-                d = self._edit_distance(g_o,g_c)
+                d = self.distance_metric.distance(g_o,g_c)
                 return d,g_c,l
             if len(g_rem)<1:
                 print('no more remove')
@@ -140,7 +140,7 @@ class ObliviousBidirectionalSearchExplainer(Explainer):
 
         gc = np.copy(gc1)
         edges = self._get_change_list(g,gc)
-        d = self._edit_distance(g,gc)
+        d = self.distance_metric.distance(g,gc)
         random.shuffle(edges)
         li=0
         while(li<l_max and len(edges)>0 and d>1):
@@ -165,29 +165,23 @@ class ObliviousBidirectionalSearchExplainer(Explainer):
 
             if r==y_bar:
                 gc = np.copy(gci)
-                d = self._edit_distance(g,gc)
+                d = self.distance_metric.distance(g,gc)
                 info.append((r,d,li,ki))
                 k+=1
             else:
-                d = self._edit_distance(g,gc)
+                d = self.distance_metric.distance(g,gc)
                 info.append((r,d,li,ki))
 
                 if k>1:
                     k-=1
                     edges = edges + edges_i
 
-        return gc, self._edit_distance(g,gc), li, info
+        return gc, self.distance_metric.distance(g,gc), li, info
     
 
     # Ancillary functions//////////////////////////////////////////////////////////////////////////////
 
-    def _edit_distance(self, g_1,g_2):
-        '''Returns a particular version of Graph Edit Distance when only edge changes are considered and
-        the graphs are already matched
-        '''
-        return self._tot_edges(abs(g_1-g_2))
-
-
+   
     def _bernoulli(self, p):
         ''' p is the probability of removing an edge.
         '''
@@ -204,8 +198,3 @@ class ObliviousBidirectionalSearchExplainer(Explainer):
                     edges.append((i,j))
         return edges
 
-
-    def _tot_edges(self, g):
-        '''Returns the total number of edges for undirected graphs
-        '''
-        return sum([sum(el) for el in g])/2
