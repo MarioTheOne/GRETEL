@@ -14,7 +14,8 @@ class GCounteRGAN(PerClassExplainer):
         self.sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
                                         self.local_config['parameters']['sampler']['parameters'])
 
-    def explain(self, instance):            
+    def explain(self, instance):
+            
         with torch.no_grad():
             #######################################################
             batch = TorchGeometricDataset.to_geometric(instance).to(self.device)

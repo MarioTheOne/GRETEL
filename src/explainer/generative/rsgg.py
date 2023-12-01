@@ -12,16 +12,15 @@ class RSGG(PerClassExplainer):
         self.sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
                                         self.local_config['parameters']['sampler']['parameters'])
                 
-    def explain(self, instance):            
-        with torch.no_grad():
-            #######################################################
-            batch = TorchGeometricDataset.to_geometric(instance).to(self.device)
+    def explain(self, instance):          
+        with torch.no_grad():  
+            res = super().explain(instance)
+
             embedded_features, edge_probs = dict(), dict()
-            for i, explainer in enumerate(self.model):
-                node_features, _, probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
-                embedded_features[i] = node_features
-                edge_probs[i] = probs.cpu().numpy()
-            
+            for _, values in res.items():
+                # take the node features and edge probabilities
+                embedded_features, edge_probs = values[0], values[-1].cpu.numpy()
+
             cf_instance = self.sampler.sample(instance, self.oracle, **{'embedded_features': embedded_features,
                                                                         'edge_probabilities': edge_probs})            
         return cf_instance if cf_instance else instance

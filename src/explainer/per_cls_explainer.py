@@ -4,7 +4,6 @@ from src.core.explainer_base import Explainer
 from src.core.trainable_base import Trainable
 from src.core.factory_base import get_instance_kvargs
 from src.core.trainable_base import Trainable
-from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 from src.utils.cfg_utils import get_dflts_to_of, inject_dataset, inject_oracle
 
 class PerClassExplainer(Trainable, Explainer):
@@ -29,17 +28,7 @@ class PerClassExplainer(Trainable, Explainer):
             
     def explain(self, instance):            
         with torch.no_grad():
-            #######################################################
-            batch = TorchGeometricDataset.to_geometric(instance).to(self.device)
-            embedded_features, edge_probs = dict(), dict()
-            for i, explainer in enumerate(self.model):
-                node_features, _, probs = explainer.generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
-                embedded_features[i] = node_features
-                edge_probs[i] = probs.cpu().numpy()
-            
-            cf_instance = self.sampler.sample(instance, self.oracle, **{'embedded_features': embedded_features,
-                                                                        'edge_probabilities': edge_probs})            
-        return cf_instance if cf_instance else instance
+            return { i : explainer(instance) for i, explainer in enumerate(self.model) }
     
     def check_configuration(self):
         super().check_configuration()

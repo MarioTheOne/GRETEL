@@ -1,19 +1,16 @@
-
 import copy
-import json
+from typing import Any
 
 import numpy as np
 import torch
-from torch import nn
 from torch_geometric.utils.unbatch import unbatch, unbatch_edge_index
+from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 
 from src.core.factory_base import get_instance_kvargs
 from src.core.torch_base import TorchBase
 from src.n_dataset.instances.graph import GraphInstance
 from src.utils.cfg_utils import init_dflts_to_of, retake_oracle
 from src.utils.torch.utils import rebuild_adj_matrix
-
-#from types import NoneType
 
 
 class GAN(TorchBase):
@@ -68,6 +65,10 @@ class GAN(TorchBase):
         while True:
             for batch in loader:
                 yield batch.to(self.device)
+
+    def __call__(self, *args: GraphInstance, **kwds: Any) -> Any:
+        batch = TorchGeometricDataset.to_geometric(args).to(self.device)
+        return self.generator(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
                 
     def real_fit(self):
         discriminator_loader = self.__infinite_data_stream(self.dataset.get_torch_loader(fold_id=self.fold_id, batch_size=self.batch_size, kls=self.explainee_label))
