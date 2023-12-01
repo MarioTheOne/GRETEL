@@ -1,7 +1,5 @@
 from src.evaluation.evaluation_metric_base import EvaluationMetric
-from src.dataset.data_instance_base import DataInstance
 from src.core.oracle_base import Oracle
-from src.dataset.dataset_base import Dataset
 from src.core.explainer_base import Explainer
 from src.evaluation.evaluation_metric_ged import GraphEditDistanceMetric
 
@@ -17,7 +15,7 @@ class CorrectnessMetric(EvaluationMetric):
         self._name = 'Correctness'
         self._ged = GraphEditDistanceMetric()
 
-    def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None, explainer : Explainer=None, dataset : Dataset = None):
+    def evaluate(self, instance_1 , instance_2 , oracle : Oracle=None, explainer : Explainer=None, dataset = None):
 
         label_instance_1 = oracle.predict(instance_1)
         label_instance_2 = oracle.predict(instance_2)

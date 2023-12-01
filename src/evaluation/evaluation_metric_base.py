@@ -1,5 +1,3 @@
-from src.dataset.data_instance_base import DataInstance
-from src.dataset.dataset_base import Dataset
 from src.core.explainer_base import Explainer
 from src.core.oracle_base import Oracle
 
@@ -23,6 +21,6 @@ class EvaluationMetric(ABC):
         self._name = new_name
 
     @abstractmethod
-    def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None, explainer : Explainer=None, dataset : Dataset = None):
+    def evaluate(self, instance_1 , instance_2 , oracle : Oracle=None, explainer : Explainer=None, dataset  = None):
         pass
     

@@ -1,12 +1,10 @@
 import os
-import pickle
 import time
 from abc import ABC
 
 import jsonpickle
 from scipy import rand
 
-from src.dataset.dataset_base import Dataset
 from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.core.explainer_base import Explainer
 from src.core.oracle_base import Oracle
@@ -17,7 +15,7 @@ from src.utils.logger import GLogger
 class Evaluator(ABC):
     _logger = GLogger.getLogger()
 
-    def __init__(self, id, data: Dataset, oracle: Oracle, explainer: Explainer, evaluation_metrics, results_store_path, run_number=0) -> None:
+    def __init__(self, id, data, oracle: Oracle, explainer: Explainer, evaluation_metrics, results_store_path, run_number=0) -> None:
         super().__init__()
         self._id = id
         self._name = 'Evaluator_for_' + explainer.name + '_using_' + oracle.name
@@ -59,7 +57,7 @@ class Evaluator(ABC):
         return self._data
 
     @dataset.setter
-    def dataset(self, new_dataset: Dataset):
+    def dataset(self, new_dataset):
         self._data = new_dataset
 
     @property

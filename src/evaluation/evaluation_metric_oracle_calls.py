@@ -1,7 +1,5 @@
 from src.evaluation.evaluation_metric_base import EvaluationMetric
-from src.dataset.data_instance_base import DataInstance
 from src.core.oracle_base import Oracle
-from src.dataset.dataset_base import Dataset
 from src.core.explainer_base import Explainer
 
 
@@ -14,7 +12,7 @@ class OracleCallsMetric(EvaluationMetric):
         super().__init__(config_dict)
         self._name = 'Oracle_Calls'
 
-    def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None, explainer : Explainer=None, dataset : Dataset = None):
+    def evaluate(self, instance_1 , instance_2 , oracle : Oracle=None, explainer : Explainer=None, dataset = None):
         result = oracle.get_calls_count()
         oracle.reset_call_count()
         return result
