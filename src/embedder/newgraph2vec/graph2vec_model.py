@@ -1,11 +1,11 @@
+from src.n_dataset.instances.graph import GraphInstance
 import hashlib
-import networkx as nx
 
 class WeisfeilerLehmanMachine:
     """
     Weisfeiler Lehman feature extractor class.
     """
-    def __init__(self, graph: nx.classes.graph.Graph, features: dict, iterations: int):
+    def __init__(self, graph: GraphInstance, features: dict, iterations: int):
         """
         Initialization method which also executes feature extraction.
         :param graph: The Nx graph object.

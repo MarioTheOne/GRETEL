@@ -1,10 +1,8 @@
-import numpy as np
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from src.core.embedder_base import Embedder
-from src.embedder.rnc_graph2vec.graph2vec_model import WeisfeilerLehmanMachine
+from src.embedder.newgraph2vec.graph2vec_model import WeisfeilerLehmanMachine
 from src.n_dataset.instances.graph import GraphInstance
-import networkx as nx
-
+import numpy as np
 
 class Graph2VecEmbedder(Embedder):
     def init(self):
@@ -17,23 +15,22 @@ class Graph2VecEmbedder(Embedder):
         self.learning_rate = self.local_config['parameters']['learning_rate']
         self.seed = self.local_config['parameters']['seed']
         self.selected_feature = self.local_config['parameters']['selected_feature']
-        self._embedding = None
+        self.embedding = None
 
     # todo support more than one feature
     def get_embeddings(self):
-        print(self.dataset)
-        return np.array(self._embedding)
+        return np.array(self.embedding)
 
     def get_embedding(self, instance: GraphInstance):
         features = self._get_instace_features(instance)
-        document = WeisfeilerLehmanMachine(instance.get_nx(), features, self.wl_iterations)
+        document = WeisfeilerLehmanMachine(instance, features, self.wl_iterations)
         document = TaggedDocument(words=document.extracted_features, tags=[str(0)])
         return np.array(self.model.infer_vector(document.words)).reshape(1, -1)
 
     def real_fit(self):
         documents = [
             WeisfeilerLehmanMachine(
-                graph.get_nx(), self._get_instace_features(graph), self.wl_iterations
+                graph, self._get_instace_features(graph), self.wl_iterations
             )
             for graph in self.dataset.instances
         ]
@@ -54,7 +51,7 @@ class Graph2VecEmbedder(Embedder):
             alpha=self.learning_rate,
             seed=self.seed,
         )
-        self._embedding = [self.model.docvecs[str(i)] for i, _ in enumerate(documents)]
+        self.embedding = [self.model.docvecs[str(i)] for i, _ in enumerate(documents)]
 
     def check_configuration(self):
         super().check_configuration()
@@ -76,10 +73,8 @@ class Graph2VecEmbedder(Embedder):
             
             values =  {i:elem for i,elem in enumerate(instance.node_features[:,key])}
             return values
-
-        graph = instance.get_nx()
         
-        return { node: graph.degree(node) for node in graph.nodes() }
+        return { node: instance.degree(node) for node in instance.nodes() }
 
         
 

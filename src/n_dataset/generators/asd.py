@@ -27,7 +27,7 @@ class ASD(Generator):
         
     def read(self, path, label=0):
         files = [f for f in listdir(path) if isfile(join(path, f))]
-        instance_id = 0
+        instance_id = len(self.dataset.instances)
         for filename in files:
             with open(join(path, filename), 'r') as f:
                 instance = [[int(num) for num in line.split(' ')] for line in f]
