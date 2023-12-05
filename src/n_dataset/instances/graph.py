@@ -27,10 +27,11 @@ class GraphInstance(DataInstance):
 
     def __init_edge_features(self, edge_features):
         edges = np.nonzero(self.data)
-        return np.zeros((len(edges[0]), 1)) if isinstance(edge_features, (str, type(None))) else edge_features
+        return np.ones((len(edges[0]), 1)) if isinstance(edge_features, (str, type(None))) else edge_features
     
     def __init_edge_weights(self, edge_weights):
-        return np.zeros(len(edges[0])) if edge_weights is None else edge_weights
+        edges = np.nonzero(self.data)
+        return np.ones(len(edges[0])) if edge_weights is None else edge_weights
     
     def _build_nx(self):
         nx_repr = nx.from_numpy_array(self.data)
