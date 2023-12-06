@@ -62,9 +62,8 @@ class CF2Explainer(Trainable, Explainer):
                 loss.backward()
                 self.optimizer.step()
             
-            self._logger.info(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
-
-		self._fitted = True
+        self._logger.info(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
+        self._fitted = True
 
     def explain(self, instance : GraphInstance):
 
@@ -81,7 +80,7 @@ class CF2Explainer(Trainable, Explainer):
             # update instance copy from masked_ajd
             # cf_instance.data = masked_adj        
 
-			new_adj = np.where(masked_adj != 0, 1, 0)
+            new_adj = np.where(masked_adj != 0, 1, 0)
             # the weights need to be an array of real numbers with
             # length equal to the number of edges
             row_indices, col_indices = np.where(masked_adj != 0)
