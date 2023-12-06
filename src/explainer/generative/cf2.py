@@ -6,6 +6,7 @@ from src.n_dataset.instances.graph import GraphInstance
 from src.core.explainer_base import Explainer
 from src.core.trainable_base import Trainable
 from src.core.oracle_base import Oracle
+from src.utils.logger import GLogger
 
 
 class CF2Explainer(Trainable, Explainer):
@@ -20,6 +21,7 @@ class CF2Explainer(Trainable, Explainer):
         self.alpha = self.local_config['parameters']['alpha']
         self.epochs = self.local_config['parameters']['epochs']
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self._logger = GLogger.getLogger()
         self._fitted = False
 
         self.model = ExplainModelGraph(self.n_nodes).to(self.device)
@@ -60,9 +62,9 @@ class CF2Explainer(Trainable, Explainer):
                 loss.backward()
                 self.optimizer.step()
             
-            print(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
+            self._logger.info(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
 
-            self._fitted = True
+		self._fitted = True
 
     def explain(self, instance : GraphInstance):
 
@@ -77,8 +79,17 @@ class CF2Explainer(Trainable, Explainer):
             weighted_adj = self.model._rebuild_weighted_adj(instance)
             masked_adj = self.model.get_masked_adj(weighted_adj).numpy()
             # update instance copy from masked_ajd
-            cf_instance.data = masked_adj         
-            print(f'Finished evaluating for instance {instance.id}')
+            # cf_instance.data = masked_adj        
+
+			new_adj = np.where(masked_adj != 0, 1, 0)
+            # the weights need to be an array of real numbers with
+            # length equal to the number of edges
+            row_indices, col_indices = np.where(masked_adj != 0)
+            weights = masked_adj[row_indices, col_indices]
+
+            cf_instance.data = new_adj
+            cf_instance.edge_weights = weights
+			
             return cf_instance
 
 
