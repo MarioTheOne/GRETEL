@@ -1,8 +1,5 @@
-from src.dataset.data_instance_node import NodeDataInstance
-from src.dataset.data_instance_base import DataInstance
 from src.evaluation.evaluation_metric_base import EvaluationMetric
 from src.core.oracle_base import Oracle
-from src.dataset.dataset_base import Dataset
 from src.core.explainer_base import Explainer
 
 
@@ -15,7 +12,7 @@ class OracleAccuracyNodeMetric(EvaluationMetric):
         super().__init__(config_dict)
         self._name = 'Oracle_Accuracy_Node'
 
-    def evaluate(self, instance_1 : DataInstance, instance_2 : DataInstance, oracle : Oracle=None, explainer : Explainer=None, dataset : Dataset = None):
+    def evaluate(self, instance_1 , instance_2 , oracle : Oracle=None, explainer : Explainer=None, dataset  = None):
         predicted_label_instance_1 = oracle.predict(instance_1)
         oracle._call_counter -= 1
         real_label_instance_1 = instance_1.node_labels.get(instance_1.target_node)

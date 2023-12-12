@@ -3,7 +3,6 @@ import torch
 
 from src.core.oracle_base import Oracle
 from src.core.torch_base import TorchBase
-from src.dataset.dataset_base import Dataset
 from src.n_dataset.utils.dataset_torch import TorchGeometricDataset
 
 class OracleTorch(TorchBase, Oracle):
@@ -14,7 +13,7 @@ class OracleTorch(TorchBase, Oracle):
         self.evaluate(self.dataset, fold_id=self.fold_id)
             
     @torch.no_grad()
-    def evaluate(self, dataset: Dataset, fold_id=0):            
+    def evaluate(self, dataset, fold_id=0):            
         loader = dataset.get_torch_loader(fold_id=fold_id, batch_size=self.batch_size, usage='test')
         
         losses = []
@@ -44,7 +43,7 @@ class OracleTorch(TorchBase, Oracle):
     @torch.no_grad()
     def _real_predict_proba(self, data_inst):
         data_inst = TorchGeometricDataset.to_geometric(data_inst)
-
+        print(data_inst)
         node_features = data_inst.x.to(self.device)
         edge_index = data_inst.edge_index.to(self.device)
         edge_weights = data_inst.edge_attr.to(self.device)

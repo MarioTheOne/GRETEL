@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.dataset.instances.base import DataInstance
+from src.n_dataset.instances.base import DataInstance
 from src.core.oracle_base import Oracle
 
 
@@ -13,4 +13,4 @@ class Sampler(ABC):
         
     @abstractmethod
     def sample(self, instance: DataInstance, oracle: Oracle, **kwargs) -> List[DataInstance]:
-        raise NotImplemented("The sample method hasn't been implemented yet!")
+        pass
