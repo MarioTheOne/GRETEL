@@ -9,6 +9,7 @@ class RDKFingerprintEmbedder(Embedder):
 
     def init(self):
         self.model = []
+        self.embedding = []
 
     def real_fit(self):
         for inst in self.dataset.instances:
