@@ -131,7 +131,7 @@ dmypy.json
 .pyre/
 
 # data folders
-data/cache/
+data/cache/*
 output/
 stats/
 AAAI/
@@ -142,3 +142,6 @@ AAAI/
 
 # videos
 .mp4
+
+# Testing files
+main_test.py

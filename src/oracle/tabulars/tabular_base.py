@@ -5,6 +5,9 @@ class TabularOracle(Oracle):#TODO: Made it Abstract class
     def init(self):
         super().init()
         embedder_snippet = self.local_config['parameters']['embedder'] 
+        if 'retrain' not in embedder_snippet['parameters']:
+            embedder_snippet['parameters']['retrain'] = self.local_config['parameters'].get('retrain', False)
+            
         self.embedder = self.context.factories['embedders'].get_embedder(embedder_snippet,self.dataset)
 
         

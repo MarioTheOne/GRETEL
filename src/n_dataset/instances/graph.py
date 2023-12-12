@@ -1,7 +1,11 @@
-from src.n_dataset.instances.base import DataInstance
 from copy import deepcopy
+#from types import NoneType
+
 import networkx as nx
 import numpy as np
+
+from src.n_dataset.instances.base import DataInstance
+
 
 class GraphInstance(DataInstance):
 
@@ -23,24 +27,24 @@ class GraphInstance(DataInstance):
 
     def __init_edge_features(self, edge_features):
         edges = np.nonzero(self.data)
-        return np.zeros((len(edges[0]), 1)) if isinstance(edge_features, (str, type(None))) else edge_features
+        return np.ones((len(edges[0]), 1)) if isinstance(edge_features, (str, type(None))) else edge_features
     
     def __init_edge_weights(self, edge_weights):
         edges = np.nonzero(self.data)
-        return np.zeros((len(edges[0]), 1)) if isinstance(edge_weights, (str, type(None))) else edge_weights
+        return np.ones(len(edges[0])) if edge_weights is None else edge_weights
     
     def _build_nx(self):
         nx_repr = nx.from_numpy_array(self.data)
         nx_repr.add_nodes_from([node, {'node_features': self.node_features[node]}] for node in nx_repr.nodes())
         edges = list(nx_repr.edges)
-        nx_repr.add_edges_from([(edge[0], edge[1], {'edge_features': self.edge_features[i]}) for i, edge in enumerate(edges)])
+        nx_repr.add_edges_from([(edge[0], edge[1], {'edge_features': self.edge_features[i], 'weight': self.edge_weights[i]}) for i, edge in enumerate(edges)])
         return nx_repr
     
     @property
     def num_edges(self):
         nx_repr = self.get_nx()
         return nx_repr.number_of_edges()
-    
+            
     def nodes(self):
         return [ i for i in range(self.data.shape[0])]
 
@@ -49,7 +53,8 @@ class GraphInstance(DataInstance):
     
     def degree(self,node):
         return len(self.neighbors(node))
-            
     
+    def degrees(self):
+        return [ len(self.neighbors(y)) for y in self.nodes()]
     
         

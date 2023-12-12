@@ -3,6 +3,14 @@ from src.core.oracle_base import Oracle
 import numpy as np
 
 class ASDOracle(Oracle):
+
+    def init(self):
+        super().init()
+        # TODO Check this port
+        self.model = ""
+
+    def real_fit(self):
+        pass
     
     #TODO: Revise _real_predict_* in order to produce a kind of probabilities  
     def _real_predict_proba(self, data_instance):

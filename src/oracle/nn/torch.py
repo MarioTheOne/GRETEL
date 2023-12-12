@@ -49,7 +49,7 @@ class OracleTorch(TorchBase, Oracle):
         edge_index = data_inst.edge_index.to(self.device)
         edge_weights = data_inst.edge_attr.to(self.device)
         
-        return self.model(node_features,edge_index,edge_weights, None).squeeze()
+        return self.model(node_features,edge_index,edge_weights, None).cpu().squeeze()
                      
     def check_configuration(self):#TODO: revise configuration
         super().check_configuration()

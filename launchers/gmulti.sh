@@ -10,7 +10,7 @@ for i in {1..1}
 do
     for entry in "$search_dir"/*
     do
-        qsub glaunch.sh ${MIGS[$(( $curr % ${#MIGS[@]} ))]} main.py $entry $i
+        qsub launchers/glaunch.sh ${MIGS[$(( $curr % ${#MIGS[@]} ))]} main.py $entry $i
         ((curr++))
     done
 done
