@@ -9,14 +9,24 @@ from src.n_dataset.instances.base import DataInstance
 
 class GraphInstance(DataInstance):
 
-    def __init__(self, id, label, data, node_features=None, edge_features=None, edge_weights=None, graph_features=None, dataset=None):
-        super().__init__(id, label, data, dataset=dataset)
+    def __init__(self, id, label, data, node_features=None, edge_features=None, edge_weights=None, graph_features=None):
+        super().__init__(id, label, data)
         self.node_features = self.__init_node_features(node_features)
         self.edge_features = self.__init_edge_features(edge_features)
         self.edge_weights = self.__init_edge_weights(edge_weights)
         self.graph_features = graph_features
         self._nx_repr = None
-                
+
+    def __deepcopy__(self, memo):
+        _new_id = deepcopy(self.id, memo)
+        _new_label = deepcopy(self.label, memo)
+        _data = deepcopy(self.data, memo)
+        _node_features = deepcopy(self.node_features, memo)
+        _edge_features = deepcopy(self.edge_features, memo)
+        _edge_weights = deepcopy(self.edge_weights, memo)
+        _graph_features = deepcopy(self.graph_features, memo)
+        return GraphInstance(_new_id, _new_label, _data, _node_features, _edge_features, _edge_weights, _graph_features)
+
     def get_nx(self):
         if not self._nx_repr:
             self._nx_repr = self._build_nx()
