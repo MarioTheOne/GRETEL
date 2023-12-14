@@ -56,7 +56,7 @@ class ADHD(Generator):
             npdata = _nd_array_from_adjlist(adjlist)
 
             # Creating the instance
-            inst = GraphInstance(instance_id, label, npdata, dataset=self.dataset)
+            inst = GraphInstance(instance_id, label, npdata)
             instance_id += 1    
             
             # Adding the instance to the instances list
