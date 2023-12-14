@@ -6,7 +6,6 @@ from src.n_dataset.instances.graph import GraphInstance
 from src.core.explainer_base import Explainer
 from src.core.trainable_base import Trainable
 from src.core.oracle_base import Oracle
-from src.utils.logger import GLogger
 
 
 class CF2Explainer(Trainable, Explainer):
@@ -21,7 +20,6 @@ class CF2Explainer(Trainable, Explainer):
         self.alpha = self.local_config['parameters']['alpha']
         self.epochs = self.local_config['parameters']['epochs']
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self._logger = GLogger.getLogger()
         self._fitted = False
 
         self.model = ExplainModelGraph(self.n_nodes).to(self.device)
@@ -61,8 +59,8 @@ class CF2Explainer(Trainable, Explainer):
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 self.optimizer.step()
-            
-        self._logger.info(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
+            self.context.logger.info(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
+        
         self._fitted = True
 
     def explain(self, instance : GraphInstance):
@@ -88,6 +86,8 @@ class CF2Explainer(Trainable, Explainer):
 
             cf_instance.data = new_adj
             cf_instance.edge_weights = weights
+            # avoid the old nx representation
+            cf_instance._nx_repr = None
 			
             return cf_instance
 
@@ -116,6 +116,8 @@ class ExplainModelGraph(torch.nn.Module):
 
         cf_instance = deepcopy(graph)
         cf_instance.edge_weights = new_weights[row_indices, col_indices].detach().numpy()
+        # avoid old nx representation
+        cf_instance._nx_repr = None
         pred2 = oracle.predict(cf_instance)
 
         pred1 = torch.Tensor([pred1]).float()  # factual

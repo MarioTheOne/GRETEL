@@ -54,8 +54,7 @@ class MolGenerator(Generator):
                                                             data=A, 
                                                             node_features=X, 
                                                             edge_features=W,
-                                                            graph_features={"smile":smi,"string_repp":smi,"mol":mol}, 
-                                                            dataset=self.dataset))
+                                                            graph_features={"smile":smi,"string_repp":smi,"mol":mol}))
             else:
                 skipped_molecules += 1   
                 
