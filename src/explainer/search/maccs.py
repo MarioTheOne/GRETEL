@@ -17,6 +17,17 @@ from src.evaluation.evaluation_metric_ged import GraphEditDistanceMetric
 class MACCSExplainer(Explainer):
     """Model Agnostic Counterfactual Compounds with STONED (MACCS)"""
 
+    def check_configuration(self):
+        super().check_configuration()
+
+        dst_metric='src.evaluation.evaluation_metric_ged.GraphEditDistanceMetric'  
+
+        #Check if the distance metric exist or build with its defaults:
+        init_dflts_to_of(self.local_config, 'distance_metric', dst_metric)
+
+        if not 'fold_id' in self.local_config['parameters']:
+            self.local_config['parameters']['fold_id'] = -1
+
 
     def init(self):
         super().init()
@@ -27,7 +38,7 @@ class MACCSExplainer(Explainer):
 
     def explain(self, instance):
 
-        smiles = instance.smiles
+        smiles = instance.graph_features['smile']
         clf = self._oracle_wrapper_creator(self.oracle, self.dataset)
 
         basic = exmol.get_basic_alphabet()
