@@ -1,5 +1,12 @@
 
 # GRETEL: Graph Counterfactual Explanation Evaluation Framework
+
+<div class="warning">
+We are thrilled to announce the launch of the latest iteration of our cutting-edge GRETEL framework. It brings with it a host of enhancements and improvements that elevate your user experience to new heights. The GRETEL framework currently accessible in this repository marks the final update for this particular release. To stay at the forefront of innovation and access future updates, we kindly advise you to refer to our official new repository at [http://example.com/](https://github.com/aiim-research/GRETEL).
+
+Thank you for choosing our GRETL framework. We are committed to providing you with top-notch solutions, and we look forward to serving you with even more exciting developments in the future.
+</div>
+
 ## General Information:
 Machine Learning (ML) systems are a building part of the modern tools that impact our daily life in several application domains. Due to their black-box nature, those systems are hardly adopted in application domains (e.g. health, finance) where understanding the decision process is of paramount importance. Explanation methods were developed to explain how the ML model has taken a specific decision for a given case/instance. Graph Counterfactual Explanations (GCE) is one of the explanation techniques adopted in the Graph Learning domain. The existing works on Graph Counterfactual Explanations diverge mostly in the problem definition, application domain, test data, and evaluation metrics, and most existing works do not compare exhaustively against other counterfactual explanation techniques present in the literature. Here, we release GRETEL [1,2], a unified framework to develop and test GCE methods in several settings. GRETEL [1,2] is an open-source framework for Evaluating Graph Counterfactual Explanation Methods. It is implemented using the Object-Oriented paradigm and the Factory Method design pattern. Our main goal is to create a generic platform that allows the researchers to speed up the process of developing and testing new Graph Counterfactual Explanation Methods.
 GRETEL is a highly extensible evaluation framework that promotes Open Science and the reproducibility of the evaluation by providing a set of well-defined mechanisms to integrate and manage easily: both real and synthetic datasets, ML models, state-of-the-art explanation techniques, and evaluation measures. 
