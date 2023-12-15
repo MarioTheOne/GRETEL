@@ -162,7 +162,8 @@ class CLEARExplainer(Trainable, Explainer):
                 loss_kl_cf += loss_kl_batch_cf
                 
             loss, loss_kl, loss_sim, loss_cfe, loss_kl_cf = loss / batch_num, loss_kl / batch_num, loss_sim / batch_num, loss_cfe / batch_num, loss_kl_cf / batch_num
-            self._logger.info(f'Epoch {epoch+1} ---> loss {loss}')
+            
+            self.context.logger.info(f'Epoch {epoch+1} ---> loss {loss}')
             # backward
             alpha = self.alpha if epoch >= 450 else 0
             ((loss_sim + loss_kl + alpha * loss_cfe) / batch_num).backward()        

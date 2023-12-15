@@ -59,10 +59,9 @@ class CF2Explainer(Trainable, Explainer):
                 losses.append(loss.to('cpu').detach().numpy())
                 loss.backward()
                 self.optimizer.step()
-            
-            print(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
-
-            self._fitted = True
+            self.context.logger.info(f"Epoch {epoch+1} --- loss {np.mean(losses)}")
+        
+        self._fitted = True
 
     def explain(self, instance : GraphInstance):
 
@@ -77,8 +76,19 @@ class CF2Explainer(Trainable, Explainer):
             weighted_adj = self.model._rebuild_weighted_adj(instance)
             masked_adj = self.model.get_masked_adj(weighted_adj).numpy()
             # update instance copy from masked_ajd
-            cf_instance.data = masked_adj         
-            print(f'Finished evaluating for instance {instance.id}')
+            # cf_instance.data = masked_adj        
+
+            new_adj = np.where(masked_adj != 0, 1, 0)
+            # the weights need to be an array of real numbers with
+            # length equal to the number of edges
+            row_indices, col_indices = np.where(masked_adj != 0)
+            weights = masked_adj[row_indices, col_indices]
+
+            cf_instance.data = new_adj
+            cf_instance.edge_weights = weights
+            # avoid the old nx representation
+            cf_instance._nx_repr = None
+			
             return cf_instance
 
 
@@ -106,6 +116,8 @@ class ExplainModelGraph(torch.nn.Module):
 
         cf_instance = deepcopy(graph)
         cf_instance.edge_weights = new_weights[row_indices, col_indices].detach().numpy()
+        # avoid old nx representation
+        cf_instance._nx_repr = None
         pred2 = oracle.predict(cf_instance)
 
         pred1 = torch.Tensor([pred1]).float()  # factual
