@@ -46,7 +46,12 @@ class MolGenerator(Generator):
 
         skipped_molecules = 0
         for i in range(len(data)):
-            mol, smi, sanitized = self._sanitize_smiles(data.smiles[i])
+            sanitized, g = smile2graph(i - skipped_molecules, data.smiles[i], data_labels[i], self.dataset)
+            if sanitized:
+                self.dataset.instances.append(g)
+            else:
+                skipped_molecules += 1
+            '''mol, smi, sanitized = self._sanitize_smiles(data.smiles[i])
             if sanitized:
                 A,X,W = self.mol_to_matrices(mol)
                 self.dataset.instances.append(GraphInstance(id=i - skipped_molecules, 
@@ -56,61 +61,76 @@ class MolGenerator(Generator):
                                                             edge_features=W,
                                                             graph_features={"smile":smi,"string_repp":smi,"mol":mol}))
             else:
-                skipped_molecules += 1   
-                
-    def _sanitize_smiles(self, smiles):
-        try:
-            mol = smi2mol(smiles, sanitize=True)
-            smi_canon = mol2smi(mol, isomericSmiles=False, canonical=True)
-            check = smi2mol(smi_canon)
-            # if the conversion failed
-            if check is None:
-                return None, None, False
-            return mol, smi_canon, True
-        except Exception as e:
-            return None, None, False
+                skipped_molecules += 1'''
+
+def smile2graph(id, smile, label, dataset):
+    mol, smi, sanitized = sanitize_smiles(smile)
+    g = None
+    if sanitized:
+        A,X,W = mol_to_matrices(dataset)
+        g = GraphInstance(id=id, 
+                        label=int(label), 
+                        data=A, 
+                        node_features=X, 
+                        edge_features=W,
+                        graph_features={"smile":smi,"string_repp":smi,"mol":mol})
+    return sanitized, g
+
+def mol_to_matrices(mol, dataset):
+    n_map = dataset.node_features_map
+    e_map = dataset.edge_features_map
+    atms = mol.GetAtoms()
+    bnds = mol.GetBonds()
+    n = len(atms)
+    A = np.zeros((n,n))
+    X = np.zeros((n,len(n_map)))
+    W = np.zeros((2*len(bnds),len(e_map)))
+
+    for atom in atms:
+        i = atom.GetIdx()
+        X[i,n_map['Idx']]=i
+        X[i,n_map['AtomicNum']]=atom.GetAtomicNum() #TODO: Encode the atomic number as one hot vector (118 Elements in the Table)
+        X[i,n_map['FormalCharge']]=atom.GetFormalCharge()
+        X[i,n_map['NumExplicitHs']]=atom.GetNumExplicitHs()
+        X[i,n_map['IsAromatic']]=int(atom.GetIsAromatic() == True)
+        X[i,n_map[atom.GetChiralTag().name]]= 1
+        X[i,n_map[atom.GetHybridization().name]]= 1
+
+    p=0
+    _p=len(bnds)
+    for bond in bnds:
+        A[bond.GetBeginAtomIdx(),bond.GetEndAtomIdx()] = 1
+        A[bond.GetEndAtomIdx(),bond.GetBeginAtomIdx()] = 1
+
+        W[p,e_map['Conjugated']]=int(bond.GetIsConjugated() == True)
+        W[_p,e_map['Conjugated']]=int(bond.GetIsConjugated() == True)
+
+        W[p,e_map[bond.GetBondType().name]] = 1
+        W[_p,e_map[bond.GetBondType().name]] = 1
+
+        W[p,e_map[bond.GetBondDir().name]] = 1 
+        W[_p,e_map[bond.GetBondDir().name]] = 1
+
+        W[p,e_map[bond.GetStereo().name]] = 1 
+        W[_p,e_map[bond.GetStereo().name]] = 1
+        p += 1
+        _p += 1
     
-    def mol_to_matrices(self, mol):
-        n_map = self.dataset.node_features_map
-        e_map = self.dataset.edge_features_map
-        atms = mol.GetAtoms()
-        bnds = mol.GetBonds()
-        n = len(atms)
-        A = np.zeros((n,n))
-        X = np.zeros((n,len(n_map)))
-        W = np.zeros((2*len(bnds),len(e_map)))
-
-        for atom in atms:
-            i = atom.GetIdx()
-            X[i,n_map['Idx']]=i
-            X[i,n_map['AtomicNum']]=atom.GetAtomicNum() #TODO: Encode the atomic number as one hot vector (118 Elements in the Table)
-            X[i,n_map['FormalCharge']]=atom.GetFormalCharge()
-            X[i,n_map['NumExplicitHs']]=atom.GetNumExplicitHs()
-            X[i,n_map['IsAromatic']]=int(atom.GetIsAromatic() == True)
-            X[i,n_map[atom.GetChiralTag().name]]= 1
-            X[i,n_map[atom.GetHybridization().name]]= 1
-
-        p=0
-        _p=len(bnds)
-        for bond in bnds:
-            A[bond.GetBeginAtomIdx(),bond.GetEndAtomIdx()] = 1
-            A[bond.GetEndAtomIdx(),bond.GetBeginAtomIdx()] = 1
-
-            W[p,e_map['Conjugated']]=int(bond.GetIsConjugated() == True)
-            W[_p,e_map['Conjugated']]=int(bond.GetIsConjugated() == True)
-
-            W[p,e_map[bond.GetBondType().name]] = 1
-            W[_p,e_map[bond.GetBondType().name]] = 1
-
-            W[p,e_map[bond.GetBondDir().name]] = 1 
-            W[_p,e_map[bond.GetBondDir().name]] = 1
-
-            W[p,e_map[bond.GetStereo().name]] = 1 
-            W[_p,e_map[bond.GetStereo().name]] = 1
-            p += 1
-            _p += 1
-        
-        return A,X,W
+    return A,X,W
+                
+def sanitize_smiles(smiles):
+    try:
+        mol = smi2mol(smiles, sanitize=True)
+        smi_canon = mol2smi(mol, isomericSmiles=False, canonical=True)
+        check = smi2mol(smi_canon)
+        # if the conversion failed
+        if check is None:
+            return None, None, False
+        return mol, smi_canon, True
+    except Exception as e:
+        return None, None, False
+    
+    
 
 def rdk_node_features_map():
     base_map = {"Idx":0,"AtomicNum":1,"FormalCharge":2,"NumExplicitHs":3,"IsAromatic":4}
