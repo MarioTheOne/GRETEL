@@ -1,8 +1,7 @@
 
 # GRETEL: Graph Counterfactual Explanation Evaluation Framework
 
-[!IMPORTANT]\
-We are thrilled to announce the launch of GRETEL 2.0. It brings with it a host of enhancements and improvements that elevate your user experience to new heights. The GRETEL framework currently accessible in this repository marks the final update for version 1.x. To access the new version and future updates, we kindly advise you to refer to our official new repository at (https://github.com/aiim-research/GRETEL).
+[!IMPORTANT]\ We are thrilled to announce the launch of GRETEL 2.0. It brings with it a host of enhancements and improvements that elevate your user experience to new heights. The GRETEL framework currently accessible in this repository marks the final update for version 1.x. To access the new version and future updates, we kindly advise you to refer to our official new repository at (https://github.com/aiim-research/GRETEL).
 
 Thank you for choosing our GRETEL framework. We are committed to providing you with top-notch solutions, and we look forward to serving you with even more exciting developments in the future.
 
