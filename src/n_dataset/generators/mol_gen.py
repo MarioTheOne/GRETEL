@@ -67,7 +67,7 @@ def smile2graph(id, smile, label, dataset):
     mol, smi, sanitized = sanitize_smiles(smile)
     g = None
     if sanitized:
-        A,X,W = mol_to_matrices(dataset)
+        A,X,W = mol_to_matrices(mol, dataset)
         g = GraphInstance(id=id, 
                         label=int(label), 
                         data=A, 

@@ -43,7 +43,6 @@ class OracleTorch(TorchBase, Oracle):
     @torch.no_grad()
     def _real_predict_proba(self, data_inst):
         data_inst = TorchGeometricDataset.to_geometric(data_inst)
-        print(data_inst)
         node_features = data_inst.x.to(self.device)
         edge_index = data_inst.edge_index.to(self.device)
         edge_weights = data_inst.edge_attr.to(self.device)

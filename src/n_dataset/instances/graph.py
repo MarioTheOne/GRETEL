@@ -9,8 +9,8 @@ from src.n_dataset.instances.base import DataInstance
 
 class GraphInstance(DataInstance):
 
-    def __init__(self, id, label, data, node_features=None, edge_features=None, edge_weights=None, graph_features=None):
-        super().__init__(id, label, data)
+    def __init__(self, id, label, data, node_features=None, edge_features=None, edge_weights=None, graph_features=None, dataset=None):
+        super().__init__(id, label, data, dataset=dataset)
         self.node_features = self.__init_node_features(node_features)
         self.edge_features = self.__init_edge_features(edge_features)
         self.edge_weights = self.__init_edge_weights(edge_weights)
@@ -18,6 +18,10 @@ class GraphInstance(DataInstance):
         self._nx_repr = None
 
     def __deepcopy__(self, memo):
+        # Fields that are being shallow copied
+        _dataset = self._dataset
+
+        # Fields that are deep copied
         _new_id = deepcopy(self.id, memo)
         _new_label = deepcopy(self.label, memo)
         _data = deepcopy(self.data, memo)
