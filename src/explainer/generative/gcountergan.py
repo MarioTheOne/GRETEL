@@ -12,14 +12,17 @@ class GCounteRGAN(PerClassExplainer):
         super().init()
         self.sampler: Sampler = get_instance_kvargs(self.local_config['parameters']['sampler']['class'],
                                         self.local_config['parameters']['sampler']['parameters'])
+        
+        self.send_to_device()                
 
     def explain(self, instance):
             
         with torch.no_grad():
             # here I have a dictionary of key-value pairs like this
             # { 0 : probabilistic adj matrix, 1: probabilistic adj matrix, ... , n: probabilistic adj matrix}
+         
             res = super().explain(instance)
-
+            
             embedded_features, edge_probs = dict(), dict()
             for key, prob_adj_matrix in res.items():
                 # take the node features and edge probabilities
