@@ -112,6 +112,7 @@ The easiest way to get Gretel up and running with all the dependencies is to pul
 docker pull gretel/gretel:latest
 ```
 
+docker pull pytorch/pytorch:2.1.0-cuda11.8-cudnn8-devel
 The image is based on `tensorflow/tensorflow:latest-gpu` and it's GPU ready. In order to setup the container we recommend you to run:
 
 ```
